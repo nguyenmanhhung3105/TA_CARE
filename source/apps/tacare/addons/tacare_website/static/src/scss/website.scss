@@ -1,0 +1,142 @@
+/* Màu riêng cho từng trang */
+.tc-site {
+    --tc-accent: #2563eb;
+    --tc-accent-hover: #1d4ed8;
+    --tc-soft: #eff6ff;
+    --tc-ink: #152338;
+}
+
+.tc-site.tc-profiles {
+    --tc-accent: #0f766e;
+    --tc-accent-hover: #115e59;
+    --tc-soft: #ecfdf5;
+}
+
+.tc-site.tc-hub {
+    --tc-accent: #6d28d9;
+    --tc-accent-hover: #5b21b6;
+    --tc-soft: #f5f3ff;
+}
+
+/* Chỉ áp dụng bên trong các trang của addon */
+.tc-site {
+    color: var(--tc-ink);
+    background: #fff;
+    line-height: 1.7;
+
+    h1,
+    h2,
+    h3 {
+        color: var(--tc-ink);
+        line-height: 1.2;
+    }
+
+    .tc-hero {
+        background: linear-gradient(
+            135deg,
+            var(--tc-soft) 0%,
+            #fff 85%
+        );
+    }
+
+    .tc-eyebrow {
+        font-size: 0.8rem;
+        letter-spacing: 0.08em;
+    }
+
+    .lead {
+        max-width: 42rem;
+        color: #475569;
+        line-height: 1.8;
+    }
+
+    .text-muted {
+        color: #526174 !important;
+    }
+
+    .text-primary {
+        color: var(--tc-accent) !important;
+    }
+
+    .bg-primary {
+        background-color: var(--tc-accent) !important;
+        color: #fff;
+    }
+
+    .tc-card {
+        background: #fff;
+        border-color: #e2e8f0 !important;
+        box-shadow: 0 12px 36px rgba(15, 23, 42, 0.05);
+    }
+
+    .tc-sector {
+        background: var(--tc-soft);
+        border-color: transparent !important;
+    }
+
+    .tc-business {
+        background: var(--tc-soft) !important;
+    }
+
+    .btn {
+        border-radius: 0.75rem;
+        padding: 0.8rem 1.3rem;
+        font-weight: 600;
+        transition:
+            background-color 0.2s ease,
+            color 0.2s ease;
+    }
+
+    .btn-primary {
+        color: #fff;
+        background-color: var(--tc-accent);
+        border-color: var(--tc-accent);
+
+        &:hover,
+        &:focus,
+        &:active {
+            color: #fff;
+            background-color: var(--tc-accent-hover);
+            border-color: var(--tc-accent-hover);
+        }
+    }
+
+    .btn-outline-primary {
+        color: var(--tc-accent);
+        background: transparent;
+        border-color: var(--tc-accent);
+
+        &:hover,
+        &:focus,
+        &:active {
+            color: #fff;
+            background-color: var(--tc-accent);
+            border-color: var(--tc-accent);
+        }
+    }
+
+    .btn:focus-visible {
+        outline: 3px solid var(--tc-accent);
+        outline-offset: 4px;
+    }
+
+    section[id] {
+        scroll-margin-top: 6rem;
+    }
+
+    @media (max-width: 767.98px) {
+        h1.display-4 {
+            font-size: 2.5rem;
+        }
+
+        .lead {
+            font-size: 1.1rem;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .btn {
+            transition: none;
+        }
+    }
+}

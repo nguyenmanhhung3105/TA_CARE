@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="khovieclam_home" name="TA.CARE - Kho Việc Làm">
+        <t t-call="website.layout">
+            <div id="wrap" class="tc-site tc-jobs">
+
+                <!-- PHẦN GIỚI THIỆU: sửa tiêu đề và nội dung tại đây -->
+                <section class="tc-hero py-5">
+                    <div class="container py-lg-5">
+                        <div class="row align-items-center g-5">
+                            <div class="col-lg-7">
+                                <p class="tc-eyebrow text-uppercase fw-bold">
+                                    Kho Việc Làm · Hệ sinh thái TA.CARE
+                                </p>
+
+                                <h1 class="display-4 fw-bold mb-4">
+                                    Cơ hội phù hợp.
+                                    <br/>
+                                    Bước tiến mới.
+                                </h1>
+
+                                <p class="lead mb-4">
+                                    Khám phá cơ hội việc làm và thực tập
+                                    theo kỹ năng, lĩnh vực và định hướng
+                                    nghề nghiệp của bạn.
+                                </p>
+
+                                <div class="d-flex flex-wrap gap-3">
+                                    <a href="#linh-vuc"
+                                       class="btn btn-primary btn-lg">
+                                        Khám phá lĩnh vực
+                                    </a>
+                                    <a href="/web/login"
+                                       class="btn btn-outline-primary btn-lg">
+                                        Đăng nhập
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-5">
+                                <div class="tc-card bg-white border rounded-4 p-4 p-lg-5">
+                                    <span class="badge bg-primary mb-3">
+                                        Bắt đầu từ thế mạnh của bạn
+                                    </span>
+                                    <h2 class="h3 mb-4">
+                                        Bạn muốn phát triển theo hướng nào?
+                                    </h2>
+
+                                    <div class="border-bottom pb-3 mb-3">
+                                        <h3 class="h5">Tìm cơ hội thực tập</h3>
+                                        <p class="text-muted mb-0">
+                                            Tiếp cận môi trường làm việc
+                                            và tích lũy kinh nghiệm thực tế.
+                                        </p>
+                                    </div>
+
+                                    <div class="border-bottom pb-3 mb-3">
+                                        <h3 class="h5">Tìm công việc phù hợp</h3>
+                                        <p class="text-muted mb-0">
+                                            Xác định cơ hội dựa trên
+                                            năng lực và mục tiêu nghề nghiệp.
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <h3 class="h5">Kết nối với doanh nghiệp</h3>
+                                        <p class="text-muted mb-0">
+                                            Tìm hiểu yêu cầu tuyển dụng
+                                            để chuẩn bị hồ sơ rõ ràng hơn.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- CÁC LĨNH VỰC: đây là nội dung giới thiệu -->
+                <section id="linh-vuc" class="py-5">
+                    <div class="container">
+                        <p class="tc-eyebrow text-primary fw-bold">
+                            KHÁM PHÁ LĨNH VỰC
+                        </p>
+                        <h2 class="fw-bold mb-3">
+                            Chọn hướng đi của bạn
+                        </h2>
+                        <p class="text-muted mb-4">
+                            Từ chuyên môn đang học đến công việc
+                            bạn muốn theo đuổi.
+                        </p>
+
+                        <div class="row g-3">
+                            <t t-foreach="[
+                                'Công nghệ thông tin',
+                                'Thương mại điện tử',
+                                'Logistics',
+                                'Marketing',
+                                'Kinh doanh và bán hàng',
+                                'Y tế',
+                                'Nông nghiệp và thực phẩm',
+                                'Chăm sóc khách hàng',
+                                'Nhân sự và tuyển dụng'
+                            ]" t-as="sector">
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="tc-sector border rounded-3 p-4 h-100">
+                                        <h3 class="h5 mb-0">
+                                            <t t-esc="sector"/>
+                                        </h3>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PHẦN DÀNH CHO DOANH NGHIỆP -->
+                <section class="tc-business bg-light py-5">
+                    <div class="container">
+                        <div class="row align-items-center g-4">
+                            <div class="col-lg-8">
+                                <p class="tc-eyebrow text-primary fw-bold">
+                                    DÀNH CHO DOANH NGHIỆP
+                                </p>
+                                <h2 class="fw-bold mb-3">
+                                    Nhu cầu rõ ràng, kết nối phù hợp
+                                </h2>
+                                <p class="mb-0">
+                                    Giới thiệu vị trí công việc, kỹ năng
+                                    cần có và môi trường làm việc để
+                                    ứng viên hiểu đúng cơ hội tại
+                                    doanh nghiệp của bạn.
+                                </p>
+                            </div>
+                            <div class="col-lg-4 text-lg-end">
+                                <a href="/web/login"
+                                   class="btn btn-primary btn-lg">
+                                    Đăng nhập tài khoản doanh nghiệp
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </t>
+    </template>
+
+    <!-- Trang xem thử; chưa thay thế trang chủ hiện tại -->
+    <record id="page_khovieclam_preview" model="website.page">
+        <field name="name">Kho Việc Làm - Giao diện mới</field>
+        <field name="url">/tacare-preview-khovieclam</field>
+        <field name="view_id" ref="khovieclam_home"/>
+        <field name="is_published" eval="True"/>
+    </record>
+</odoo>

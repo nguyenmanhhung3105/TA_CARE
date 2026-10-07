@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="tacare_home" name="TA.CARE - Hệ sinh thái">
+        <t t-call="website.layout">
+            <div id="wrap" class="tc-site tc-hub">
+
+                <!-- GIỚI THIỆU -->
+                <section class="tc-hero py-5">
+                    <div class="container py-lg-5">
+                        <div class="row align-items-center g-5">
+                            <div class="col-lg-8">
+                                <p class="tc-eyebrow text-uppercase fw-bold">
+                                    TA.CARE · Kết nối và phát triển
+                                </p>
+
+                                <h1 class="display-4 fw-bold mb-4">
+                                    Kết nối năng lực.
+                                    <br/>
+                                    Kiến tạo cơ hội.
+                                </h1>
+
+                                <p class="lead mb-4">
+                                    TA.CARE kết nối doanh nghiệp, sinh viên
+                                    và người tìm việc thông qua
+                                    Kho Việc Làm và Tủ Hồ Sơ.
+                                    Gắn nhu cầu thực tế với năng lực
+                                    để mỗi kết nối có một khởi đầu rõ ràng.
+                                </p>
+
+                                <div class="d-flex flex-wrap gap-3">
+                                    <a href="#he-sinh-thai"
+                                       class="btn btn-primary btn-lg">
+                                        Khám phá hệ sinh thái
+                                    </a>
+                                    <a href="/web/login"
+                                       class="btn btn-outline-primary btn-lg">
+                                        Đăng nhập
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div class="tc-card bg-white border rounded-4 p-4">
+                                    <p class="tc-eyebrow text-primary fw-bold">
+                                        HAI ĐIỂM KHỞI ĐẦU
+                                    </p>
+                                    <h2 class="h4">Doanh nghiệp có nhu cầu</h2>
+                                    <p class="text-muted">
+                                        Làm rõ công việc và năng lực
+                                        cần tìm kiếm.
+                                    </p>
+                                    <hr/>
+                                    <h2 class="h4">Ứng viên có năng lực</h2>
+                                    <p class="text-muted mb-0">
+                                        Thể hiện kỹ năng, kinh nghiệm
+                                        và mong muốn phát triển.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- HỆ SINH THÁI -->
+                <section id="he-sinh-thai" class="py-5">
+                    <div class="container">
+                        <p class="tc-eyebrow text-primary fw-bold">
+                            HỆ SINH THÁI TA.CARE
+                        </p>
+                        <h2 class="fw-bold mb-4">
+                            Bạn muốn bắt đầu từ đâu?
+                        </h2>
+
+                        <div class="row g-4">
+                            <div class="col-lg-6">
+                                <div class="tc-card border rounded-4 p-4 p-lg-5 h-100">
+                                    <span class="badge bg-primary mb-3">
+                                        Cơ hội việc làm
+                                    </span>
+                                    <h3 class="h2 fw-bold">Kho Việc Làm</h3>
+                                    <p class="text-muted mb-4">
+                                        Nơi giới thiệu nhu cầu tuyển dụng,
+                                        công việc và cơ hội thực tập.
+                                        Giúp người tìm việc hiểu yêu cầu,
+                                        giúp doanh nghiệp trình bày rõ
+                                        năng lực cần có.
+                                    </p>
+                                    <a t-att-href="khovieclam_url"
+                                       class="btn btn-outline-primary">
+                                        Tìm hiểu Kho Việc Làm
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="tc-card border rounded-4 p-4 p-lg-5 h-100">
+                                    <span class="badge bg-primary mb-3">
+                                        Hồ sơ năng lực
+                                    </span>
+                                    <h3 class="h2 fw-bold">Tủ Hồ Sơ</h3>
+                                    <p class="text-muted mb-4">
+                                        Nơi giới thiệu học vấn, kỹ năng,
+                                        kinh nghiệm và dự án cá nhân.
+                                        Giúp mỗi người thể hiện thế mạnh
+                                        bằng thông tin rõ ràng và
+                                        minh chứng cụ thể.
+                                    </p>
+                                    <a t-att-href="tuhoso_url"
+                                       class="btn btn-outline-primary">
+                                        Tìm hiểu Tủ Hồ Sơ
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ĐỊNH HƯỚNG -->
+                <section class="tc-business bg-light py-5">
+                    <div class="container">
+                        <h2 class="fw-bold mb-4">
+                            Kết nối bắt đầu từ sự thấu hiểu
+                        </h2>
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <p class="tc-eyebrow text-primary fw-bold">01</p>
+                                <h3 class="h5">Hiểu nhu cầu</h3>
+                                <p class="text-muted mb-0">
+                                    Công việc rõ ràng, yêu cầu cụ thể
+                                    và kỳ vọng được chia sẻ.
+                                </p>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="tc-eyebrow text-primary fw-bold">02</p>
+                                <h3 class="h5">Hiểu năng lực</h3>
+                                <p class="text-muted mb-0">
+                                    Hồ sơ thể hiện những gì ứng viên
+                                    biết, đã làm và muốn phát triển.
+                                </p>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="tc-eyebrow text-primary fw-bold">03</p>
+                                <h3 class="h5">Hướng đến sự phù hợp</h3>
+                                <p class="text-muted mb-0">
+                                    Tạo cơ sở để hai bên tìm hiểu
+                                    và lựa chọn cơ hội hợp tác.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </t>
+    </template>
+
+    <record id="page_tacare_preview" model="website.page">
+        <field name="name">TA.CARE - Giao diện mới</field>
+        <field name="url">/tacare-preview</field>
+        <field name="view_id" ref="tacare_home"/>
+        <field name="is_published" eval="True"/>
+    </record>
+</odoo>

@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="tuhoso_home" name="TA.CARE - Tủ Hồ Sơ">
+        <t t-call="website.layout">
+            <div id="wrap" class="tc-site tc-profiles">
+
+                <!-- GIỚI THIỆU: sửa chữ tại đây -->
+                <section class="tc-hero py-5">
+                    <div class="container py-lg-5">
+                        <div class="row align-items-center g-5">
+                            <div class="col-lg-7">
+                                <p class="tc-eyebrow text-uppercase fw-bold">
+                                    Tủ Hồ Sơ · Hệ sinh thái TA.CARE
+                                </p>
+
+                                <h1 class="display-4 fw-bold mb-4">
+                                    Thể hiện năng lực.
+                                    <br/>
+                                    Mở rộng cơ hội.
+                                </h1>
+
+                                <p class="lead mb-4">
+                                    Tập hợp học vấn, kỹ năng, kinh nghiệm
+                                    và những dự án bạn đã thực hiện.
+                                    Giới thiệu bản thân bằng một hồ sơ
+                                    rõ ràng, có minh chứng.
+                                </p>
+
+                                <div class="d-flex flex-wrap gap-3">
+                                    <a href="/web/login"
+                                       class="btn btn-primary btn-lg">
+                                        Đăng nhập
+                                    </a>
+                                    <a href="#ho-so-nang-luc"
+                                       class="btn btn-outline-primary btn-lg">
+                                        Tìm hiểu hồ sơ năng lực
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-5">
+                                <div class="tc-card bg-white border rounded-4 p-4 p-lg-5">
+                                    <span class="badge bg-primary mb-3">
+                                        Mỗi trải nghiệm đều có giá trị
+                                    </span>
+                                    <h2 class="h3 mb-4">
+                                        Để doanh nghiệp hiểu bạn hơn
+                                    </h2>
+
+                                    <div class="border-bottom pb-3 mb-3">
+                                        <h3 class="h5">Bạn biết những gì?</h3>
+                                        <p class="text-muted mb-0">
+                                            Thể hiện kiến thức chuyên môn,
+                                            kỹ năng và công cụ bạn sử dụng.
+                                        </p>
+                                    </div>
+
+                                    <div class="border-bottom pb-3 mb-3">
+                                        <h3 class="h5">Bạn đã làm được gì?</h3>
+                                        <p class="text-muted mb-0">
+                                            Giới thiệu dự án, sản phẩm
+                                            và kinh nghiệm thực tế.
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <h3 class="h5">Bạn muốn đi đến đâu?</h3>
+                                        <p class="text-muted mb-0">
+                                            Chia sẻ công việc mong muốn
+                                            và định hướng phát triển.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- CÁC THÀNH PHẦN CỦA HỒ SƠ -->
+                <section id="ho-so-nang-luc" class="py-5">
+                    <div class="container">
+                        <p class="tc-eyebrow text-primary fw-bold">
+                            HỒ SƠ NĂNG LỰC
+                        </p>
+                        <h2 class="fw-bold mb-3">
+                            Kể câu chuyện của bạn bằng những điều cụ thể
+                        </h2>
+                        <p class="text-muted mb-4">
+                            Bắt đầu từ những gì bạn đang có,
+                            bổ sung khi bạn có thêm trải nghiệm.
+                        </p>
+
+                        <div class="row g-4">
+                            <div class="col-md-6 col-lg-4">
+                                <div class="tc-card border rounded-4 p-4 h-100">
+                                    <h3 class="h5">Học vấn</h3>
+                                    <p class="text-muted mb-0">
+                                        Ngành học, chương trình đào tạo
+                                        và những kiến thức liên quan
+                                        đến công việc bạn hướng tới.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-4">
+                                <div class="tc-card border rounded-4 p-4 h-100">
+                                    <h3 class="h5">Kỹ năng</h3>
+                                    <p class="text-muted mb-0">
+                                        Chuyên môn, ngoại ngữ, công cụ
+                                        và khả năng phối hợp trong
+                                        học tập, công việc.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-4">
+                                <div class="tc-card border rounded-4 p-4 h-100">
+                                    <h3 class="h5">Dự án và sản phẩm</h3>
+                                    <p class="text-muted mb-0">
+                                        Bài tập lớn, dự án cá nhân hoặc
+                                        dự án nhóm, kèm vai trò và
+                                        kết quả bạn đóng góp.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-4">
+                                <div class="tc-card border rounded-4 p-4 h-100">
+                                    <h3 class="h5">Kinh nghiệm</h3>
+                                    <p class="text-muted mb-0">
+                                        Công việc, kỳ thực tập và
+                                        các nhiệm vụ thực tế giúp
+                                        bạn tích lũy năng lực.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-4">
+                                <div class="tc-card border rounded-4 p-4 h-100">
+                                    <h3 class="h5">Minh chứng</h3>
+                                    <p class="text-muted mb-0">
+                                        Chứng chỉ, sản phẩm hoặc
+                                        tài liệu làm rõ những
+                                        năng lực bạn giới thiệu.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-4">
+                                <div class="tc-card border rounded-4 p-4 h-100">
+                                    <h3 class="h5">Định hướng nghề nghiệp</h3>
+                                    <p class="text-muted mb-0">
+                                        Lĩnh vực quan tâm, vị trí
+                                        mong muốn và mục tiêu
+                                        phát triển tiếp theo.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- LỜI MỜI BẮT ĐẦU -->
+                <section class="tc-business bg-light py-5">
+                    <div class="container">
+                        <div class="row align-items-center g-4">
+                            <div class="col-lg-8">
+                                <p class="tc-eyebrow text-primary fw-bold">
+                                    HÀNH TRÌNH CỦA BẠN
+                                </p>
+                                <h2 class="fw-bold mb-3">
+                                    Chưa nhiều kinh nghiệm?
+                                    Bắt đầu từ một dự án nhỏ.
+                                </h2>
+                                <p class="mb-0">
+                                    Một bài tập, một sản phẩm tự làm
+                                    hay một hoạt động nhóm đều có thể
+                                    giúp bạn thể hiện cách học,
+                                    cách làm và tinh thần trách nhiệm.
+                                </p>
+                            </div>
+
+                            <div class="col-lg-4 text-lg-end">
+                                <a href="/web/login"
+                                   class="btn btn-primary btn-lg">
+                                    Đăng nhập Tủ Hồ Sơ
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </t>
+    </template>
+
+    <!-- Trang xem thử; chưa thay thế trang chủ hiện tại -->
+    <record id="page_tuhoso_preview" model="website.page">
+        <field name="name">Tủ Hồ Sơ - Giao diện mới</field>
+        <field name="url">/tacare-preview-tuhoso</field>
+        <field name="view_id" ref="tuhoso_home"/>
+        <field name="is_published" eval="True"/>
+    </record>
+</odoo>
