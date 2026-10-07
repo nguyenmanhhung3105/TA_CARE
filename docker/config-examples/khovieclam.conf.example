@@ -1,0 +1,18 @@
+[options]
+db_host = db
+db_port = 5432
+db_user = odoo
+db_password = CHANGE_ME_ODOO_LOCAL_ONLY
+db_name = khovieclam_local
+dbfilter = ^khovieclam_local$
+list_db = False
+addons_path = /opt/odoo/odoo-server/addons
+data_dir = /var/lib/odoo
+http_interface = 0.0.0.0
+http_port = 8069
+workers = 0
+max_cron_threads = 0
+proxy_mode = False
+smtp_server = 127.0.0.1
+smtp_port = 1
+

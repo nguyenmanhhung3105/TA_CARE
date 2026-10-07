@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_users_tacare_access" model="ir.ui.view">
+        <field name="name">res.users.tacare.website.access</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page name="tacare_access" string="Quyền website TA.CARE" groups="base.group_system">
+                    <group>
+                        <field name="tacare_account_role" invisible="not share"/>
+                        <field name="tacare_allowed_website_ids" widget="many2many_tags" readonly="1"/>
+                    </group>
+                    <div class="alert alert-info">
+                        Tài khoản Portal chưa cấp vai trò sẽ bị chặn đăng nhập.
+                        Tài khoản nội bộ tiếp tục dùng quyền Odoo hiện có.
+                        Website phải có Domain đúng và bật Shared Customer Accounts.
+                    </div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

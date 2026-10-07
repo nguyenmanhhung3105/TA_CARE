@@ -1,0 +1,98 @@
+{
+  "services": {
+    "db": {
+      "networks": [
+        "default",
+        "isolated"
+      ]
+    },
+    "tacare": {
+      "image": "tacare-odoo-local:19",
+      "command": [
+        "-c",
+        "/etc/odoo/local.conf"
+      ],
+      "depends_on": {
+        "db": {
+          "condition": "service_healthy"
+        }
+      },
+      "volumes": [
+        "./source/odoo-server:/opt/odoo/odoo-server",
+        "./source/apps/tacare/addons:/mnt/extra-addons",
+        "./docker/local-config/tacare.conf:/etc/odoo/local.conf:ro",
+        "./runtime/tacare:/var/lib/odoo"
+      ],
+      "networks": [
+        "isolated"
+      ]
+    },
+    "khovieclam": {
+      "image": "tacare-odoo-local:19",
+      "command": [
+        "-c",
+        "/etc/odoo/local.conf"
+      ],
+      "depends_on": {
+        "db": {
+          "condition": "service_healthy"
+        }
+      },
+      "volumes": [
+        "./source/odoo-server:/opt/odoo/odoo-server",
+        "./source/apps/khovieclam/addons:/mnt/extra-addons",
+        "./docker/local-config/khovieclam.conf:/etc/odoo/local.conf:ro",
+        "./runtime/khovieclam:/var/lib/odoo"
+      ],
+      "networks": [
+        "isolated"
+      ]
+    },
+    "tuhoso": {
+      "image": "tacare-odoo-local:19",
+      "command": [
+        "-c",
+        "/etc/odoo/local.conf"
+      ],
+      "depends_on": {
+        "db": {
+          "condition": "service_healthy"
+        }
+      },
+      "volumes": [
+        "./source/odoo-server:/opt/odoo/odoo-server",
+        "./source/apps/tuhoso/addons:/mnt/extra-addons",
+        "./docker/local-config/tuhoso.conf:/etc/odoo/local.conf:ro",
+        "./runtime/tuhoso:/var/lib/odoo"
+      ],
+      "networks": [
+        "isolated"
+      ]
+    },
+    "gateway": {
+      "image": "nginx:stable-alpine",
+      "ports": [
+        "127.0.0.1:8069:8069",
+        "127.0.0.1:8070:8070",
+        "127.0.0.1:8071:8071"
+      ],
+      "volumes": [
+        "./docker/local-nginx.conf:/etc/nginx/conf.d/default.conf:ro"
+      ],
+      "networks": [
+        "default",
+        "isolated"
+      ],
+      "depends_on": [
+        "tacare",
+        "khovieclam",
+        "tuhoso"
+      ]
+    }
+  },
+  "networks": {
+    "isolated": {
+      "internal": true
+    }
+  }
+}
