@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="rule_job_business_own_organization" model="ir.rule">
+    <field name="name">TA.CARE business jobs in active organizations</field>
+    <field name="model_id" ref="hr.model_hr_job"/>
+    <field name="groups" eval="[(4, ref('tacare_account_access.group_tacare_business'))]"/>
+    <field name="domain_force">[('company_id', 'in', user.company_ids.ids), ('tacare_owner_partner_id', 'in', user.care_organization_ids.ids)]</field>
+  </record>
+  <record id="rule_job_skill_business_own_organization" model="ir.rule">
+    <field name="name">TA.CARE business job skills in active organizations</field>
+    <field name="model_id" ref="hr_skills.model_hr_job_skill"/>
+    <field name="groups" eval="[(4, ref('tacare_account_access.group_tacare_business'))]"/>
+    <field name="domain_force">[('job_id.company_id', 'in', user.company_ids.ids), ('job_id.tacare_owner_partner_id', 'in', user.care_organization_ids.ids)]</field>
+  </record>
+  <record id="rule_org_member_business_self" model="ir.rule">
+    <field name="name">TA.CARE business sees own membership</field>
+    <field name="model_id" ref="model_care_org_member"/>
+    <field name="groups" eval="[(4, ref('tacare_account_access.group_tacare_business'))]"/>
+    <field name="domain_force">[('user_id', '=', user.id)]</field>
+  </record>
+  <record id="rule_job_revision_business_organization" model="ir.rule">
+    <field name="name">TA.CARE business sees own job revisions</field>
+    <field name="model_id" ref="model_care_job_revision"/>
+    <field name="groups" eval="[(4, ref('tacare_account_access.group_tacare_business'))]"/>
+    <field name="domain_force">[('job_id.company_id', 'in', user.company_ids.ids), ('job_id.tacare_owner_partner_id', 'in', user.care_organization_ids.ids)]</field>
+  </record>
+  <record id="rule_profile_candidate_self" model="ir.rule">
+    <field name="name">TA.CARE candidate own profile</field>
+    <field name="model_id" ref="model_tacare_profile"/>
+    <field name="groups" eval="[(4, ref('tacare_account_access.group_tacare_candidate'))]"/>
+    <field name="domain_force">[('user_id', '=', user.id)]</field>
+  </record>
+  <record id="rule_skill_candidate_self" model="ir.rule">
+    <field name="name">TA.CARE candidate own skills</field>
+    <field name="model_id" ref="model_tacare_profile_skill"/>
+    <field name="groups" eval="[(4, ref('tacare_account_access.group_tacare_candidate'))]"/>
+    <field name="domain_force">[('profile_id.user_id', '=', user.id)]</field>
+  </record>
+  <record id="rule_evidence_candidate_self" model="ir.rule">
+    <field name="name">TA.CARE candidate own evidence</field>
+    <field name="model_id" ref="model_tacare_profile_evidence"/>
+    <field name="groups" eval="[(4, ref('tacare_account_access.group_tacare_candidate'))]"/>
+    <field name="domain_force">[('profile_id.user_id', '=', user.id)]</field>
+  </record>
+  <record id="rule_capability_candidate_self" model="ir.rule">
+    <field name="name">TA.CARE candidate own capabilities</field>
+    <field name="model_id" ref="model_care_profile_capability"/>
+    <field name="groups" eval="[(4, ref('tacare_account_access.group_tacare_candidate'))]"/>
+    <field name="domain_force">[('profile_id.user_id', '=', user.id)]</field>
+  </record>
+  <record id="rule_availability_candidate_self" model="ir.rule">
+    <field name="name">TA.CARE candidate own availability</field>
+    <field name="model_id" ref="model_care_availability"/>
+    <field name="groups" eval="[(4, ref('tacare_account_access.group_tacare_candidate'))]"/>
+    <field name="domain_force">[('profile_id.user_id', '=', user.id)]</field>
+  </record>
+  <record id="rule_service_area_candidate_self" model="ir.rule">
+    <field name="name">TA.CARE candidate own service areas</field>
+    <field name="model_id" ref="model_care_service_area"/>
+    <field name="groups" eval="[(4, ref('tacare_account_access.group_tacare_candidate'))]"/>
+    <field name="domain_force">[('profile_id.user_id', '=', user.id)]</field>
+  </record>
+  <record id="rule_preference_candidate_self" model="ir.rule">
+    <field name="name">TA.CARE candidate own preferences</field>
+    <field name="model_id" ref="model_care_preference"/>
+    <field name="groups" eval="[(4, ref('tacare_account_access.group_tacare_candidate'))]"/>
+    <field name="domain_force">[('profile_id.user_id', '=', user.id)]</field>
+  </record>
+  <record id="rule_document_candidate_self" model="ir.rule">
+    <field name="name">TA.CARE candidate own document metadata</field>
+    <field name="model_id" ref="model_care_document"/>
+    <field name="groups" eval="[(4, ref('tacare_account_access.group_tacare_candidate'))]"/>
+    <field name="domain_force">[('profile_id.user_id', '=', user.id)]</field>
+  </record>
+  <record id="rule_consent_candidate_self" model="ir.rule">
+    <field name="name">TA.CARE candidate own consent</field>
+    <field name="model_id" ref="model_care_consent"/>
+    <field name="groups" eval="[(4, ref('tacare_account_access.group_tacare_candidate'))]"/>
+    <field name="domain_force">[('profile_id.user_id', '=', user.id)]</field>
+  </record>
+</odoo>

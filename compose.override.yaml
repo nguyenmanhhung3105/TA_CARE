@@ -27,48 +27,6 @@
         "isolated"
       ]
     },
-    "khovieclam": {
-      "image": "tacare-odoo-local:19",
-      "command": [
-        "-c",
-        "/etc/odoo/local.conf"
-      ],
-      "depends_on": {
-        "db": {
-          "condition": "service_healthy"
-        }
-      },
-      "volumes": [
-        "./source/odoo-server:/opt/odoo/odoo-server",
-        "./source/apps/khovieclam/addons:/mnt/extra-addons",
-        "./docker/local-config/khovieclam.conf:/etc/odoo/local.conf:ro",
-        "./runtime/khovieclam:/var/lib/odoo"
-      ],
-      "networks": [
-        "isolated"
-      ]
-    },
-    "tuhoso": {
-      "image": "tacare-odoo-local:19",
-      "command": [
-        "-c",
-        "/etc/odoo/local.conf"
-      ],
-      "depends_on": {
-        "db": {
-          "condition": "service_healthy"
-        }
-      },
-      "volumes": [
-        "./source/odoo-server:/opt/odoo/odoo-server",
-        "./source/apps/tuhoso/addons:/mnt/extra-addons",
-        "./docker/local-config/tuhoso.conf:/etc/odoo/local.conf:ro",
-        "./runtime/tuhoso:/var/lib/odoo"
-      ],
-      "networks": [
-        "isolated"
-      ]
-    },
     "gateway": {
       "image": "nginx:stable-alpine",
       "ports": [
@@ -84,9 +42,7 @@
         "isolated"
       ],
       "depends_on": [
-        "tacare",
-        "khovieclam",
-        "tuhoso"
+        "tacare"
       ]
     }
   },

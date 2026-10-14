@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_hr_job_form_care" model="ir.ui.view">
+    <field name="name">hr.job.form.tacare</field>
+    <field name="model">hr.job</field>
+    <field name="inherit_id" ref="hr.view_hr_job_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//page[@name='job_description_page']" position="after">
+        <page name="tacare_page" string="TA.CARE" groups="base.group_system">
+          <group>
+            <group string="Tổ chức và trạng thái">
+              <field name="tacare_owner_partner_id"/>
+              <field name="tacare_owner_user_id"/>
+              <field name="tacare_status"/>
+              <field name="care_revision" readonly="1"/>
+              <field name="care_matching_enabled"/>
+            </group>
+            <group string="Điều kiện cơ hội">
+              <field name="tacare_sector"/>
+              <field name="tacare_type"/>
+              <field name="tacare_mode"/>
+              <field name="tacare_location"/>
+              <field name="tacare_deadline"/>
+              <field name="care_experience_min"/>
+              <field name="care_salary_min"/>
+              <field name="care_salary_max"/>
+              <field name="care_currency_id"/>
+            </group>
+          </group>
+          <group string="Lịch sử chỉnh sửa">
+            <field name="care_revision_ids" readonly="1">
+              <list>
+                <field name="version"/>
+                <field name="state"/>
+                <field name="submitted_by"/>
+                <field name="reviewed_by"/>
+                <field name="reviewed_at"/>
+              </list>
+            </field>
+          </group>
+        </page>
+      </xpath>
+    </field>
+  </record>
+</odoo>

@@ -1,11 +1,13 @@
 from urllib.parse import urlsplit
-from odoo import api, fields, models, _
-from odoo.exceptions import AccessDenied
+from odoo import api, fields, models, _, Command
+from odoo.exceptions import AccessDenied, AccessError
 from odoo.http import request
 
 ROLE_HOSTS = {
-    'business': {'khovieclam.vn', 'tacare.vn'},
-    'candidate': {'tuhoso.com', 'tacare.vn'},
+    'business': {'khovieclam.vn', 'www.khovieclam.vn', 'tacare.vn', 'www.tacare.vn',
+                 'khovieclam.localhost', 'tacare.localhost'},
+    'candidate': {'tuhoso.com', 'www.tuhoso.com', 'tacare.vn', 'www.tacare.vn',
+                  'tuhoso.localhost', 'tacare.localhost'},
     'pending': set(),
 }
 
@@ -31,6 +33,40 @@ class ResUsers(models.Model):
         'website', compute='_compute_tacare_websites', compute_sudo=True,
         string='Website được phép', groups='base.group_system',
     )
+
+    def _tacare_sync_role_groups(self):
+        business = self.env.ref('tacare_account_access.group_tacare_business', raise_if_not_found=False)
+        candidate = self.env.ref('tacare_account_access.group_tacare_candidate', raise_if_not_found=False)
+        if not business or not candidate:
+            return
+        for user in self.sudo():
+            desired = {'business': business, 'candidate': candidate}.get(user.tacare_account_role)
+            commands = [Command.unlink(group.id) for group in (business | candidate) if group in user.group_ids]
+            if desired:
+                internal = self.env.ref('base.group_user')
+                if internal in user.group_ids:
+                    commands.append(Command.unlink(internal.id))
+                commands.append(Command.link(desired.id))
+            if commands:
+                user.with_context(tacare_sync_role=True).write({'group_ids': commands})
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        if any('tacare_account_role' in vals and vals['tacare_account_role'] != 'pending' for vals in vals_list):
+            if not self.env.user.has_group('base.group_system') and not self.env.su:
+                raise AccessError('Chỉ quản trị được cấp vai trò TA.CARE.')
+        users = super().create(vals_list)
+        users._tacare_sync_role_groups()
+        return users
+
+    def write(self, vals):
+        if 'tacare_account_role' in vals and not self.env.context.get('tacare_sync_role'):
+            if not self.env.user.has_group('base.group_system') and not self.env.su:
+                raise AccessError('Chỉ quản trị được cấp vai trò TA.CARE.')
+        result = super().write(vals)
+        if 'tacare_account_role' in vals and not self.env.context.get('tacare_sync_role'):
+            self._tacare_sync_role_groups()
+        return result
 
     @api.depends('tacare_account_role')
     def _compute_tacare_websites(self):
