@@ -4,9 +4,9 @@
     <t t-call="website.layout">
       <t t-set="no_header" t-value="True"/>
       <t t-set="no_footer" t-value="True"/>
-      <div id="wrap" t-att-class="'tc-live tc-%s' % site">
+      <div id="wrap" t-att-class="'tc-live tc-%s %s' % (site, {'khovieclam': 'tc-jobs', 'tuhoso': 'tc-profiles', 'tacare': 'tc-hub'}[site])">
         <a class="tc-skip" href="#tc-main">Đến nội dung chính</a>
-        <div class="tc-demo-note"><div class="tc-container tc-demo-inner"><span>TA.CARE · BẢN DEV LOCAL</span><span>Dữ liệu đang lưu trong Odoo <strong>tacare_local</strong></span></div></div>
+        <div t-if="request.httprequest.host.split(':', 1)[0].endswith('.localhost')" class="tc-demo-note"><div class="tc-container tc-demo-inner"><span>TA.CARE · BẢN DEV LOCAL</span><span>Dữ liệu đang lưu trong Odoo <strong>tacare_local</strong></span></div></div>
         <header class="tc-header">
           <div class="tc-container tc-header-inner">
             <a t-att-href="urls[site]" class="tc-brand">
@@ -45,7 +45,7 @@
           <div t-if="notice" class="tc-alert" role="status">Đã cập nhật dữ liệu thành công.</div>
           <t t-out="0"/>
         </main>
-        <footer class="tc-footer"><div class="tc-container">TA.CARE · Website Odoo local. Nội dung công khai có thể xem; thao tác ghi dữ liệu yêu cầu đăng nhập và đúng vai trò.</div></footer>
+        <footer class="tc-footer"><div class="tc-container">TA.CARE · Nội dung công khai có thể xem; thao tác ghi dữ liệu yêu cầu đăng nhập và đúng vai trò.</div></footer>
       </div>
     </t>
   </template>

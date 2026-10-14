@@ -51,6 +51,12 @@ The live Odoo pages now follow the standalone design's type scale and spacing. A
 
 The `tacare_local` database was backed up to ignored `backups/tacare_local_before_ui_20261015.dump` before updating `tacare_website`. Chrome checked all three home pages and the jobs list at 1440px and 390px: HTTP 200, expected heading fonts and no horizontal overflow. The current [jobs desktop](screenshots/odoo-jobs.png) and [jobs mobile](screenshots/odoo-jobs-mobile.png) captures are included with the refreshed home page screenshots. No jobs or accounts were added for this visual update.
 
+## Production homepage probe contract
+
+The GitHub Actions workflow at `.github/workflows/deploy-tacare.yml` deploys pushes to `main` through the existing server script. Its isolated staging HTTP probe expects `tc-hub` on the TA.CARE homepage, `tc-jobs` on Kho Việc Làm and `tc-profiles` on Tủ Hồ Sơ. The active `live_home` template inherits `live_layout`, so these marker classes belong on the rendered layout's `#wrap`. Keep them when changing the homepage. The DEV database banner is shown only on `*.localhost`; production uses the same layout without the local database label. The server's deploy scripts are outside this repository and were not changed here.
+
+After a local addon update, run `python3 source/apps/tacare/addons/tacare_website/tests/homepage_contract_smoke.py` to check the same three markers and all three login pages through HTTP. This only checks local Odoo; the server's isolated staging and production gates still run when a commit is pushed to `main`.
+
 ## Current limits
 
 - The structured capability, availability, service area, preference, document, OCR, match snapshot, feedback, audit and integration models are installed but have no complete user flow yet. CV upload, OCR processing, verifier workflow and cross-domain SSO are not implemented.
