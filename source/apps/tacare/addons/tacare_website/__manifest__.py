@@ -26,6 +26,8 @@
             "tacare_website/static/src/scss/live.scss",
             "tacare_website/static/src/scss/live_polish.scss",
             "tacare_website/static/src/scss/kvl.scss",
+            "tacare_website/static/src/scss/approved_design.scss",
+            "tacare_website/static/src/scss/site_structures.scss",
             "tacare_website/static/src/js/kvl_form.js",
         ],
     },
