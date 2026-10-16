@@ -35,6 +35,7 @@ class CareAuditEvent(models.Model):
     target_res_id = fields.Integer(required=True)
     occurred_at = fields.Datetime(required=True, default=fields.Datetime.now)
     reason = fields.Char()
+    changes = fields.Json(default=dict, string='Dữ liệu thay đổi')
     correlation_id = fields.Char(index=True)
 
     def write(self, vals):

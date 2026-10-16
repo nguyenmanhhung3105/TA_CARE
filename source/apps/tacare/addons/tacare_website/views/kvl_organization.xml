@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="kvl_organization_form" name="Kho việc làm · Thông tin tổ chức">
+    <t t-call="tacare_website.live_layout">
+      <p class="tc-breadcrumb"><a href="/kvl/manage">Quản lý tin</a> / <span t-esc="organization.name"/></p>
+      <div class="tc-page-head"><p class="tc-eyebrow">TỔ CHỨC TUYỂN DỤNG</p><h1 t-esc="organization.name"/><p>Lĩnh vực hoạt động của doanh nghiệp được quản lý riêng với ngành nghề của từng tin.</p></div>
+      <form t-att-action="'/kvl/organization/%s/save' % organization.id" method="post" class="tc-card tc-kvl-form">
+        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+        <label>Thị trường / phạm vi hoạt động<input name="market_scope" maxlength="160" t-att-value="organization.care_market_scope or ''" placeholder="Ví dụ: Việt Nam, Đông Nam Á"/></label>
+        <fieldset class="tc-kvl-sector-list"><legend>Lĩnh vực hoạt động</legend>
+          <label t-foreach="job_sectors" t-as="sector" class="tc-check"><input type="checkbox" name="sector_ids" t-att-value="sector.id" t-att-checked="'checked' if sector in organization.care_business_sector_ids else None"/><span t-esc="sector.name"/></label>
+        </fieldset>
+        <button class="tc-button" type="submit">Lưu thông tin</button>
+      </form>
+    </t>
+  </template>
+</odoo>

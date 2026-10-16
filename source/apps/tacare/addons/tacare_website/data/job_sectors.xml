@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+  <record id="sector_it" model="care.job.sector"><field name="code">it</field><field name="name">Công nghệ thông tin</field></record>
+  <record id="sector_ecommerce" model="care.job.sector"><field name="code">ecommerce</field><field name="name">Thương mại điện tử</field></record>
+  <record id="sector_logistics" model="care.job.sector"><field name="code">logistics</field><field name="name">Logistics</field></record>
+  <record id="sector_sales" model="care.job.sector"><field name="code">sales</field><field name="name">Kinh doanh</field></record>
+  <record id="sector_marketing" model="care.job.sector"><field name="code">marketing</field><field name="name">Marketing</field></record>
+  <record id="sector_health" model="care.job.sector"><field name="code">health</field><field name="name">Y tế</field></record>
+  <record id="sector_food" model="care.job.sector"><field name="code">food</field><field name="name">Nông nghiệp / thực phẩm</field></record>
+  <record id="sector_support" model="care.job.sector"><field name="code">support</field><field name="name">Chăm sóc khách hàng</field></record>
+  <record id="sector_hr" model="care.job.sector"><field name="code">hr</field><field name="name">Nhân sự / tuyển dụng</field></record>
+</odoo>

@@ -21,6 +21,8 @@ class ResPartner(models.Model):
         ('suspended', 'Tạm ngừng'),
     ], default='unreviewed')
     care_company_intro = fields.Html(sanitize=True)
+    care_business_sector_ids = fields.Many2many('care.job.sector', string='Lĩnh vực hoạt động')
+    care_market_scope = fields.Char(string='Thị trường / phạm vi hoạt động')
 
 
 class Website(models.Model):
@@ -66,6 +68,8 @@ class CareOrgMember(models.Model):
                              ('viewer', 'Người xem')], required=True, default='recruiter')
     state = fields.Selection([('invited', 'Đã mời'), ('active', 'Đang hoạt động'),
                               ('suspended', 'Tạm ngừng')], required=True, default='invited')
+    can_manage_jobs = fields.Boolean(string='Quản lý tin tuyển dụng')
+    can_handle_candidates = fields.Boolean(string='Xử lý ứng viên')
 
     _unique_member = models.Constraint(
         'unique(company_id, organization_id, user_id)',

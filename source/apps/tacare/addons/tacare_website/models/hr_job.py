@@ -24,6 +24,24 @@ class HrJob(models.Model):
     tacare_owner_partner_id = fields.Many2one('res.partner', index=True, copy=False)
     tacare_owner_user_id = fields.Many2one('res.users', copy=False)
     tacare_sector = fields.Selection(SECTORS)
+    care_sector_id = fields.Many2one('care.job.sector', string='Ngành nghề tuyển dụng', ondelete='restrict')
+    care_position = fields.Char(string='Vị trí tuyển dụng')
+    care_level = fields.Selection([('intern', 'Thực tập'), ('junior', 'Mới bắt đầu'),
+                                   ('middle', 'Có kinh nghiệm'), ('senior', 'Chuyên gia')])
+    care_work_fraction = fields.Selection([('full', 'Toàn thời gian'), ('part', 'Bán thời gian'),
+                                           ('flexible', 'Linh hoạt')])
+    care_days_per_week = fields.Integer(string='Số ngày mỗi tuần')
+    care_duration_months = fields.Integer(string='Thời lượng (tháng)')
+    care_shift_note = fields.Char(string='Ca làm việc')
+    care_income_type = fields.Selection([('salary', 'Lương'), ('allowance', 'Trợ cấp'),
+                                         ('negotiable', 'Thỏa thuận'), ('unpaid', 'Không trả')])
+    care_income_period = fields.Selection([('month', 'Tháng'), ('hour', 'Giờ'),
+                                           ('project', 'Dự án')])
+    care_requires_travel = fields.Boolean(string='Cần di chuyển')
+    care_requires_license = fields.Boolean(string='Cần giấy phép lái xe')
+    care_requires_portfolio = fields.Boolean(string='Cần portfolio')
+    care_requires_clinical = fields.Boolean(string='Cần thực hành lâm sàng')
+    care_requirement_ids = fields.One2many('care.job.requirement', 'job_id', string='Điều kiện tuyển dụng')
     tacare_type = fields.Selection(TYPES)
     tacare_mode = fields.Selection(MODES)
     tacare_location = fields.Char()
@@ -81,7 +99,21 @@ class HrJob(models.Model):
                                        'skill_level_id': level.id,
                                        'care_mandatory': mandatory})
 
-    @api.constrains('care_experience_min', 'care_salary_min', 'care_salary_max', 'tacare_start', 'tacare_deadline')
+    def _care_sync_requirement_skills(self):
+        skill_model = self.env['hr.skill'].sudo()
+        type_model = self.env['hr.skill.type'].sudo()
+        for item in self.mapped('care_requirement_ids').filtered(
+                lambda row: row.category in ('technical', 'soft', 'tool', 'language') and not row.skill_id):
+            skill = skill_model.search([('name', '=ilike', item.name)], limit=1)
+            if not skill:
+                skill_type = type_model.search([('name', '=', 'TA.CARE')], limit=1)
+                if not skill_type:
+                    skill_type = type_model.create({'name': 'TA.CARE'})
+                skill = skill_model.create({'name': item.name, 'skill_type_id': skill_type.id})
+            item.sudo().write({'skill_id': skill.id})
+
+    @api.constrains('care_experience_min', 'care_salary_min', 'care_salary_max', 'tacare_start',
+                   'tacare_deadline', 'care_days_per_week', 'care_duration_months')
     def _check_care_requirements(self):
         for job in self:
             if job.care_experience_min < 0 or job.care_salary_min < 0 or job.care_salary_max < 0:
@@ -90,3 +122,23 @@ class HrJob(models.Model):
                 raise ValidationError('Mức thù lao cao nhất phải từ mức thấp nhất trở lên.')
             if job.tacare_start and job.tacare_deadline and job.tacare_deadline < job.tacare_start:
                 raise ValidationError('Hạn nhận đề nghị phải sau ngày bắt đầu.')
+            if job.care_days_per_week < 0 or job.care_days_per_week > 7 or job.care_duration_months < 0:
+                raise ValidationError('Số ngày mỗi tuần phải từ 0 đến 7 và thời lượng không được âm.')
+
+    def _care_publish_errors(self):
+        self.ensure_one()
+        missing = []
+        for field, label in [('name', 'Tiêu đề'), ('care_position', 'Vị trí'),
+                             ('tacare_type', 'Loại cơ hội'), ('tacare_mode', 'Hình thức làm việc'),
+                             ('tacare_description_text', 'Mô tả'), ('tacare_deadline', 'Hạn nhận')]:
+            if not self[field]:
+                missing.append(label)
+        if not self.care_sector_id and not self.tacare_sector:
+            missing.append('Ngành nghề')
+        if self.tacare_mode != 'remote' and not self.tacare_location:
+            missing.append('Địa điểm')
+        if not self.tacare_required_skills and not self.care_requirement_ids.filtered('mandatory'):
+            missing.append('Ít nhất một điều kiện bắt buộc')
+        if self.tacare_deadline and self.tacare_deadline < fields.Date.today():
+            missing.append('Hạn nhận chưa qua')
+        return missing

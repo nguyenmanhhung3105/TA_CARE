@@ -50,14 +50,14 @@ class TacareConnection(models.Model):
                                             item.contact_consent_id.recipient_partner_id != item.organization_id):
                 raise ValidationError('Consent liên hệ không đúng hồ sơ hoặc tổ chức.')
 
-    @api.constrains('job_id', 'profile_id', 'status')
+    @api.constrains('job_id', 'profile_id', 'type', 'status')
     def _check_active_duplicate(self):
-        for item in self.filtered(lambda record: record.status in ('pending', 'accepted')):
+        for item in self.filtered(lambda record: record.status == 'pending'):
             duplicates = self.search([('id', '!=', item.id), ('job_id', '=', item.job_id.id),
-                                      ('profile_id', '=', item.profile_id.id),
-                                      ('status', 'in', ('pending', 'accepted'))], limit=1)
+                                      ('profile_id', '=', item.profile_id.id), ('type', '=', item.type),
+                                      ('status', '=', 'pending')], limit=1)
             if duplicates:
-                raise ValidationError('Đã có kết nối đang chờ hoặc đã đồng ý cho cặp tin/hồ sơ này.')
+                raise ValidationError('Đã có đề nghị hoặc lời mời cùng loại đang chờ cho tin và hồ sơ này.')
 
 
 class TacareNotification(models.Model):

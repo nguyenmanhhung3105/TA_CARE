@@ -17,15 +17,33 @@
             </group>
             <group string="Điều kiện cơ hội">
               <field name="tacare_sector"/>
+              <field name="care_sector_id"/>
+              <field name="care_position"/>
+              <field name="care_level"/>
               <field name="tacare_type"/>
               <field name="tacare_mode"/>
+              <field name="care_work_fraction"/>
               <field name="tacare_location"/>
               <field name="tacare_deadline"/>
+              <field name="care_days_per_week"/>
+              <field name="care_duration_months"/>
+              <field name="care_shift_note"/>
+              <field name="care_requires_travel"/>
+              <field name="care_requires_license"/>
+              <field name="care_requires_portfolio"/>
+              <field name="care_requires_clinical"/>
               <field name="care_experience_min"/>
+              <field name="care_income_type"/>
+              <field name="care_income_period"/>
               <field name="care_salary_min"/>
               <field name="care_salary_max"/>
               <field name="care_currency_id"/>
             </group>
+          </group>
+          <group string="Điều kiện tuyển dụng có cấu trúc">
+            <field name="care_requirement_ids">
+              <list editable="bottom"><field name="sequence" widget="handle"/><field name="category"/><field name="name"/><field name="mandatory"/></list>
+            </field>
           </group>
           <group string="Lịch sử chỉnh sửa">
             <field name="care_revision_ids" readonly="1">

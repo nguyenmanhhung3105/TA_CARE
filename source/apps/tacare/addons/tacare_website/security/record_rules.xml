@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+  <record id="rule_job_requirement_business_organization" model="ir.rule">
+    <field name="name">TA.CARE business job requirements in active organizations</field>
+    <field name="model_id" ref="model_care_job_requirement"/>
+    <field name="groups" eval="[(4, ref('tacare_account_access.group_tacare_business'))]"/>
+    <field name="domain_force">[('job_id.company_id', 'in', user.company_ids.ids), ('job_id.tacare_owner_partner_id', 'in', user.care_organization_ids.ids)]</field>
+  </record>
   <record id="rule_job_business_own_organization" model="ir.rule">
     <field name="name">TA.CARE business jobs in active organizations</field>
     <field name="model_id" ref="hr.model_hr_job"/>

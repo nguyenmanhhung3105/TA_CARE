@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_partner_form_care_recruitment" model="ir.ui.view">
+    <field name="name">res.partner.form.care.recruitment</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//sheet/group[1]" position="after">
+        <group string="Kho việc làm" groups="base.group_system" invisible="not is_company">
+          <field name="care_business_sector_ids" widget="many2many_tags"/>
+          <field name="care_market_scope"/>
+          <field name="care_employer_state"/>
+        </group>
+      </xpath>
+    </field>
+  </record>
+</odoo>

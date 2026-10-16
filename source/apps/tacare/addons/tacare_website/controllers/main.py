@@ -44,6 +44,7 @@ class TacareWebsite(Website):
             'is_guest': request.env.user._is_public(),
             'account_name': request.env.user.name,
             'sectors': SECTORS,
+            'job_sectors': request.env['care.job.sector'].sudo().search([]),
             'types': TYPES,
             'modes': MODES,
             'notice': False,

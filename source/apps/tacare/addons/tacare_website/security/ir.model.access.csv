@@ -21,6 +21,10 @@ access_care_match_result_system,care.match.result.system,model_care_match_result
 access_care_feedback_system,care.feedback.system,model_care_feedback,base.group_system,1,1,1,1
 access_care_audit_event_system,care.audit.event.system,model_care_audit_event,base.group_system,1,0,1,0
 access_care_integration_event_system,care.integration.event.system,model_care_integration_event,base.group_system,1,1,1,1
+access_care_job_sector_system,care.job.sector.system,model_care_job_sector,base.group_system,1,1,1,1
+access_care_job_requirement_system,care.job.requirement.system,model_care_job_requirement,base.group_system,1,1,1,1
+access_care_job_sector_business,care.job.sector.business,model_care_job_sector,tacare_account_access.group_tacare_business,1,0,0,0
+access_care_job_requirement_business,care.job.requirement.business,model_care_job_requirement,tacare_account_access.group_tacare_business,1,0,0,0
 access_hr_job_business,hr.job.business,hr.model_hr_job,tacare_account_access.group_tacare_business,1,0,0,0
 access_hr_job_skill_business,hr.job.skill.business,hr_skills.model_hr_job_skill,tacare_account_access.group_tacare_business,1,0,0,0
 access_care_org_member_business,care.org.member.business,model_care_org_member,tacare_account_access.group_tacare_business,1,0,0,0

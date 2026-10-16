@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="view_care_job_sector_list" model="ir.ui.view">
+    <field name="name">care.job.sector.list</field><field name="model">care.job.sector</field>
+    <field name="arch" type="xml"><list><field name="name"/><field name="code"/><field name="active"/></list></field>
+  </record>
+  <record id="view_care_job_sector_form" model="ir.ui.view">
+    <field name="name">care.job.sector.form</field><field name="model">care.job.sector</field>
+    <field name="arch" type="xml"><form string="Ngành nghề"><sheet><group><field name="name"/><field name="code"/><field name="active"/></group></sheet></form></field>
+  </record>
+  <record id="action_care_job_sector" model="ir.actions.act_window">
+    <field name="name">Ngành nghề tuyển dụng</field><field name="res_model">care.job.sector</field><field name="view_mode">list,form</field>
+  </record>
+  <record id="view_care_org_member_list" model="ir.ui.view">
+    <field name="name">care.org.member.list.kvl</field><field name="model">care.org.member</field>
+    <field name="arch" type="xml"><list><field name="organization_id"/><field name="user_id"/><field name="role"/><field name="state"/><field name="can_manage_jobs"/><field name="can_handle_candidates"/></list></field>
+  </record>
+  <record id="view_care_org_member_form" model="ir.ui.view">
+    <field name="name">care.org.member.form.kvl</field><field name="model">care.org.member</field>
+    <field name="arch" type="xml"><form string="Thành viên tổ chức"><sheet><group><field name="company_id"/><field name="organization_id"/><field name="user_id"/><field name="role"/><field name="state"/><field name="can_manage_jobs"/><field name="can_handle_candidates"/></group></sheet></form></field>
+  </record>
+  <record id="action_care_org_member_kvl" model="ir.actions.act_window">
+    <field name="name">Quyền tuyển dụng theo tổ chức</field><field name="res_model">care.org.member</field><field name="view_mode">list,form</field>
+  </record>
+  <menuitem id="menu_care_kvl_admin" name="Kho việc làm · Quản trị" groups="base.group_system" sequence="90"/>
+  <menuitem id="menu_care_job_sector" parent="menu_care_kvl_admin" name="Ngành nghề" action="action_care_job_sector" sequence="10"/>
+  <menuitem id="menu_care_org_member" parent="menu_care_kvl_admin" name="Quyền nhân sự" action="action_care_org_member_kvl" sequence="20"/>
+</odoo>

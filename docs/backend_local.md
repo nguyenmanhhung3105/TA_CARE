@@ -27,7 +27,7 @@ Log in through the normal Odoo login form. Existing passwords were not changed. 
 | Role | Sign-in websites | Can change |
 | --- | --- | --- |
 | Odoo system admin | All three | Organization jobs and revision review through web form; native Odoo backend according to Odoo groups. |
-| Business portal user | Kho Việc Làm, TA.CARE | Jobs of active member organizations; owner/recruiter can edit, viewer reads only. Existing account uses its commercial partner until membership migration. |
+| Business portal user | Kho Việc Làm, TA.CARE | Jobs of active member organizations; `can_manage_jobs` grants tin management and `can_handle_candidates` grants applicant processing. Organization owner has both; existing `recruiter` members retain applicant handling. Existing account without membership uses its commercial partner until membership migration. |
 | Candidate portal user | Tủ Hồ Sơ, TA.CARE | Their `tacare.profile`, skills, evidence, consent and their applications/replies. |
 | Guest | All public pages | Nothing; protected routes redirect to login. |
 
@@ -60,7 +60,25 @@ After a local addon update, run `python3 source/apps/tacare/addons/tacare_websit
 ## Current limits
 
 - The structured capability, availability, service area, preference, document, OCR, match snapshot, feedback, audit and integration models are installed but have no complete user flow yet. CV upload, OCR processing, verifier workflow and cross-domain SSO are not implemented.
-- Matching is a simple explainable score from required/preferred skills, work mode and location, calculated live. It does not write `care.match.result`; it is labelled simulated and is not a hiring decision.
+- Matching remains calculated live and does not write `care.match.result`. Kho việc làm now shows evidence, unknowns, preferences and explicit work-mode conflicts without a percentage score or hiring decision.
 - Business account assignment remains an admin task in Odoo; no public self-grant of business role was enabled.
 - The JSON design is a target, with unresolved naming/cardinality/enum decisions listed in `docs/database_mapping.md`. This DEV implementation did not rename existing models or migrate production data.
 - Legacy DBs and stopped old app containers were kept to avoid deleting user data.
+
+## Kho việc làm F01–F12 on DEV, 17 October 2026
+
+The live Kho website now uses Odoo `hr.job` plus `care.job.sector` (administrator-managed catalog), `care.job.requirement` (one record per mandatory/preferred criterion), `tacare.connection`, `care.job.revision`, `care.consent`, and `care.audit.event.changes`. Employer activity sectors and market scope live on `res.partner`, independently from job sector, education major and position. Work mode, work fraction, days/week, duration, shift, income type/period and specialist flags are separate fields. Only a title of at least two characters is needed for a draft. Publishing also needs position, sector, type, work mode, location unless remote, description, future deadline and one mandatory criterion or skill. Existing `tacare_*` fields and Odoo core IDs were preserved.
+
+Admins configure sector records under **Kho việc làm · Quản trị → Ngành nghề** and assign `can_manage_jobs` / `can_handle_candidates` under **Quyền nhân sự** on an active `care.org.member`. A membership with role `owner` has both; existing `recruiter` members retain applicant handling; other combinations need explicit capability flags. A legacy business account without membership retains its commercial partner fallback until migration is agreed. Neither capability is granted by changing a web form or by login role alone.
+
+Screens: `/` on `khovieclam.localhost:8069`, `/kvl/manage`, `/kvl/job/new`, `/kvl/job/<id>/preview`, `/kvl/job/<id>/history`, `/kvl/candidates?job=<id>`, `/kvl/job/<id>/candidate/<profile_id>`, `/tacare/connections?type=application` and `?type=invitation` on the same host. Business organization fields are at `/kvl/organization/<id>`. Candidate application and invitation reply still use shared TA.CARE connection routes; the full candidate website was not rebuilt in this phase.
+
+The DEV database was backed up to ignored `backups/tacare_local_before_kvl_20261017.dump` before `-u tacare_website`. Upgrade completed with exit code 0 on Odoo 19 Community. The three public homepages, three login pages, jobs list and guest-to-login redirect returned expected HTTP statuses. A temporary fictitious-account HTTP run passed F01–F12, including invalid transitions, published revision review, old pending application on a paused job, duplicate invite, withdrawal, closed/reopened job, draft-only deletion, organization/role isolation and direct URL checks. An HTML check confirmed a fictitious private email and evidence URL were absent for unconsented HR access. `tests/dev_kvl_form_check.py` passed as a rollback-only Odoo shell check for four sectors, publish requirements and invalid weekly schedule. Temporary QA accounts, jobs, profiles and connections were removed after verification; append-only `care.audit.event` entries from QA remain in DEV. Production was not accessed.
+
+Run the form/schema check after a DEV backup with:
+
+```bash
+docker compose run --rm --no-deps -T tacare shell -c /etc/odoo/local.conf -d tacare_local < source/apps/tacare/addons/tacare_website/tests/dev_kvl_form_check.py
+```
+
+The template changes preserve `tc-jobs`, `tc-profiles` and `tc-hub`. The workflow still deploys only `source/apps/tacare/addons/` on push to `main`; no push or server deploy was made here. The addon version is `19.0.3.0.0`; no Python system dependency or manual SQL migration is needed. Updating the addon creates new ORM tables/columns. The existing published-job revision review remains in place. Contact email still needs separate organization-specific consent after connection acceptance. The profile comparator uses exact declared skill names, disclosed education and shared evidence titles; it marks absent data unknown, so it is not a verified ranking algorithm. Structured candidate availability and source verification are outside this Kho phase.
