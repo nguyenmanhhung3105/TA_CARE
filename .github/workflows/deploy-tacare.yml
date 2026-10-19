@@ -4,6 +4,17 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      deploy_mode:
+        description: 'Chế độ triển khai'
+        type: choice
+        options: [code, with-data]
+        default: code
+        required: true
+      data_sha256:
+        description: 'SHA256 của gói dữ liệu đã được duyệt trên server; chỉ dùng với with-data'
+        type: string
+        required: false
 
 permissions: {}
 
@@ -17,11 +28,48 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Chọn chế độ triển khai
+        id: selection
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REQUESTED_MODE: ${{ inputs.deploy_mode }}
+          REQUESTED_DATA: ${{ inputs.data_sha256 }}
+          HEAD_MESSAGE: ${{ github.event.head_commit.message }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os
+          import re
+          mode, data = 'code', ''
+          if os.environ['EVENT_NAME'] == 'workflow_dispatch':
+              mode = os.environ['REQUESTED_MODE'] or 'code'
+              data = os.environ['REQUESTED_DATA'].strip()
+          else:
+              trailers = [line for line in os.environ['HEAD_MESSAGE'].splitlines()
+                          if line.startswith('Tacare-Data-SHA256:')]
+              if trailers:
+                  if len(trailers) != 1:
+                      raise SystemExit('Duplicate data selection in the release commit')
+                  mode, data = 'with-data', trailers[0].partition(':')[2].strip()
+          if mode not in ('code', 'with-data'):
+              raise SystemExit('Unsupported deployment mode')
+          if mode == 'with-data' and not re.fullmatch(r'[0-9a-f]{64}', data):
+              raise SystemExit('with-data requires an approved bundle SHA256')
+          if mode == 'code' and data:
+              raise SystemExit('code mode must not select a data bundle')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'mode={mode}\ndata={data}\n')
+          print('Selected deployment mode:', mode)
+          PY
+
       - name: Kết nối server và triển khai
         env:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
           COMMIT_SHA: ${{ github.sha }}
+          DEPLOY_MODE: ${{ steps.selection.outputs.mode }}
+          DATA_SHA256: ${{ steps.selection.outputs.data }}
         shell: bash
         run: |
           set -euo pipefail
@@ -33,6 +81,17 @@ jobs:
           printf '%s\n' "$DEPLOY_SSH_KEY" > "$ssh_dir/key"
           printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$ssh_dir/known_hosts"
 
+          [[ "$COMMIT_SHA" =~ ^[0-9a-f]{40}$ ]]
+          remote_command="sudo -n /usr/local/lib/tacare-deploy/deploy.sh $COMMIT_SHA"
+          case "$DEPLOY_MODE" in
+            code) [[ -z "$DATA_SHA256" ]] ;;
+            with-data)
+              [[ "$DATA_SHA256" =~ ^[0-9a-f]{64}$ ]]
+              remote_command+=" --with-data $DATA_SHA256"
+              ;;
+            *) exit 1 ;;
+          esac
+
           ssh \
             -i "$ssh_dir/key" \
             -o IdentitiesOnly=yes \
@@ -43,4 +102,4 @@ jobs:
             -o ServerAliveInterval=30 \
             -o ServerAliveCountMax=6 \
             tacare-deploy@123.30.111.85 \
-            "sudo -n /usr/local/lib/tacare-deploy/deploy.sh $COMMIT_SHA"
+            "$remote_command"

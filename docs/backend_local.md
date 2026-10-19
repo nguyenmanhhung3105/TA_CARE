@@ -1,5 +1,7 @@
 # Odoo backend local for three websites
 
+> **Phát hành 20/10/2026:** [hai chế độ code / kèm dữ liệu demo](deploy_modes.md) đã được chuẩn bị và kiểm tra local. Chưa cài trên server, chưa commit/push đợt này. Người vận hành tự cài script bằng bộ lệnh trong hướng dẫn; mặc định không nhập dữ liệu local.
+
 > **Hiện hành 20/10/2026:** [làm lại Tủ Hồ Sơ, ảnh/carousel và nhiều hồ sơ](research/implementation_profile_refresh_2026-10-20.md). Tủ hiển thị hồ sơ ngay sau đăng nhập; có tab admin xem tất cả. Mỗi ứng viên được tạo nhiều hồ sơ. Kho/Tủ có carousel riêng, TA.CARE dùng ảnh tĩnh. Hai tài khoản ứng viên được yêu cầu đã có hai hồ sơ mỗi tài khoản. Các số liệu ngày 19/10 bên dưới là lịch sử trước đợt sửa này.
 
 > **Hiện hành 19/10/2026:** [demo tuyển dụng và việc linh hoạt](research/implementation_flexible_demo_2026-10-19.md) đã chạy trên Odoo local. Có 20 công việc (5 tuyển dụng + 15 linh hoạt), 15 hồ sơ (5 tuyển dụng + 10 có mục nhận việc). Chín tài khoản gốc được giữ nguyên. Có carousel ảnh chụp thật và form mới; Tủ yêu cầu đăng nhập, chỉ chủ hoặc admin xem dữ liệu. Số liệu 0 tin/0 hồ sơ ngày 17/10 bên dưới là lịch sử trước seed demo.
