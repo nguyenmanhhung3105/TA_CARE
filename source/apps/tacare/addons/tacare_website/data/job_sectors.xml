@@ -9,4 +9,5 @@
   <record id="sector_food" model="care.job.sector"><field name="code">food</field><field name="name">Nông nghiệp / thực phẩm</field></record>
   <record id="sector_support" model="care.job.sector"><field name="code">support</field><field name="name">Chăm sóc khách hàng</field></record>
   <record id="sector_hr" model="care.job.sector"><field name="code">hr</field><field name="name">Nhân sự / tuyển dụng</field></record>
+  <record id="sector_design" model="care.job.sector"><field name="code">design</field><field name="name">Thiết kế</field></record>
 </odoo>

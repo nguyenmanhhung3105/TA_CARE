@@ -18,12 +18,14 @@
             <group string="Điều kiện cơ hội">
               <field name="tacare_sector"/>
               <field name="care_sector_id"/>
+              <field name="care_position_id" domain="[('sector_id', '=', care_sector_id)]"/>
               <field name="care_position"/>
               <field name="care_level"/>
               <field name="tacare_type"/>
               <field name="tacare_mode"/>
               <field name="care_work_fraction"/>
               <field name="tacare_location"/>
+              <field name="care_region_id" domain="[('country_id.code', '=', 'VN')]"/>
               <field name="tacare_deadline"/>
               <field name="care_days_per_week"/>
               <field name="care_duration_months"/>
@@ -33,6 +35,11 @@
               <field name="care_requires_portfolio"/>
               <field name="care_requires_clinical"/>
               <field name="care_experience_min"/>
+              <field name="care_training_provided"/>
+              <field name="care_skills_any"/>
+              <field name="care_salary_display"/>
+              <field name="care_salary_basis"/>
+              <field name="care_salary_tax"/>
               <field name="care_income_type"/>
               <field name="care_income_period"/>
               <field name="care_salary_min"/>
@@ -40,7 +47,16 @@
               <field name="care_currency_id"/>
             </group>
           </group>
-          <group string="Điều kiện tuyển dụng có cấu trúc">
+          <group string="Nội dung tuyển dụng">
+            <field name="care_candidate_requirements"/>
+            <field name="care_benefits"/>
+            <field name="care_education_note"/>
+            <field name="care_language_note"/>
+            <field name="care_license_note"/>
+            <field name="care_schedule_required"/>
+            <field name="care_start_flexible"/>
+          </group>
+          <group string="Điều kiện bổ sung từ biểu mẫu trước">
             <field name="care_requirement_ids">
               <list editable="bottom"><field name="sequence" widget="handle"/><field name="category"/><field name="name"/><field name="mandatory"/></list>
             </field>

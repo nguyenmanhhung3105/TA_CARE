@@ -38,3 +38,11 @@ access_care_service_area_candidate,care.service.area.candidate,model_care_servic
 access_care_preference_candidate,care.preference.candidate,model_care_preference,tacare_account_access.group_tacare_candidate,1,0,0,0
 access_care_document_candidate,care.document.candidate,model_care_document,tacare_account_access.group_tacare_candidate,1,0,0,0
 access_care_consent_candidate,care.consent.candidate,model_care_consent,tacare_account_access.group_tacare_candidate,1,0,0,0
+access_care_job_position_system,care.job.position.system,model_care_job_position,base.group_system,1,1,1,1
+access_care_job_position_business,care.job.position.business,model_care_job_position,tacare_account_access.group_tacare_business,1,0,0,0
+access_care_job_position_candidate,care.job.position.candidate,model_care_job_position,tacare_account_access.group_tacare_candidate,1,0,0,0
+
+access_flex_category_portal,flex.category.portal,model_care_capability_category,base.group_portal,1,0,0,0
+access_flex_job_candidate,flex.job.candidate,hr.model_hr_job,tacare_account_access.group_tacare_candidate,1,0,0,0
+access_flex_profile_business,flex.profile.business,model_tacare_profile,tacare_account_access.group_tacare_business,1,0,0,0
+access_flex_capability_business,flex.capability.business,model_care_profile_capability,tacare_account_access.group_tacare_business,1,0,0,0

@@ -1,0 +1,271 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <template id="home_profiles" name="Tủ Hồ Sơ · Portfolio và hành trình năng lực">
+    <div class="p-home" data-care-home="profiles">
+      <section class="p-cover p-shell">
+        <div class="p-cover-meta">
+          <span>HỒ SƠ NĂNG LỰC / MỘT HÀNH TRÌNH ĐANG VIẾT</span>
+          <span>VOL. 01 — BẮT ĐẦU TỪ BẠN</span>
+        </div>
+        <div class="p-cover-title" data-reveal="1">
+          <h1>Mỗi trải nghiệm,<br />một <em>dấu ấn.</em>
+          </h1>
+          <div>
+            <p>Bạn không chỉ là một chức danh.</p>
+            <p>Bạn là những điều đã học, những việc đã làm và cả những khả năng đang chờ được khám phá.</p>
+            <a t-att-href="'/tuhoso/me' if role == 'candidate' else '/web/login?redirect=/tuhoso/me'">Bắt đầu viết hồ sơ của bạn <span></span>
+            </a>
+          </div>
+        </div>
+        <div class="p-cover-composition" data-reveal="1">
+          <figure class="p-cover-photo">
+            <img src="/tacare_website/static/src/img/portfolio-studio.jpg" width="1152" height="768" fetchpriority="high" alt="Portfolio mở cùng mô hình, mẫu giấy và những sản phẩm sáng tạo trên bàn làm việc" />
+            <figcaption>Mỗi chi tiết đều có một câu chuyện.</figcaption>
+          </figure>
+          <div class="p-floating-note">
+            <span>GHI CHÚ CHO BẠN</span>
+            <p>Không cần hoàn hảo.<br />Chỉ cần bắt đầu.</p>
+            <svg viewBox="0 0 100 60" aria-hidden="true">
+              <path d="M8 10 Q65 5 70 45 M55 35 L70 48 L84 33" fill="none" stroke="currentColor" stroke-width="2" />
+            </svg>
+          </div>
+          <div class="p-cover-index">
+            <span>TRONG TỦ HỒ SƠ</span>
+            <a href="#p-about">01 / Điều bạn biết</a>
+            <a href="#p-collection">02 / Việc bạn đã làm</a>
+            <a href="#p-proof">03 / Căn cứ đi cùng</a>
+            <a href="#p-sharing">04 / Điều bạn chia sẻ</a>
+          </div>
+        </div>
+        <div class="p-bottom-caption">
+          <span>HỌC. LÀM. GHI LẠI. LỚN LÊN.</span>
+          <a href="#p-about">Lật trang tiếp theo </a>
+        </div>
+      </section>
+      <section class="p-manifesto p-shell" id="p-about" data-reveal="1">
+        <span class="p-margin-label">01 / ĐIỀU BẠN BIẾT</span>
+        <div>
+          <h2>Có những năng lực<br />không nằm gọn<br />trong một dòng CV.</h2>
+          <p>Một bảng tính giúp nhóm làm nhanh hơn. Một dự án tự học. Một lần tổ chức hoạt động. Một công việc bạn làm thật tốt mỗi ngày.</p>
+          <p>Tủ Hồ Sơ giúp bạn ghi lại chúng, có ngữ cảnh và có câu chuyện.</p>
+        </div>
+        <aside>
+          <span class="p-asterisk" aria-hidden="true">✳</span>
+          <p>Bắt đầu từ điều nhỏ.<br />Cho thấy cách bạn làm.</p>
+          <a href="/tuhoso/me#profile-skills">Ghi lại kỹ năng </a>
+        </aside>
+      </section>
+      <section class="p-gallery p-shell" id="p-collection">
+        <div class="p-gallery-title">
+          <span class="p-margin-label">02 / BỘ SƯU TẬP NĂNG LỰC</span>
+          <h2>Việc đã làm.<br />
+            <em>Điều còn ở lại.</em>
+          </h2>
+          <p>Các dự án bên dưới là ví dụ biên tập minh họa cách kể một trải nghiệm. Bạn có thể thay bằng nội dung của mình.</p>
+        </div>
+        <div class="p-gallery-grid">
+          <article class="p-project p-project-feature" data-reveal="1">
+            <div class="p-project-image">
+              <img src="/tacare_website/static/src/img/portfolio-studio.jpg" width="1152" height="768" loading="lazy" alt="Ví dụ portfolio thiết kế với mô hình và chất liệu" />
+              <span>VÍ DỤ / DỰ ÁN CÁ NHÂN</span>
+            </div>
+            <div class="p-project-caption">
+              <h3>Một góc xanh,<br />nhiều cách nghĩ.</h3>
+              <span>THIẾT KẾ / Ý TƯỞNG  THỰC HIỆN</span>
+            </div>
+            <details>
+              <summary>Xem cách kể dự án </summary>
+              <p>
+                <strong>Bối cảnh:</strong> một bài tập thiết kế không gian nhỏ. <strong>Vai trò:</strong> khảo sát nhu cầu, phác thảo và làm mô hình. <strong>Kết quả:</strong> bộ ý tưởng và những điều rút ra sau thử nghiệm. Hãy thêm hình hoặc liên kết minh chứng khi có.</p>
+            </details>
+          </article>
+          <article class="p-project p-project-offset" data-reveal="1">
+            <div class="p-project-image">
+              <img src="/tacare_website/static/src/img/work-tech.jpg" width="960" height="640" loading="lazy" alt="Ví dụ trải nghiệm làm việc trong một nhóm dự án công nghệ" />
+              <span>VÍ DỤ / LÀM VIỆC NHÓM</span>
+            </div>
+            <div class="p-project-caption">
+              <h3>Từ một ý tưởng<br />đến bản thử đầu tiên.</h3>
+              <span>CÔNG NGHỆ / PHỐI HỢP</span>
+            </div>
+            <details>
+              <summary>Đâu là phần việc của bạn? </summary>
+              <p>Thay vì chỉ ghi “tham gia dự án”, hãy nêu phần việc bạn trực tiếp làm: thiết kế giao diện, xử lý dữ liệu, kiểm thử hay phối hợp kế hoạch. Phân biệt kết quả của nhóm với đóng góp cá nhân.</p>
+            </details>
+          </article>
+          <article class="p-project p-project-note" data-reveal="1">
+            <span class="p-project-number">03</span>
+            <h3>Điều đáng kể<br />không nhất thiết<br />phải thật lớn.</h3>
+            <p>Một ca làm việc được tổ chức tốt. Một quy trình bớt sai sót. Một khách hàng được hỗ trợ đến nơi đến chốn.</p>
+            <a href="/tuhoso/me#profile-experience">Ghi trải nghiệm của bạn </a>
+          </article>
+        </div>
+      </section>
+      <section class="p-proof" id="p-proof">
+        <div class="p-shell">
+          <div class="p-proof-heading">
+            <span>03 / HỒ SƠ CÓ CĂN CỨ</span>
+            <h2>Đừng chỉ nói bạn có thể.<br />
+              <em>Hãy cho thấy cách bạn làm.</em>
+            </h2>
+          </div>
+          <div class="p-proof-workbench" data-reveal="1">
+            <aside>
+              <span>HỒ SƠ MINH HỌA</span>
+              <h3>Mai An</h3>
+              <p>Thiết kế sản phẩm<br />và trải nghiệm số</p>
+              <small>Nhân vật và nội dung hư cấu dùng để minh họa.</small>
+              <div class="p-folder-tabs" aria-label="Xem ví dụ các phần hồ sơ">
+                <button type="button" data-profile-example="project" aria-pressed="true" aria-controls="p-example-project">Dự án <span></span>
+                </button>
+                <button type="button" data-profile-example="experience" aria-pressed="false" aria-controls="p-example-experience">Kinh nghiệm <span></span>
+                </button>
+                <button type="button" data-profile-example="skill" aria-pressed="false" aria-controls="p-example-skill">Kỹ năng <span></span>
+                </button>
+              </div>
+            </aside>
+            <div class="p-example-sheet">
+              <article id="p-example-project" data-profile-panel="project">
+                <span>TRANG 01 / DỰ ÁN</span>
+                <img src="/tacare_website/static/src/img/portfolio-studio.jpg" width="1152" height="768" loading="lazy" alt="Minh họa trang dự án trong hồ sơ mẫu" />
+                <h3>Thiết kế một trải nghiệm dễ hiểu hơn.</h3>
+                <dl>
+                  <dt>Vai trò</dt>
+                  <dd>Khảo sát, phác thảo và thử nghiệm mẫu.</dd>
+                  <dt>Đã làm</dt>
+                  <dd>Ghi nhu cầu, xây luồng và hoàn thiện bản thử.</dd>
+                  <dt>Căn cứ</dt>
+                  <dd>Liên kết sản phẩm và nhật ký thực hiện.</dd>
+                </dl>
+                <span class="p-self-declared">Ví dụ tự khai · Chưa xác minh</span>
+              </article>
+              <article id="p-example-experience" data-profile-panel="experience" hidden="hidden">
+                <span>TRANG 02 / KINH NGHIỆM</span>
+                <h3>Một vai trò.<br />Những việc cụ thể.</h3>
+                <div class="p-example-timeline">
+                  <div>
+                    <span>GIAI ĐOẠN 01</span>
+                    <h4>Làm quen với bài toán</h4>
+                    <p>Hiểu người sử dụng, bối cảnh và tiêu chí hoàn thành.</p>
+                  </div>
+                  <div>
+                    <span>GIAI ĐOẠN 02</span>
+                    <h4>Thực hiện và phối hợp</h4>
+                    <p>Nêu công việc tự làm, người phối hợp và kết quả ghi nhận.</p>
+                  </div>
+                  <div>
+                    <span>GIAI ĐOẠN 03</span>
+                    <h4>Điều rút ra</h4>
+                    <p>Những gì đã học và cách bạn sẽ làm tốt hơn ở lần tiếp theo.</p>
+                  </div>
+                </div>
+              </article>
+              <article id="p-example-skill" data-profile-panel="skill" hidden="hidden">
+                <span>TRANG 03 / KỸ NĂNG</span>
+                <h3>Mỗi kỹ năng,<br />một cách sử dụng.</h3>
+                <div class="p-example-skills">
+                  <div>
+                    <strong>Figma</strong>
+                    <p>Dựng luồng và bản thử tương tác cho một dự án cá nhân.</p>
+                  </div>
+                  <div>
+                    <strong>Phỏng vấn người dùng</strong>
+                    <p>Chuẩn bị câu hỏi, ghi nhận quan sát và tổng hợp nhu cầu.</p>
+                  </div>
+                  <div>
+                    <strong>Trình bày ý tưởng</strong>
+                    <p>Giải thích lựa chọn thiết kế và tiếp nhận góp ý từ nhóm.</p>
+                  </div>
+                </div>
+                <p class="p-self-declared">Tên kỹ năng + ngữ cảnh sử dụng giúp người khác hiểu rõ hơn.</p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="p-notebook p-shell" id="p-notes">
+        <div>
+          <span class="p-margin-label">04 / GHI CHÉP CHO HỒ SƠ</span>
+          <h2>Kể đúng.<br />Kể rõ.<br />
+            <em>Kể bằng việc thật.</em>
+          </h2>
+          <p>Một vài ghi chú trước khi bạn viết trang đầu tiên.</p>
+        </div>
+        <div class="p-notebook-lines">
+          <details open="open">
+            <summary>
+              <span>01</span> Bắt đầu từ điều bạn đã làm</summary>
+            <p>Viết một nhiệm vụ hoặc dự án cụ thể. Không cần đợi có một chức danh ấn tượng mới bắt đầu xây hồ sơ năng lực.</p>
+          </details>
+          <details>
+            <summary>
+              <span>02</span> Nêu rõ vai trò của mình</summary>
+            <p>Ai cũng có thể ghi “làm việc nhóm”. Hãy cho thấy bạn chịu trách nhiệm phần nào, phối hợp với ai và đã đóng góp điều gì.</p>
+          </details>
+          <details>
+            <summary>
+              <span>03</span> Gắn kỹ năng với ngữ cảnh</summary>
+            <p>Thay vì chỉ liệt kê Excel, hãy thêm bạn dùng Excel để làm gì. Với ngoại ngữ và giấy phép, ghi rõ mức sử dụng hoặc phạm vi và thời hạn liên quan.</p>
+          </details>
+          <details>
+            <summary>
+              <span>04</span> Phân biệt tự khai và xác minh</summary>
+            <p>Liên kết minh chứng hỗ trợ người xem kiểm tra thông tin. Có liên kết không đồng nghĩa nội dung đã được xác minh.</p>
+          </details>
+        </div>
+      </section>
+      <section class="p-sharing p-shell" id="p-sharing" data-reveal="1">
+        <div class="p-sharing-mark">
+          <img src="/tacare_website/static/src/img/tuhoso.png" width="180" height="185" loading="lazy" alt="Biểu tượng Tủ Hồ Sơ" />
+          <span>CÂU CHUYỆN CỦA BẠN.<br />LỰA CHỌN CỦA BẠN.</span>
+        </div>
+        <div>
+          <span class="p-margin-label">QUYỀN CHIA SẺ THUỘC VỀ BẠN</span>
+          <h2>Không phải điều gì<br />cũng cần công khai.</h2>
+          <p>Bạn chọn hồ sơ có xuất hiện trong tìm kiếm và được dùng để đối chiếu hay không. Minh chứng có phạm vi xem riêng. Email chỉ mở cho tổ chức khi hai bên chấp nhận kết nối và bạn cấp quyền liên hệ.</p>
+          <a href="/tuhoso/me#profile-sharing">Thiết lập quyền chia sẻ </a>
+        </div>
+      </section>
+      <section class="p-checklist p-shell">
+        <div>
+          <span>CHUẨN BỊ TRANG ĐẦU TIÊN</span>
+          <h2>Bạn đã có<br />nhiều hơn bạn nghĩ.</h2>
+          <p>Đánh dấu những điều bạn đã sẵn sàng ghi lại. Đây là danh sách chuẩn bị, không lưu vào hồ sơ.</p>
+          <output data-checklist-count="1" aria-live="polite">0 / 4 điều đã sẵn sàng</output>
+        </div>
+        <div data-preparation-checklist="1">
+          <label>
+            <input type="checkbox" />
+            <span>Một kỹ năng tôi đã sử dụng</span>
+          </label>
+          <label>
+            <input type="checkbox" />
+            <span>Một công việc hoặc dự án tôi đã làm</span>
+          </label>
+          <label>
+            <input type="checkbox" />
+            <span>Một kết quả hoặc điều tôi học được</span>
+          </label>
+          <label>
+            <input type="checkbox" />
+            <span>Một hướng đi tôi muốn theo đuổi</span>
+          </label>
+        </div>
+      </section>
+      <footer class="p-footer p-shell">
+        <span>TRANG TIẾP THEO, DO BẠN VIẾT.</span>
+        <a class="p-footer-invitation" t-att-href="'/tuhoso/me' if role == 'candidate' else '/web/login?redirect=/tuhoso/me'">Mở tủ hồ sơ.<span></span>
+        </a>
+        <div>
+          <span>Tủ Hồ Sơ / Một phần của TA.CARE</span>
+          <nav aria-label="Liên kết cuối Tủ Hồ Sơ">
+            <a t-att-href="urls['khovieclam']">Khám phá cơ hội </a>
+            <a t-att-href="urls['tacare']">Về TA.CARE </a>
+            <a href="#p-sharing">Quyền chia sẻ</a>
+          </nav>
+          <a href="#tc-main">Về đầu trang </a>
+        </div>
+      </footer>
+    </div>
+  </template>
+</odoo>

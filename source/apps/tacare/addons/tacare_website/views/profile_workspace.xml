@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="profile_navigation" name="Tủ Hồ Sơ · Điều hướng">
+    <header class="pv-nav pv-shell">
+      <a class="pv-brand" href="/"><img src="/tacare_website/static/src/img/tuhoso.png" width="42" height="44" alt="Logo Tủ Hồ Sơ"/><span>Tủ Hồ Sơ<small>Năng lực và công việc bạn muốn nhận</small></span></a>
+      <nav aria-label="Điều hướng Tủ Hồ Sơ"><a href="/" data-nav-link="1">Trang chủ</a><a href="/tuhoso/profiles?scope=mine" data-nav-link="1">Hồ sơ của tôi</a><a t-if="role == 'admin'" href="/tuhoso/profiles?scope=all" data-nav-link="1">Tất cả hồ sơ</a></nav>
+      <div class="pv-nav-actions"><a class="tc-button" href="/tuhoso/profiles/new" data-nav-link="1">Tạo hồ sơ</a><a class="pv-to-tacare" t-att-href="urls['tacare']">Đến TA.CARE</a></div>
+    </header>
+  </template>
+
+  <template id="profile_carousel" name="Tủ · Carousel khả năng và công việc">
+    <section class="pv-carousel" data-work-carousel="1" data-carousel-kind="profiles" aria-roledescription="carousel" aria-label="Gợi ý xây dựng hồ sơ" tabindex="0">
+      <div class="pv-carousel-track">
+        <figure class="pv-slide is-active" data-work-slide="1" aria-label="1 trên 3"><img src="/tacare_website/static/src/img/work-digital.jpg" width="1800" height="1000" fetchpriority="high" alt="Trao đổi công việc trên máy tính"/><figcaption><span>01 / HỒ SƠ TUYỂN DỤNG</span><strong>Kinh nghiệm cho vị trí bạn muốn.</strong><p>Ghi kỹ năng và những công việc bạn từng làm.</p></figcaption></figure>
+        <figure class="pv-slide" data-work-slide="1" aria-label="2 trên 3" aria-hidden="true" inert="inert"><img src="/tacare_website/static/src/img/work-craft.jpg" width="1800" height="1000" loading="eager" alt="Người thợ thực hiện công việc gia công kim loại"/><figcaption><span>02 / HỒ SƠ NHẬN VIỆC</span><strong>Việc bạn làm được, điều kiện bạn cần.</strong><p>Nêu khu vực, lịch nhận việc và tiền công mong muốn.</p></figcaption></figure>
+        <figure class="pv-slide" data-work-slide="1" aria-label="3 trên 3" aria-hidden="true" inert="inert"><img src="/tacare_website/static/src/img/work-cooking.jpg" width="1800" height="1000" loading="eager" alt="Không gian bếp và thực phẩm chuẩn bị nấu ăn"/><figcaption><span>03 / THÔNG TIN CỤ THỂ</span><strong>Để người cần hiểu đúng việc bạn nhận.</strong><p>Có thể thêm ảnh việc đã làm khi bạn có sẵn.</p></figcaption></figure>
+      </div>
+      <div class="pv-carousel-controls"><button type="button" data-work-prev="1" aria-label="Ảnh trước">Trước</button><div><button type="button" data-work-dot="0" aria-label="Xem ảnh 1" aria-pressed="true">1</button><button type="button" data-work-dot="1" aria-label="Xem ảnh 2" aria-pressed="false">2</button><button type="button" data-work-dot="2" aria-label="Xem ảnh 3" aria-pressed="false">3</button></div><button type="button" data-work-pause="1" aria-pressed="false">Tạm dừng</button><button type="button" data-work-next="1" aria-label="Ảnh tiếp theo">Sau</button></div>
+      <span class="fw-carousel-status visually-hidden" aria-live="polite" aria-atomic="true"/>
+    </section>
+  </template>
+
+  <template id="profile_intro" name="Tủ · Giới thiệu ngắn">
+    <section class="pv-intro pv-shell">
+      <t t-call="tacare_website.profile_carousel"/>
+      <div><p class="tc-eyebrow">TỦ HỒ SƠ</p><h1>Điều bạn làm được.<br/><em>Công việc bạn muốn.</em></h1><p>Giới thiệu kinh nghiệm để ứng tuyển, hoặc công việc bạn muốn nhận. Mỗi mục đích có một hồ sơ riêng.</p><div class="pv-intro-actions"><a class="tc-button" href="/tuhoso/profiles/new">Tạo hồ sơ</a><a t-att-href="'#pv-library' if not access_guest else '#pv-start'" t-esc="'Xem tủ hồ sơ' if not access_guest else 'Chọn loại hồ sơ'"/></div></div>
+    </section>
+  </template>
+
+  <template id="profile_guest_guide" name="Tủ · Chọn hồ sơ phù hợp">
+    <section class="pv-shell pv-guide" id="pv-start"><p class="tc-eyebrow">CHỌN MỤC ĐÍCH CỦA BẠN</p><h2>Bạn muốn tìm công việc nào?</h2><div class="pv-purpose-grid"><a href="/tuhoso/profiles/new?kind=recruitment"><span class="pv-purpose-index">01</span><h3>Ứng tuyển một vị trí</h3><p>Kinh nghiệm, kỹ năng, học vấn và công việc mong muốn.</p><strong>Tạo hồ sơ tuyển dụng</strong></a><a href="/tuhoso/profiles/new?kind=flexible"><span class="pv-purpose-index">02</span><h3>Nhận việc linh hoạt</h3><p>Việc làm được, lịch rảnh, khu vực và mức tiền công.</p><strong>Tạo hồ sơ nhận việc</strong></a></div></section>
+    <section class="pv-shell pv-how"><div><p class="tc-eyebrow">BẮT ĐẦU VỚI BA BƯỚC</p><h2>Tạo, bổ sung, quản lý.</h2></div><ol><li><strong>Đặt tên hồ sơ</strong><span>Mỗi hướng công việc có thể tạo một hồ sơ riêng.</span></li><li><strong>Ghi thông tin liên quan</strong><span>Thêm kỹ năng và kinh nghiệm; ảnh là tùy chọn.</span></li><li><strong>Quản lý trong tủ của bạn</strong><span>Xem và cập nhật từng hồ sơ sau khi đăng nhập.</span></li></ol></section>
+    <t t-call="tacare_website.profile_content_guide"/>
+    <t t-call="tacare_website.profile_footer"/>
+  </template>
+
+  <template id="profile_card" name="Thẻ hồ sơ thuộc thư viện">
+    <article class="pv-profile-card" t-att-data-profile-id="p.id">
+      <div class="pv-profile-top"><span t-att-class="'pv-kind is-recruitment' if p.care_recruitment_enabled else 'pv-kind is-flexible'" t-esc="'Tuyển dụng' if p.care_recruitment_enabled else 'Việc linh hoạt'"/><span class="pv-private" t-esc="dict(p._fields['scope'].selection).get(p.scope)"/></div>
+      <h3><a t-att-href="'/tuhoso/profile/%s' % p.id" t-esc="p.profile_title or p.headline or ('Hồ sơ nhận việc' if not p.care_recruitment_enabled else 'Hồ sơ tuyển dụng')"/></h3><p class="pv-profile-owner" t-esc="p.name"/>
+      <p class="pv-profile-summary" t-esc="p.bio or (p.capability_ids[:1].description if p.capability_ids else 'Bổ sung thông tin để giới thiệu rõ hơn về công việc bạn muốn tìm.')"/>
+      <div class="pv-profile-facts"><span t-if="p.care_recruitment_enabled" t-esc="p.location or 'Chưa chọn khu vực'"/><span t-else=""><t t-esc="len(p.capability_ids)"/> công việc nhận làm</span><span><t t-esc="len(p.skill_ids) + len(p.capability_ids.mapped('flex_skill_ids'))"/> kỹ năng đã khai</span></div>
+      <div class="pv-profile-bottom"><a t-att-href="'/tuhoso/profile/%s' % p.id">Xem hồ sơ</a><a t-if="p.user_id == request.env.user and p.care_recruitment_enabled" t-att-href="'/tuhoso/me?profile_id=%s' % p.id">Chỉnh sửa</a><a t-if="p.user_id == request.env.user and not p.care_recruitment_enabled" t-att-href="'/tuhoso/work/new?profile_id=%s' % p.id">Thêm việc nhận làm</a></div>
+    </article>
+  </template>
+
+  <template id="profile_workspace" name="Tủ · Hồ sơ của tài khoản">
+    <t t-call="tacare_website.live_layout">
+      <div class="pv-workspace" data-care-home="profiles">
+        <t t-if="home_page" t-call="tacare_website.profile_intro"/>
+        <section t-att-class="'pv-shell pv-library' if home_page else 'pv-library'" id="pv-library">
+          <div class="pv-library-heading"><div><p class="tc-eyebrow">TỦ HỒ SƠ / THƯ VIỆN</p><h1 t-if="not home_page" t-esc="'Tất cả hồ sơ' if scope == 'all' else 'Hồ sơ của tôi'"/><h2 t-else="" t-esc="'Tất cả hồ sơ' if scope == 'all' else 'Hồ sơ của tôi'"/><p t-esc="'Bạn đang xem hồ sơ của các tài khoản trong hệ thống.' if scope == 'all' else 'Các hồ sơ bạn đã tạo, ở cùng một nơi.'"/></div><a class="tc-button" href="/tuhoso/profiles/new">Tạo hồ sơ mới</a></div>
+          <nav t-if="role == 'admin'" class="pv-scope-tabs" aria-label="Phạm vi thư viện"><a t-att-href="workspace_base + '?scope=mine'" t-att-aria-current="'page' if scope == 'mine' else None">Hồ sơ của tôi</a><a t-att-href="workspace_base + '?scope=all'" t-att-aria-current="'page' if scope == 'all' else None">Tất cả hồ sơ</a></nav>
+          <nav class="pv-kind-tabs" aria-label="Loại hồ sơ"><a t-foreach="[('all','Tất cả'),('recruitment','Tuyển dụng'),('flexible','Việc linh hoạt')]" t-as="o" t-att-href="workspace_base + '?scope=' + scope + '&amp;kind=' + o[0]" t-att-aria-current="'page' if kind == o[0] else None"><t t-esc="o[1]"/><span t-esc="counts[o[0]]"/></a></nav>
+          <details class="pv-filter-panel" t-att-open="'open' if query.get('q') or query.get('category') or query.get('region') or query.get('sector') or query.get('mode') or query.get('unit') or query.get('state') else None"><summary>Tìm và lọc hồ sơ</summary><form method="get" class="fw-filters"><input type="hidden" name="kind" t-att-value="kind"/><input type="hidden" name="scope" t-att-value="scope"/><label>Từ khóa<input type="search" name="q" t-att-value="query.get('q','')" placeholder="Tên hồ sơ, công việc…"/></label><label t-if="kind == 'recruitment'">Lĩnh vực<select name="sector"><option value="">Tất cả lĩnh vực</option><option t-foreach="job_sectors" t-as="s" t-att-value="s.code" t-att-selected="s.code == query.get('sector')" t-esc="s.name"/></select></label><t t-if="kind == 'flexible'"><label>Nghề<select name="category"><option value="">Tất cả nghề</option><option t-foreach="work_categories" t-as="c" t-att-value="c.id" t-att-selected="str(c.id) == query.get('category')" t-esc="c.name"/></select></label><label>Cách làm<select name="mode"><option value="">Tất cả cách làm</option><option t-foreach="work_modes" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == query.get('mode')" t-esc="o[1]"/></select></label><label>Khu vực<select name="region"><option value="">Tất cả khu vực</option><option t-foreach="regions" t-as="r" t-att-value="r.id" t-att-selected="str(r.id) == query.get('region')" t-esc="r.name"/></select></label><label>Đơn vị tiền công<select name="unit"><option value="">Tất cả đơn vị</option><option t-foreach="pay_units" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == query.get('unit')" t-esc="o[1]"/></select></label></t><button type="submit" class="tc-button">Lọc hồ sơ</button><a t-att-href="workspace_base + '?scope=' + scope + '&amp;kind=' + kind">Xóa lọc</a></form></details>
+          <div class="pv-result-count"><strong><t t-esc="len(profiles)"/> hồ sơ</strong><span t-if="scope == 'mine'">Chỉ gồm dữ liệu thuộc tài khoản của bạn.</span></div>
+          <div class="pv-profile-grid"><t t-foreach="profiles" t-as="p" t-call="tacare_website.profile_card"/></div>
+          <div t-if="not profiles" class="pv-empty"><h3 t-esc="'Chưa có hồ sơ phù hợp bộ lọc.' if any(query.get(k) for k in ('q','category','region','sector','mode','unit','state')) else 'Bạn chưa có hồ sơ ở mục này.'"/><p>Tạo hồ sơ tuyển dụng hoặc giới thiệu công việc bạn muốn nhận.</p><a class="tc-button" href="/tuhoso/profiles/new">Tạo hồ sơ</a></div>
+        </section>
+        <t t-if="home_page" t-call="tacare_website.profile_content_guide"/>
+        <t t-if="home_page" t-call="tacare_website.profile_footer"/>
+      </div>
+    </t>
+  </template>
+
+  <template id="profile_create" name="Tạo hồ sơ theo mục đích">
+    <t t-call="tacare_website.live_layout"><div class="pv-create"><a href="/tuhoso/profiles">Trở về tủ hồ sơ</a><p class="tc-eyebrow">HỒ SƠ MỚI</p><h1>Bạn muốn giới thiệu điều gì?</h1><p>Đặt tên dễ nhớ. Bạn có thể tạo thêm hồ sơ cho hướng công việc khác.</p><div t-if="error" class="tc-error" role="alert" t-esc="error"/><form method="post" action="/tuhoso/profiles/create" class="tc-form tc-card"><input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/><label>Tên hồ sơ *<input name="profile_title" required="required" minlength="2" maxlength="160" t-att-value="vals.get('profile_title','')" placeholder="Ví dụ: Frontend Junior hoặc Nhận chăm cây cuối tuần"/></label><fieldset><legend>Mục đích *</legend><div class="pv-purpose-options"><label><input type="radio" name="kind" value="recruitment" required="required" t-att-checked="vals.get('kind','recruitment') == 'recruitment'"/><span><strong>Tuyển dụng</strong><small>Ứng tuyển một vị trí với kinh nghiệm và kỹ năng liên quan.</small></span></label><label><input type="radio" name="kind" value="flexible" required="required" t-att-checked="vals.get('kind') == 'flexible'"/><span><strong>Việc linh hoạt</strong><small>Giới thiệu công việc nhận làm, lịch và tiền công.</small></span></label></div></fieldset><button type="submit" class="tc-button">Tạo và bổ sung thông tin</button></form></div></t>
+  </template>
+
+  <template id="profile_overview" name="Chi tiết hồ sơ cá nhân">
+    <t t-call="tacare_website.live_layout"><div class="pv-detail"><a href="/tuhoso/profiles">Trở về tủ hồ sơ</a><div class="pv-library-heading"><div><p class="tc-eyebrow" t-esc="'HỒ SƠ TUYỂN DỤNG' if profile.care_recruitment_enabled else 'HỒ SƠ NHẬN VIỆC'"/><h1 t-esc="profile.profile_title or profile.headline or profile.name"/><p t-esc="profile.name"/></div><a t-if="owner" class="tc-button" t-att-href="('/tuhoso/me?profile_id=%s' if profile.care_recruitment_enabled else '/tuhoso/work/new?profile_id=%s') % profile.id" t-esc="'Chỉnh sửa hồ sơ' if profile.care_recruitment_enabled else 'Thêm việc nhận làm'"/></div><section t-if="profile.care_recruitment_enabled" class="pv-detail-grid"><div class="tc-stack"><section class="tc-card"><h2>Giới thiệu</h2><p class="tc-prose" t-esc="profile.bio or 'Chưa bổ sung giới thiệu.'"/></section><section class="tc-card"><h2>Kỹ năng</h2><div class="fw-tags"><span t-foreach="profile.skill_ids" t-as="s" t-esc="s.name"/></div><p t-if="not profile.skill_ids">Chưa bổ sung kỹ năng.</p></section><section class="tc-card"><h2>Kinh nghiệm</h2><p class="tc-prose" t-esc="profile.work_history or 'Chưa bổ sung kinh nghiệm.'"/></section><section t-if="profile.education_details or profile.education" class="tc-card"><h2>Học vấn</h2><p class="tc-prose" t-esc="profile.education_details or profile.education"/></section><section t-if="profile.languages" class="tc-card"><h2>Ngoại ngữ</h2><p class="tc-prose" t-esc="profile.languages"/></section><section t-if="profile.licenses" class="tc-card"><h2>Giấy phép và chứng chỉ</h2><p class="tc-prose" t-esc="profile.licenses"/></section><section t-if="profile.evidence_ids" class="tc-card"><h2>Minh chứng</h2><article t-foreach="profile.evidence_ids" t-as="e"><h3 t-esc="e.title"/><p t-esc="e.description"/><small t-esc="dict(e._fields['status'].selection).get(e.status)"/></article></section></div><aside class="tc-card"><h2>Mong muốn</h2><dl class="fw-facts"><dt>Vị trí</dt><dd t-esc="profile.desired_position_id.name or profile.headline or 'Chưa chọn'"/><dt>Khu vực</dt><dd t-esc="profile.location or 'Chưa khai'"/><dt>Cách làm</dt><dd t-esc="dict(modes).get(profile.mode,'Chưa chọn')"/><dt>Thu nhập mong muốn</dt><dd><t t-if="profile.salary_min"><t t-esc="'{:,.0f}'.format(profile.salary_min).replace(',','.')"/> <t t-esc="profile.salary_currency_id.name"/> / <t t-esc="dict(profile._fields['salary_period'].selection).get(profile.salary_period,'kỳ')"/></t><t t-else="">Cần trao đổi</t></dd><dt>Có thể bắt đầu</dt><dd t-esc="profile.start_date or 'Cần trao đổi'"/></dl></aside></section><section t-if="services"><h2>Công việc nhận làm</h2><div class="fw-grid"><t t-foreach="services" t-as="record" t-call="tacare_website.work_card"><t t-set="is_service" t-value="True"/><t t-set="mine" t-value="True"/></t></div></section><section t-if="not profile.care_recruitment_enabled and not services" class="pv-empty"><h2>Chưa có công việc nhận làm.</h2><p>Thêm việc bạn làm được, lịch và mức tiền công mong muốn.</p></section></div></t>
+  </template>
+
+  <template id="profile_editor_context" inherit_id="tacare_website.live_profile" name="Form · Gắn đúng hồ sơ">
+    <xpath expr="//section[@id='profile-intro']/label[1]" position="before"><label>Tên hồ sơ *<input name="profile_title" required="required" maxlength="160" t-att-value="vals.get('profile_title','') or profile.headline or 'Hồ sơ tuyển dụng'"/></label></xpath>
+    <xpath expr="//div[hasclass('tc-editor-main')]/div[hasclass('tc-page-head')]/h1" position="replace"><h1 t-esc="profile.profile_title or 'Hồ sơ tuyển dụng'"/></xpath>
+  </template>
+
+  <template id="recruitment_profile_selector" name="Chọn hồ sơ tuyển dụng cụ thể">
+    <form t-if="role == 'candidate' and own_profiles" method="get" class="tc-filter"><label>Hồ sơ dùng để ứng tuyển và đối chiếu<select name="profile_id"><option t-foreach="own_profiles.filtered('care_recruitment_enabled')" t-as="p" t-att-value="p.id" t-att-selected="profile and profile.id == p.id" t-esc="p.profile_title or p.headline or p.name"/></select></label><button type="submit" class="tc-button tc-outline">Chọn hồ sơ</button></form>
+  </template>
+  <template id="matching_profile_selector" inherit_id="tacare_website.live_matching" name="Đối chiếu · Chọn đúng hồ sơ">
+    <xpath expr="//div[hasclass('tc-page-head')]" position="after"><t t-if="kind == 'jobs'" t-call="tacare_website.recruitment_profile_selector"/></xpath>
+  </template>
+  <template id="job_profile_selector" inherit_id="tacare_website.kvl_job_detail" name="Ứng tuyển · Chọn đúng hồ sơ">
+    <xpath expr="//div[hasclass('tc-page-head')]" position="after"><t t-if="not preview and role == 'candidate'" t-call="tacare_website.recruitment_profile_selector"/></xpath>
+  </template>
+
+  <template id="profile_workspace_navigation" inherit_id="tacare_website.live_layout" name="Điều hướng và trạng thái đang chọn">
+    <xpath expr="//div[@id='wrap']" position="attributes"><attribute name="t-att-data-account-role">role</attribute></xpath>
+    <xpath expr="//header[@t-if='not home_page']" position="attributes"><attribute name="t-if">not home_page and site != 'tuhoso'</attribute></xpath>
+    <xpath expr="//main[@id='tc-main']" position="before"><t t-if="not home_page and site == 'tuhoso'" t-call="tacare_website.profile_navigation"/></xpath>
+    <xpath expr="//nav[hasclass('tc-nav')]" position="replace">
+      <nav class="tc-nav" aria-label="Điều hướng chính"><a t-att-href="urls[site]" data-nav-link="1">Trang chủ</a><t t-if="site == 'khovieclam'"><a href="/kvl/jobs" data-nav-link="1">Tìm việc</a><a href="/kvl/flexible/new" data-nav-link="1">Đăng việc</a><a href="/kvl/flexible/mine" data-nav-link="1">Quản lý tin</a><a t-if="role in ('business','admin')" href="/kvl/candidates" data-nav-link="1">Ứng viên</a></t><t t-else=""><a href="/tacare/matching" data-nav-link="1">Đối chiếu</a><a href="/tacare/connections" data-nav-link="1">Kết nối</a><a href="/tacare/notifications" data-nav-link="1">Thông báo</a></t></nav>
+    </xpath>
+  </template>
+
+  <template id="profile_footer" name="Tủ · Chân trang ngắn"><footer class="pv-footer pv-shell"><a href="/">Tủ Hồ Sơ</a><p>Năng lực của bạn, được trình bày rõ ràng.</p><nav aria-label="Các website liên quan"><a t-if="'khovieclam' in switch_sites" t-att-href="urls['khovieclam']">Kho Việc Làm</a><a t-att-href="urls['tacare']">TA.CARE</a></nav></footer></template>
+</odoo>

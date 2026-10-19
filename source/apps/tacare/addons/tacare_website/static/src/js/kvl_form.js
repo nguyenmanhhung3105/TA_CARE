@@ -1,58 +1,77 @@
-/** Kho việc làm form interactions; server routes remain the source of truth. */
-function initKvlForm() {
-  const form = document.querySelector('form[data-kvl-unsaved]');
-  if (!form) return;
-  const list = form.querySelector('[data-kvl-requirements]');
-  let dirty = false;
-  let submitting = false;
-  form.addEventListener('input', () => { dirty = true; });
-  form.addEventListener('change', () => { dirty = true; });
-  form.addEventListener('submit', () => {
-    submitting = true;
-    form.querySelectorAll('button[type="submit"]').forEach((button) => {
-      if (button === document.activeElement) button.textContent = 'Đang lưu…';
+/** Progressive enhancement only; the server validates every write. */
+function initCareForms() {
+  document.querySelectorAll('form[data-kvl-unsaved]').forEach((form) => {
+    let dirty = false;
+    let submitting = false;
+    form.addEventListener('input', () => { dirty = true; });
+    form.addEventListener('change', () => { dirty = true; });
+    form.addEventListener('submit', () => { submitting = true; });
+    window.addEventListener('beforeunload', (event) => {
+      if (dirty && !submitting) { event.preventDefault(); event.returnValue = ''; }
     });
-  });
-  window.addEventListener('beforeunload', (event) => {
-    if (dirty && !submitting) {
-      event.preventDefault();
-      event.returnValue = '';
-    }
-  });
-  form.querySelector('[data-kvl-add]')?.addEventListener('click', () => {
-    const original = list.querySelector('.tc-kvl-requirement');
-    if (!original) return;
-    const row = original.cloneNode(true);
-    row.querySelectorAll('input').forEach((input) => { input.value = ''; });
-    row.querySelector('[name="requirement_category"]').value = 'technical';
-    row.querySelector('[name="requirement_priority"]').value = 'mandatory';
-    list.append(row);
-    row.querySelector('input')?.focus();
-    dirty = true;
-  });
-  list?.addEventListener('click', (event) => {
-    if (!event.target.closest('[data-kvl-remove]')) return;
-    const row = event.target.closest('.tc-kvl-requirement');
-    if (list.querySelectorAll('.tc-kvl-requirement').length > 1) row.remove();
-    else row.querySelector('[name="requirement_name"]').value = '';
-    dirty = true;
-  });
-  const sector = form.querySelector('[name="sector_id"]');
-  const updateSectorFields = (clearHidden = false) => {
-    const code = sector?.selectedOptions[0]?.dataset.code || '';
-    form.querySelectorAll('[data-kvl-sector]').forEach((field) => {
-      const standard = ['sales', 'marketing', 'health', 'ecommerce'].includes(code);
-      const visible = !standard || field.dataset.kvlSector.split(',').includes(code);
-      field.hidden = !visible;
-      if (!visible && clearHidden) field.querySelector('input').checked = false;
+    const sector = form.querySelector('[name="sector_id"], [name="sector"]');
+    const position = form.querySelector('[data-position-select]');
+    const updatePositions = () => {
+      if (!position || !sector) return;
+      [...position.options].forEach((option) => {
+        const visible = !option.value || !sector.value || option.dataset.sector === sector.value;
+        option.hidden = !visible;
+        option.disabled = !visible;
+      });
+      if (position.selectedOptions[0]?.disabled) position.value = '';
+    };
+    const experience = form.querySelector('[name="experience_known"]');
+    const confirmedPosition = form.querySelector('[name="experience_position_id"]');
+    const resetExperience = () => {
+      if (experience && confirmedPosition) { experience.checked = false; confirmedPosition.value = ''; }
+    };
+    position?.addEventListener('change', resetExperience);
+    sector?.addEventListener('change', resetExperience);
+    experience?.addEventListener('change', () => {
+      if (confirmedPosition) confirmedPosition.value = experience.checked ? position?.value || '' : '';
     });
-  };
-  sector?.addEventListener('change', () => updateSectorFields(true));
-  updateSectorFields();
+    sector?.addEventListener('change', updatePositions);
+    updatePositions();
+    const input = form.querySelector('[data-skill-input]');
+    const picker = form.querySelector('[data-skill-picker]');
+    const mandatory = new Set([...form.querySelectorAll('[name="mandatory_skill"]:checked')]
+      .map((box) => box.value.toLocaleLowerCase('vi')));
+    picker?.addEventListener('change', (event) => {
+      if (event.target.name !== 'mandatory_skill') return;
+      const key = event.target.value.toLocaleLowerCase('vi');
+      if (event.target.checked) mandatory.add(key); else mandatory.delete(key);
+    });
+    const updateSkills = () => {
+      if (!input || !picker) return;
+      picker.replaceChildren();
+      const seen = new Set();
+      input.value.split(',').map((value) => value.trim()).filter(Boolean).forEach((name) => {
+        const key = name.toLocaleLowerCase('vi');
+        if (seen.has(key)) return;
+        seen.add(key);
+        const label = document.createElement('label'); label.className = 'tc-skill-choice';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox'; checkbox.name = 'mandatory_skill'; checkbox.value = name;
+        checkbox.checked = mandatory.has(key);
+        const text = document.createElement('span'); text.textContent = name;
+        label.append(checkbox, text); picker.append(label);
+      });
+    };
+    input?.addEventListener('input', updateSkills);
+    updateSkills();
+    const display = form.querySelector('[name="salary_display"]');
+    const salaryDetails = form.querySelector('[data-salary-details]');
+    const updateSalary = () => {
+      if (!display || !salaryDetails) return;
+      salaryDetails.hidden = display.value === 'negotiable' || !display.value;
+      const min = salaryDetails.querySelector('[name="salary_min"]');
+      const max = salaryDetails.querySelector('[name="salary_max"]');
+      if (min) min.closest('label').hidden = display.value === 'to';
+      if (max) max.closest('label').hidden = display.value === 'from';
+    };
+    display?.addEventListener('change', updateSalary);
+    updateSalary();
+  });
 }
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initKvlForm, { once: true });
-} else {
-  initKvlForm();
-}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initCareForms, { once: true });
+else initCareForms();

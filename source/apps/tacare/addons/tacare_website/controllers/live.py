@@ -1,4 +1,5 @@
 """Server-rendered local first experience backed by Odoo records."""
+import math
 from urllib.parse import urlsplit
 
 from markupsafe import escape
@@ -7,7 +8,8 @@ from werkzeug.exceptions import BadRequest, Forbidden, NotFound
 from odoo import http, fields
 from odoo.http import request
 
-from ..models.hr_job import SECTORS, TYPES, MODES
+from ..models.hr_job import SECTORS, TYPES, MODES, preferred_currency
+from .site_context import site_context
 
 
 class TacareLive(http.Controller):
@@ -95,12 +97,20 @@ class TacareLive(http.Controller):
                 (urlsplit('//' + request.httprequest.host).hostname or '').startswith('khovieclam.'):
             site = 'khovieclam'
         sector_records = request.env['care.job.sector'].sudo().search([])
+        values.setdefault('child_form', '')
+        values.setdefault('child_id', 0)
+        values.setdefault('child_values', {})
         values.update(site=site, role=self._role(), account_name=self._user().name,
                       is_guest=self._user()._is_public(), urls=self._urls(),
                       sectors=SECTORS, job_sectors=sector_records, types=TYPES, modes=MODES,
+                      positions=request.env['care.job.position'].sudo().search([]),
+                      regions=request.env['res.country.state'].sudo().search([('country_id.code', '=', 'VN')]),
                       currencies=request.env['res.currency'].sudo().search([('active', '=', True)]),
                       notice=request.params.get('notice'))
-        return request.render('tacare_website.' + template, values)
+        values.update(site_context(site, values['urls']))
+        response = request.render('tacare_website.' + template, values)
+        response.headers['Cache-Control'] = 'private, no-store'
+        return response
 
     def _own_job(self, job_id, capability='manage'):
         self._require_business()
@@ -113,8 +123,20 @@ class TacareLive(http.Controller):
         return job
 
     def _my_profile(self, create=False):
-        self._require_candidate()
-        profile = request.env['tacare.profile'].sudo().search([('user_id', '=', self._user().id)], limit=1)
+        if self._role() not in ('candidate', 'business', 'admin') or self._user()._is_public():
+            raise Forbidden('Đăng nhập tài khoản được cấp quyền để quản lý hồ sơ của mình.')
+        domain = [('user_id', '=', self._user().id), ('company_id', '=', request.env.company.id)]
+        selected = request.params.get('profile_id')
+        if not selected and request.httprequest.method == 'POST' and request.env['tacare.profile'].sudo().search_count(domain, limit=2) > 1:
+            raise BadRequest('Chọn hồ sơ cụ thể trước khi lưu thay đổi.')
+        if selected:
+            try:
+                domain.append(('id', '=', int(selected)))
+            except (ValueError, TypeError):
+                raise BadRequest('Hồ sơ không hợp lệ.')
+        profile = request.env['tacare.profile'].sudo().search(domain, order='care_recruitment_enabled desc, id', limit=1)
+        if selected and not profile:
+            raise NotFound()
         if not profile and create:
             profile = request.env['tacare.profile'].sudo().create({
                 'user_id': self._user().id,
@@ -123,9 +145,11 @@ class TacareLive(http.Controller):
         return profile
 
     def _my_child(self, model, record_id):
-        profile = self._my_profile()
-        item = request.env[model].sudo().browse(record_id).exists()
-        if not item or item.profile_id != profile:
+        if self._user()._is_public() or self._role() not in ('candidate', 'business', 'admin'):
+            raise Forbidden()
+        item = request.env[model].sudo().search([('id', '=', record_id),
+            ('profile_id.user_id', '=', self._user().id), ('company_id', '=', request.env.company.id)], limit=1)
+        if not item or (request.params.get('profile_id') and str(item.profile_id.id) != request.params['profile_id']):
             raise Forbidden('Mục này không thuộc hồ sơ của bạn.')
         return item
 
@@ -141,7 +165,8 @@ class TacareLive(http.Controller):
     def _job_domain(self):
         website = self._website('khovieclam')
         return [('tacare_status', '=', 'published'), ('is_published', '=', True),
-                ('website_id', '=', website.id)]
+                ('website_id', '=', website.id), '|', ('tacare_deadline', '=', False),
+                ('tacare_deadline', '>=', fields.Date.today())]
 
     def _visible_profiles(self, recipient=None):
         profiles = request.env['tacare.profile'].sudo().search([
@@ -165,19 +190,11 @@ class TacareLive(http.Controller):
         return skill
 
     def _match(self, job, profile):
-        names = {name.casefold() for name in profile.skill_ids.mapped('name')} if profile.user_id == self._user() or self._current_consent(profile, 'matching', job.tacare_owner_partner_id, 'skills') else set()
-        required = self._skills(job.tacare_required_skills)
-        preferred = self._skills(job.tacare_preferred_skills)
-        matched = [name for name in required if name.casefold() in names]
-        missing = [name for name in required if name.casefold() not in names]
-        preferred_found = [name for name in preferred if name.casefold() in names]
-        same_mode = bool(profile.mode) and (not job.tacare_mode or profile.mode == job.tacare_mode or
-                                              'hybrid' in (profile.mode, job.tacare_mode))
-        same_location = bool(profile.location) and (job.tacare_mode == 'remote' or
-                                                     (job.tacare_location or '').casefold() == profile.location.casefold())
-        return {'matched': matched, 'missing': missing,
-                'preferred_found': preferred_found, 'same_mode': same_mode,
-                'same_location': same_location}
+        own = profile.user_id == self._user()
+        organization = job.tacare_owner_partner_id
+        return job._care_compare_profile(profile,
+            allow_profile=own or bool(self._current_consent(profile, 'matching', organization, 'profile')),
+            allow_skills=own or bool(self._current_consent(profile, 'matching', organization, 'skills')))
 
     def _notify(self, user, text, connection=None):
         request.env['tacare.notification'].sudo().create({
@@ -220,6 +237,11 @@ class TacareLive(http.Controller):
     def _job_form_values(self, job, overrides=None):
         mapping = {
             'name': 'name', 'position': 'care_position', 'sector_id': 'care_sector_id',
+            'position_id': 'care_position_id', 'region_id': 'care_region_id',
+            'requirements_text': 'care_candidate_requirements', 'benefits': 'care_benefits',
+            'salary_display': 'care_salary_display', 'salary_basis': 'care_salary_basis',
+            'salary_tax': 'care_salary_tax', 'education_note': 'care_education_note',
+            'language_note': 'care_language_note', 'license_note': 'care_license_note',
             'type': 'tacare_type', 'level': 'care_level', 'mode': 'tacare_mode',
             'work_fraction': 'care_work_fraction', 'location': 'tacare_location',
             'quantity': 'no_of_recruitment', 'start': 'tacare_start',
@@ -237,7 +259,7 @@ class TacareLive(http.Controller):
         if job:
             for source, target in mapping.items():
                 value = job[target]
-                values[source] = str(value.id if target == 'care_sector_id' and value else value or '')
+                values[source] = str(value.id if job._fields[target].type == 'many2one' and value else value or '')
             if not job.care_sector_id and job.tacare_sector:
                 legacy_sector = request.env['care.job.sector'].sudo().search([
                     ('code', '=', job.tacare_sector)], limit=1)
@@ -247,11 +269,27 @@ class TacareLive(http.Controller):
                                      ('requires_travel', 'care_requires_travel'),
                                      ('requires_license', 'care_requires_license'),
                                      ('requires_portfolio', 'care_requires_portfolio'),
-                                     ('requires_clinical', 'care_requires_clinical')]:
+                                     ('requires_clinical', 'care_requires_clinical'),
+                                     ('training_provided', 'care_training_provided'),
+                                     ('skills_any', 'care_skills_any'),
+                                     ('schedule_required', 'care_schedule_required'),
+                                     ('start_flexible', 'care_start_flexible')]:
                 values[checkbox] = 'on' if job[target] else ''
+        if values.get('type') in ('full_time', 'part_time'):
+            values['work_fraction'] = values.get('work_fraction') or ('full' if values['type'] == 'full_time' else 'part')
+            values['type'] = 'employment'
+        values['main_skills'] = ', '.join(filter(None, (values.get('required_skills'), values.get('preferred_skills'))))
+        values['mandatory_names'] = self._skills(values.get('required_skills'))
+        if not job:
+            values.update(matching_enabled='on', start_flexible='on', salary_display='negotiable',
+                          salary_basis='base', salary_tax='unknown', income_period='month', type='employment')
         if overrides:
+            for key in ('matching_enabled', 'training_provided', 'skills_any', 'schedule_required',
+                        'start_flexible', 'requires_travel'):
+                values[key] = overrides.get(key, '')
             values.update(overrides)
-        values.setdefault('currency_id', str(request.env.company.currency_id.id))
+            values['mandatory_names'] = request.httprequest.form.getlist('mandatory_skill')
+        values.setdefault('currency_id', str(preferred_currency(request.env).id))
         return values
 
     def _job_form_error(self, job, submitted, rows, field, message):
@@ -271,7 +309,10 @@ class TacareLive(http.Controller):
         kind = kw.get('type') or ''
         if query:
             jobs = jobs.filtered(lambda item: query in (item.name or '').casefold() or
-                                 query in (item.tacare_location or '').casefold())
+                                 query in (item.tacare_location or '').casefold() or
+                                 query in (item.care_position or '').casefold() or
+                                 query in (item.tacare_required_skills or '').casefold() or
+                                 query in (item.tacare_preferred_skills or '').casefold())
         if sector:
             jobs = jobs.filtered(lambda item: item.care_sector_id.code == sector or item.tacare_sector == sector)
         if kind:
@@ -284,6 +325,8 @@ class TacareLive(http.Controller):
         if not job:
             raise NotFound()
         profile = self._my_profile() if self._is_candidate() else False
+        if profile and not profile.care_recruitment_enabled:
+            profile = False
         can_match = profile and job.care_matching_enabled and self._current_consent(profile, 'matching')
         return self._render('kvl_job_detail', site='khovieclam', job=job,
                             required=self._skills(job.tacare_required_skills),
@@ -411,6 +454,9 @@ class TacareLive(http.Controller):
         if intent == 'publish' and job and job.tacare_status != 'draft':
             raise BadRequest('Chỉ tin Nháp được đăng bằng thao tác này.')
         rows = self._requirement_inputs()
+        if job and kw.get('form_version') == '2':
+            rows = [{'category': row.category, 'name': row.name, 'mandatory': row.mandatory}
+                    for row in job.care_requirement_ids]
         sector_id = kw.get('sector_id') or ''
         try:
             sector = request.env['care.job.sector'].sudo().browse(int(sector_id)).exists() if sector_id else False
@@ -419,17 +465,41 @@ class TacareLive(http.Controller):
         if sector_id and not sector:
             raise BadRequest('Ngành nghề không hợp lệ.')
         try:
-            currency_id = int(kw.get('currency_id') or request.env.company.currency_id.id)
+            currency_id = int(kw.get('currency_id') or (job.care_currency_id.id if job else preferred_currency(request.env).id))
         except ValueError:
             raise BadRequest('Đơn vị tiền tệ không hợp lệ.')
         currency = request.env['res.currency'].sudo().browse(currency_id).exists()
         if not currency or not currency.active:
             raise BadRequest('Đơn vị tiền tệ không hợp lệ.')
+        try:
+            position = request.env['care.job.position'].sudo().browse(int(kw.get('position_id') or 0)).exists()
+            region = request.env['res.country.state'].sudo().browse(int(kw.get('region_id') or 0)).exists()
+        except ValueError:
+            return self._job_form_error(job, kw, rows, 'position_id', 'Chọn nhóm nghề và khu vực hợp lệ.')
+        if position and position.sector_id != sector:
+            return self._job_form_error(job, kw, rows, 'position_id', 'Nhóm nghề phải thuộc lĩnh vực đã chọn.')
+        if region and region.country_id.code != 'VN':
+            return self._job_form_error(job, kw, rows, 'region_id', 'Chọn tỉnh / thành trong danh sách.')
+        if kw.get('position_id') and not position or kw.get('region_id') and not region:
+            return self._job_form_error(job, kw, rows, 'position_id', 'Nhóm nghề hoặc khu vực không còn trong danh sách.')
         vals = {
             'name': (kw.get('name') or '').strip(),
             'tacare_sector': sector.code if sector and sector.code in dict(SECTORS) else False,
             'care_sector_id': sector.id if sector else False,
-            'care_position': (kw.get('position') or '').strip()[:160],
+            'care_position': position.name if position else (kw.get('position') or '').strip()[:160],
+            'care_position_id': position.id, 'care_region_id': region.id,
+            'care_candidate_requirements': (kw.get('requirements_text') or '').strip()[:20000],
+            'care_benefits': (kw.get('benefits') or '').strip()[:20000],
+            'care_training_provided': kw.get('training_provided') == 'on',
+            'care_skills_any': kw.get('skills_any') == 'on',
+            'care_salary_display': kw.get('salary_display') or 'negotiable',
+            'care_salary_basis': kw.get('salary_basis') or 'base',
+            'care_salary_tax': kw.get('salary_tax') or 'unknown',
+            'care_education_note': (kw.get('education_note') or '').strip()[:300],
+            'care_language_note': (kw.get('language_note') or '').strip()[:300],
+            'care_license_note': (kw.get('license_note') or '').strip()[:300],
+            'care_schedule_required': kw.get('schedule_required') == 'on',
+            'care_start_flexible': kw.get('start_flexible') == 'on',
             'care_level': kw.get('level') or False,
             'care_work_fraction': kw.get('work_fraction') or False,
             'care_shift_note': (kw.get('shift_note') or '').strip()[:160],
@@ -453,6 +523,18 @@ class TacareLive(http.Controller):
             'website_description': '<p>%s</p>' % escape((kw.get('description') or '').strip()),
             'care_matching_enabled': kw.get('matching_enabled') == 'on',
         }
+        if kw.get('form_version') == '2':
+            all_skills = list({name.casefold(): name for name in self._skills(kw.get('main_skills'))}.values())
+            required_keys = {name.casefold() for name in request.httprequest.form.getlist('mandatory_skill')}
+            if len(all_skills) > 20 or any(len(name) > 80 for name in all_skills):
+                return self._job_form_error(job, kw, rows, 'main_skills', 'Tối đa 20 kỹ năng, mỗi tên tối đa 80 ký tự.')
+            vals['tacare_required_skills'] = ', '.join(name for name in all_skills if name.casefold() in required_keys)
+            vals['tacare_preferred_skills'] = ', '.join(name for name in all_skills if name.casefold() not in required_keys)
+            if vals['care_salary_display'] == 'negotiable':
+                vals.update(care_salary_min=0, care_salary_max=0)
+            vals['care_income_type'] = 'negotiable' if vals['care_salary_display'] == 'negotiable' else 'salary'
+        if len(vals['profile_title']) > 160:
+            return self._profile_form_error(profile, kw, 'Tên hồ sơ tối đa 160 ký tự.')
         if len(vals['name']) < 2:
             return self._render('kvl_job_form', site='khovieclam', job=job,
                 owners=request.env['res.users'].sudo().search([('tacare_account_role', '=', 'business')]) if self._role() == 'admin' else False,
@@ -470,7 +552,9 @@ class TacareLive(http.Controller):
         if vals['care_duration_months'] < 0:
             return self._job_form_error(job, kw, rows, 'duration_months', 'Thời lượng không được âm.')
         for source, options in [('care_level', 'level'), ('care_work_fraction', 'work_fraction'),
-                                ('care_income_type', 'income_type'), ('care_income_period', 'income_period')]:
+                                ('care_income_type', 'income_type'), ('care_income_period', 'income_period'),
+                                ('care_salary_display', 'salary_display'), ('care_salary_basis', 'salary_basis'),
+                                ('care_salary_tax', 'salary_tax')]:
             if vals[source] and vals[source] not in dict(request.env['hr.job']._fields[source].selection):
                 raise BadRequest('Giá trị ' + options + ' không hợp lệ.')
         for source, target in [('experience_min', 'care_experience_min'),
@@ -479,12 +563,24 @@ class TacareLive(http.Controller):
                 vals[target] = float(kw.get(source) or 0)
             except ValueError:
                 return self._job_form_error(job, kw, rows, source, 'Nhập một số hợp lệ.')
-            if vals[target] < 0:
+            if not math.isfinite(vals[target]) or vals[target] < 0:
                 return self._job_form_error(job, kw, rows, source, 'Giá trị không được âm.')
+        if kw.get('form_version') == '2':
+            display = vals['care_salary_display']
+            if display in ('negotiable', 'to'):
+                vals['care_salary_min'] = 0
+            if display in ('negotiable', 'from'):
+                vals['care_salary_max'] = 0
+            if intent == 'publish' and display != 'negotiable' and not (vals['care_salary_min'] or vals['care_salary_max']):
+                return self._job_form_error(job, kw, rows, 'salary_min', 'Nhập mức lương hoặc chọn Thỏa thuận.')
+            if intent == 'publish' and display == 'range' and not (vals['care_salary_min'] and vals['care_salary_max']):
+                return self._job_form_error(job, kw, rows, 'salary_min', 'Khoảng lương cần cả mức thấp nhất và cao nhất.')
         if vals['care_salary_max'] and vals['care_salary_max'] < vals['care_salary_min']:
             return self._job_form_error(job, kw, rows, 'salary_max', 'Mức cao nhất phải từ mức thấp nhất trở lên.')
         try:
-            vals['no_of_recruitment'] = max(1, int(kw.get('quantity') or '1'))
+            vals['no_of_recruitment'] = int(kw.get('quantity') or '1')
+            if not 1 <= vals['no_of_recruitment'] <= 10000:
+                raise ValueError()
         except ValueError:
             return self._job_form_error(job, kw, rows, 'quantity', 'Nhập số lượng hợp lệ.')
         for source, target in [('start', 'tacare_start'), ('deadline', 'tacare_deadline')]:
@@ -511,12 +607,16 @@ class TacareLive(http.Controller):
                     field_errors[key] = label
             if vals['tacare_mode'] != 'remote' and not vals['tacare_location']:
                 field_errors['location'] = 'Nhập địa điểm nếu không làm từ xa.'
-            if not vals['tacare_required_skills'] and not any(row['mandatory'] for row in rows):
-                field_errors['requirements'] = 'Cần ít nhất một kỹ năng hoặc điều kiện bắt buộc.'
+            if kw.get('form_version') == '2' and not position:
+                field_errors['position_id'] = 'Chọn nhóm nghề để đối chiếu đúng vị trí.'
+            if kw.get('form_version') == '2' and not vals['care_candidate_requirements']:
+                field_errors['requirements_text'] = 'Nêu yêu cầu ứng viên hoặc chính sách đào tạo từ đầu.'
+            if kw.get('form_version') == '2' and not vals['care_work_fraction']:
+                field_errors['work_fraction'] = 'Chọn thời lượng làm việc.'
+            if vals['tacare_mode'] != 'remote' and kw.get('form_version') == '2' and not region:
+                field_errors['region_id'] = 'Chọn tỉnh / thành làm việc.'
             if vals['tacare_deadline'] and vals['tacare_deadline'] < fields.Date.today().isoformat():
                 field_errors['deadline'] = 'Hạn nhận đề nghị đã qua.'
-        if vals['tacare_start'] and vals['tacare_deadline'] and vals['tacare_deadline'] < vals['tacare_start']:
-            field_errors['deadline'] = 'Hạn nhận phải sau ngày bắt đầu.'
         if field_errors:
             owners = request.env['res.users'].sudo().search([('tacare_account_role', '=', 'business')]) if self._role() == 'admin' else False
             return self._render('kvl_job_form', site='khovieclam', job=job, owners=owners,
@@ -641,10 +741,12 @@ class TacareLive(http.Controller):
 
     @http.route('/tuhoso/me', type='http', auth='user', website=True)
     def my_profile(self, **kw):
-        profile = self._my_profile(create=True)
+        profile = self._my_profile()
+        if not profile:
+            return request.redirect('/tuhoso/profiles/new?kind=recruitment')
         return self._render('live_profile', site='tuhoso', profile=profile, edit=True,
                             evidence_items=profile.evidence_ids, skill_items=profile.skill_ids,
-                            matching_enabled=bool(self._current_consent(profile, 'matching')))
+                            vals=self._profile_values(profile), error=False, matching_enabled=bool(self._current_consent(profile, 'matching')))
 
     @http.route('/tuhoso/profile/<int:profile_id>', type='http', auth='public', website=True)
     def profile_public(self, profile_id, **kw):
@@ -660,41 +762,89 @@ class TacareLive(http.Controller):
         return self._render('live_profile', site='tuhoso', profile=profile, edit=False,
                             evidence_items=evidence_items, skill_items=skill_items)
 
+    def _profile_values(self, profile, submitted=None):
+        keys = ('name', 'profile_title', 'headline', 'bio', 'education', 'location', 'goal', 'availability', 'pay',
+                'sector', 'mode', 'desired_type', 'work_fraction', 'relevant_months', 'salary_min',
+                'salary_period', 'salary_tax', 'work_history', 'education_details', 'languages',
+                'licenses', 'travel', 'start_date')
+        values = {key: str(profile[key] or '') for key in keys}
+        for key in ('desired_position_id', 'region_id', 'salary_currency_id'):
+            values[key] = str(profile[key].id or '')
+        values['experience_known'] = 'on' if profile.experience_known else ''
+        values['relevant_months'] = str(profile.relevant_months) if profile.experience_known else ''
+        values['experience_position_id'] = str(profile.desired_position_id.id or '')
+        if submitted is not None:
+            values.update(submitted)
+            values['experience_known'] = submitted.get('experience_known', '')
+        return values
+
+    def _profile_form_error(self, profile, submitted, message):
+        return self._render('live_profile', site='tuhoso', profile=profile, edit=True,
+                            evidence_items=profile.evidence_ids, skill_items=profile.skill_ids,
+                            vals=self._profile_values(profile, submitted), error=message,
+                            matching_enabled=bool(self._current_consent(profile, 'matching')))
+
     @http.route('/tuhoso/profile/save', type='http', auth='user', methods=['POST'], website=True)
     def profile_save(self, **kw):
         profile = self._my_profile(create=True)
-        vals = {key: (kw.get(key) or '').strip() for key in
-                ('name', 'headline', 'education', 'location', 'goal', 'availability', 'pay')}
+        vals = {key: (kw.get(key) or '').strip()[:20000] for key in
+                ('name', 'profile_title', 'headline', 'bio', 'education', 'location', 'goal', 'availability',
+                 'work_history', 'education_details', 'languages', 'licenses')}
         if len(vals['name']) < 2:
-            return self._render('live_profile', site='tuhoso', profile=profile, edit=True,
-                                evidence_items=profile.evidence_ids, skill_items=profile.skill_ids,
-                                matching_enabled=bool(self._current_consent(profile, 'matching')),
-                                error='Tên cần ít nhất hai ký tự.')
-        for key, allowed in [('sector', SECTORS), ('mode', MODES)]:
+            return self._profile_form_error(profile, kw, 'Tên cần ít nhất hai ký tự. Nội dung bạn nhập được giữ bên dưới.')
+        for key in ('sector', 'mode', 'desired_type', 'work_fraction', 'salary_period', 'salary_tax', 'travel'):
             value = kw.get(key) or False
-            if value and value not in dict(allowed):
-                raise BadRequest('Giá trị không hợp lệ.')
+            if value and value not in dict(profile._fields[key].selection):
+                return self._profile_form_error(profile, kw, 'Chọn giá trị hợp lệ trong danh sách.')
             vals[key] = value
+        try:
+            position = request.env['care.job.position'].sudo().browse(int(kw.get('desired_position_id') or 0)).exists()
+            region = request.env['res.country.state'].sudo().browse(int(kw.get('region_id') or 0)).exists()
+            currency = request.env['res.currency'].sudo().browse(int(kw.get('salary_currency_id') or request.env.company.currency_id.id)).exists()
+            months, salary = int(kw.get('relevant_months') or 0), float(kw.get('salary_min') or 0)
+            start_date = fields.Date.to_date(kw.get('start_date')) if kw.get('start_date') else False
+        except (ValueError, TypeError):
+            return self._profile_form_error(profile, kw, 'Kiểm tra số tháng kinh nghiệm, mức lương, ngày bắt đầu và nhóm nghề.')
+        known = kw.get('experience_known') == 'on'
+        if known and (not (kw.get('relevant_months') or '').strip() or
+                      str(position.id or '') != kw.get('experience_position_id', '')):
+            return self._profile_form_error(profile, kw, 'Nhập số tháng và đánh dấu xác nhận kinh nghiệm cho nhóm nghề đang chọn; 0 tháng nếu chưa có kinh nghiệm.')
+        if (not 0 <= months <= 960 or not math.isfinite(salary) or salary < 0 or not currency or not currency.active or
+                (kw.get('desired_position_id') and not position) or (kw.get('region_id') and not region) or
+                (position and position.sector_id.code != vals['sector']) or (known and not position) or
+                (region and region.country_id.code != 'VN')):
+            return self._profile_form_error(profile, kw, 'Kinh nghiệm từ 0–960 tháng, lương không âm; nhóm nghề phải thuộc lĩnh vực đã chọn.')
+        vals.update(desired_position_id=position.id, region_id=region.id, salary_currency_id=currency.id,
+                    experience_known=known, relevant_months=months if known else 0, salary_min=salary,
+                    start_date=start_date)
+        vals['care_recruitment_enabled'] = True
         profile.write(vals)
-        return request.redirect('/tuhoso/me?notice=profile')
+        return request.redirect('/tuhoso/me?profile_id=%s&notice=profile' % profile.id)
+
+    def _child_form_error(self, profile, submitted, form, message, record_id=0):
+        return self._render('live_profile', site='tuhoso', profile=profile, edit=True,
+            evidence_items=profile.evidence_ids, skill_items=profile.skill_ids,
+            vals=self._profile_values(profile), error=message, child_form=form,
+            child_id=record_id, child_values=submitted,
+            matching_enabled=bool(self._current_consent(profile, 'matching')))
 
     @http.route('/tuhoso/skill/add', type='http', auth='user', methods=['POST'], website=True)
     def skill_add(self, **kw):
         profile = self._my_profile(create=True)
         name = (kw.get('name') or '').strip()
         if not name or len(name) > 80:
-            raise BadRequest('Tên kỹ năng không hợp lệ.')
+            return self._child_form_error(profile, kw, 'skill_add', 'Tên kỹ năng cần từ 1 đến 80 ký tự.')
         if profile.skill_ids.filtered(lambda item: item.name.casefold() == name.casefold()):
-            raise BadRequest('Kỹ năng đã có trong hồ sơ.')
+            return self._child_form_error(profile, kw, 'skill_add', 'Kỹ năng đã có trong hồ sơ.')
         level = kw.get('level') or 'basic'
         if level not in dict(request.env['tacare.profile.skill']._fields['level'].selection):
-            raise BadRequest('Mức độ không hợp lệ.')
+            return self._child_form_error(profile, kw, 'skill_add', 'Chọn mức kỹ năng hợp lệ.')
         skill = self._catalog_skill(name)
         request.env['tacare.profile.skill'].sudo().create({
             'profile_id': profile.id, 'name': name, 'level': level, 'skill_id': skill.id,
             'use': (kw.get('use') or '').strip()[:250],
         })
-        return request.redirect('/tuhoso/me?notice=skill')
+        return request.redirect('/tuhoso/me?profile_id=%s&notice=skill' % profile.id)
 
     @http.route('/tuhoso/skill/<int:skill_id>/save', type='http', auth='user', methods=['POST'], website=True)
     def skill_save(self, skill_id, **kw):
@@ -702,18 +852,20 @@ class TacareLive(http.Controller):
         name = (kw.get('name') or '').strip()
         level = kw.get('level') or 'basic'
         if not name or len(name) > 80 or level not in dict(skill._fields['level'].selection):
-            raise BadRequest('Kỹ năng không hợp lệ.')
+            return self._child_form_error(skill.profile_id, kw, 'skill_edit', 'Tên hoặc mức kỹ năng không hợp lệ.', skill.id)
         duplicates = skill.profile_id.skill_ids.filtered(lambda item: item.id != skill.id and item.name.casefold() == name.casefold())
         if duplicates:
-            raise BadRequest('Kỹ năng đã có trong hồ sơ.')
+            return self._child_form_error(skill.profile_id, kw, 'skill_edit', 'Kỹ năng đã có trong hồ sơ.', skill.id)
         skill.write({'name': name, 'level': level, 'skill_id': self._catalog_skill(name).id,
                      'use': (kw.get('use') or '').strip()[:250]})
-        return request.redirect('/tuhoso/me?notice=skill')
+        return request.redirect('/tuhoso/me?profile_id=%s&notice=skill' % skill.profile_id.id)
 
     @http.route('/tuhoso/skill/<int:skill_id>/delete', type='http', auth='user', methods=['POST'], website=True)
     def skill_delete(self, skill_id, **kw):
-        self._my_child('tacare.profile.skill', skill_id).unlink()
-        return request.redirect('/tuhoso/me?notice=skill')
+        item = self._my_child('tacare.profile.skill', skill_id)
+        profile_id = item.profile_id.id
+        item.unlink()
+        return request.redirect('/tuhoso/me?profile_id=%s&notice=skill' % profile_id)
 
     @http.route('/tuhoso/evidence/add', type='http', auth='user', methods=['POST'], website=True)
     def evidence_add(self, **kw):
@@ -721,17 +873,17 @@ class TacareLive(http.Controller):
         title = (kw.get('title') or '').strip()
         role = (kw.get('role') or '').strip()
         if not title or not role:
-            raise BadRequest('Nhập tên và vai trò của minh chứng.')
+            return self._child_form_error(profile, kw, 'evidence_add', 'Nhập tên và vai trò của minh chứng.')
         url = (kw.get('url') or '').strip()[:400]
         if url and urlsplit(url).scheme not in ('http', 'https'):
-            raise BadRequest('Liên kết minh chứng phải dùng http hoặc https.')
+            return self._child_form_error(profile, kw, 'evidence_add', 'Liên kết minh chứng phải dùng http hoặc https.')
         request.env['tacare.profile.evidence'].sudo().create({
             'profile_id': profile.id, 'title': title[:160], 'role': role[:160],
             'description': (kw.get('description') or '').strip(),
             'result': (kw.get('result') or '').strip()[:250],
             'url': url, 'visibility': 'private',
         })
-        return request.redirect('/tuhoso/me?notice=evidence')
+        return request.redirect('/tuhoso/me?profile_id=%s&notice=evidence' % profile.id)
 
     @http.route('/tuhoso/evidence/<int:evidence_id>/save', type='http', auth='user', methods=['POST'], website=True)
     def evidence_save(self, evidence_id, **kw):
@@ -739,19 +891,21 @@ class TacareLive(http.Controller):
         title, role = (kw.get('title') or '').strip(), (kw.get('role') or '').strip()
         url = (kw.get('url') or '').strip()[:400]
         if not title or not role or url and urlsplit(url).scheme not in ('http', 'https'):
-            raise BadRequest('Tên, vai trò hoặc liên kết minh chứng không hợp lệ.')
+            return self._child_form_error(evidence.profile_id, kw, 'evidence_edit', 'Tên, vai trò hoặc liên kết minh chứng không hợp lệ.', evidence.id)
         visibility = kw.get('visibility') or 'private'
         if visibility not in ('private', 'members', 'public'):
-            raise BadRequest('Phạm vi minh chứng không hợp lệ.')
+            return self._child_form_error(evidence.profile_id, kw, 'evidence_edit', 'Chọn phạm vi minh chứng hợp lệ.', evidence.id)
         evidence.write({'title': title[:160], 'role': role[:160], 'visibility': visibility,
                         'description': (kw.get('description') or '').strip(),
                         'result': (kw.get('result') or '').strip()[:250], 'url': url})
-        return request.redirect('/tuhoso/me?notice=evidence')
+        return request.redirect('/tuhoso/me?profile_id=%s&notice=evidence' % evidence.profile_id.id)
 
     @http.route('/tuhoso/evidence/<int:evidence_id>/delete', type='http', auth='user', methods=['POST'], website=True)
     def evidence_delete(self, evidence_id, **kw):
-        self._my_child('tacare.profile.evidence', evidence_id).unlink()
-        return request.redirect('/tuhoso/me?notice=evidence')
+        item = self._my_child('tacare.profile.evidence', evidence_id)
+        profile_id = item.profile_id.id
+        item.unlink()
+        return request.redirect('/tuhoso/me?profile_id=%s&notice=evidence' % profile_id)
 
     @http.route('/tuhoso/sharing/save', type='http', auth='user', methods=['POST'], website=True)
     def sharing_save(self, **kw):
@@ -774,24 +928,29 @@ class TacareLive(http.Controller):
                                  'field_scope': ['profile', 'skills', 'evidence'],
                                  'state': 'granted', 'granted_by': self._user().id,
                                  'valid_from': fields.Datetime.now()})
-        return request.redirect('/tuhoso/me?notice=sharing')
+        return request.redirect('/tuhoso/me?profile_id=%s&notice=sharing' % profile.id)
 
     @http.route('/tacare/matching', type='http', auth='user', website=True)
     def matching(self, **kw):
         role = self._role()
         if role == 'candidate':
-            profile = self._my_profile(create=True)
+            profile = self._my_profile()
+            if not profile or not profile.care_recruitment_enabled:
+                return request.redirect(self._urls()['tuhoso'] + 'tuhoso/profiles?kind=recruitment')
             jobs = request.env['hr.job'].sudo().search(
                 self._job_domain() + [('care_matching_enabled', '=', True)]) if self._current_consent(profile, 'matching') else request.env['hr.job']
             matches = sorted([(job, self._match(job, profile)) for job in jobs],
-                             key=lambda pair: len(pair[1]['matched']), reverse=True)
+                             key=lambda pair: pair[1]['rank'], reverse=True)
             return self._render('live_matching', matches=matches, kind='jobs', profile=profile,
                                 matching_enabled=bool(self._current_consent(profile, 'matching')))
         self._require_business()
+        organizations = self._authorized_organizations('handle')
+        if not organizations and role != 'admin':
+            raise Forbidden('Bạn chưa được cấp quyền xử lý ứng viên.')
         domain = [('tacare_owner_partner_id', '!=', False)]
         if role != 'admin':
             domain.extend([('company_id', '=', request.env.company.id),
-                           ('tacare_owner_partner_id', 'in', self._organizations().ids)])
+                           ('tacare_owner_partner_id', 'in', organizations.ids)])
         jobs = request.env['hr.job'].sudo().search(domain + [
             ('tacare_status', '=', 'published'), ('care_matching_enabled', '=', True)])
         try:
@@ -801,9 +960,9 @@ class TacareLive(http.Controller):
         selected = jobs.filtered(lambda item: item.id == selected_id)[:1] or jobs[:1]
         profiles = self._visible_profiles(selected.tacare_owner_partner_id).filtered(lambda item: bool(self._current_consent(item, 'matching', selected.tacare_owner_partner_id, 'skills'))) if selected else request.env['tacare.profile']
         matches = sorted([(profile, self._match(selected, profile)) for profile in profiles],
-                         key=lambda pair: len(pair[1]['matched']), reverse=True) if selected else []
+                         key=lambda pair: pair[1]['rank'], reverse=True) if selected else []
         return self._render('live_matching', matches=matches, kind='profiles', jobs=jobs,
-                            selected=selected, editable_org_ids=self._editable_organizations().ids)
+                            selected=selected, editable_org_ids=organizations.ids)
 
     @http.route('/kvl/candidates', type='http', auth='user', website=True)
     def kvl_candidates(self, **kw):
@@ -826,7 +985,7 @@ class TacareLive(http.Controller):
             lambda profile: bool(self._current_consent(profile, 'matching', selected.tacare_owner_partner_id, 'skills'))) if selected else
             request.env['tacare.profile'])
         pairs = sorted([(profile, self._match(selected, profile)) for profile in profiles],
-                       key=lambda pair: len(pair[1]['matched']), reverse=True) if selected else []
+                       key=lambda pair: pair[1]['rank'], reverse=True) if selected else []
         return self._render('kvl_candidates', site='khovieclam', jobs=jobs,
                             selected=selected, pairs=pairs)
 
@@ -840,28 +999,7 @@ class TacareLive(http.Controller):
             lambda item: item.visibility == 'public' or item.visibility == 'members')
         if not self._current_consent(profile, 'discovery', job.tacare_owner_partner_id, 'evidence'):
             evidence = request.env['tacare.profile.evidence']
-        skills = {skill.name.casefold(): skill for skill in profile.skill_ids}
-        comparisons = []
-        condition_rows = [(row.category, row.name, row.mandatory) for row in job.care_requirement_ids]
-        condition_rows += [('technical', name, True) for name in self._skills(job.tacare_required_skills)]
-        condition_rows += [('technical', name, False) for name in self._skills(job.tacare_preferred_skills)]
-        labels = dict(request.env['care.job.requirement']._fields['category'].selection)
-        for category, name, mandatory in condition_rows:
-            skill = skills.get(name.casefold())
-            education_match = category in ('education', 'major') and name.casefold() in (profile.education or '').casefold()
-            proof = evidence.filtered(lambda item: name.casefold() in (item.title or '').casefold())[:1]
-            basis = ('Kỹ năng ứng viên tự khai: ' + skill.name +
-                     (' — ' + skill.use if skill.use else '')) if skill else (
-                     'Học vấn ứng viên tự khai: ' + profile.education if education_match else (
-                     'Minh chứng được chia sẻ: ' + proof.title + ' (' + dict(proof._fields['status'].selection).get(proof.status, '') + ')' if proof else
-                     'Hồ sơ chưa có dữ liệu trực tiếp cho điều kiện này.'))
-            comparisons.append({'name': name, 'category': labels[category], 'mandatory': mandatory,
-                                'result': 'met' if skill or education_match or proof else 'unknown',
-                                'basis': basis})
-        if job.tacare_mode and profile.mode and job.tacare_mode != profile.mode and 'hybrid' not in (job.tacare_mode, profile.mode):
-            comparisons.append({'name': 'Hình thức làm việc', 'category': 'Điều kiện làm việc',
-                                'mandatory': True, 'result': 'unmet',
-                                'basis': 'Tin yêu cầu %s; hồ sơ nêu %s.' % (dict(MODES)[job.tacare_mode], dict(MODES)[profile.mode])})
+        comparisons = self._match(job, profile)['comparisons']
         return self._render('kvl_candidate_detail', site='khovieclam', job=job,
                             profile=profile, evidence=evidence, comparisons=comparisons)
 
@@ -880,7 +1018,7 @@ class TacareLive(http.Controller):
             raise BadRequest('Tin hoặc hồ sơ không tồn tại.')
         request.env.cr.execute('SELECT id FROM hr_job WHERE id = %s FOR UPDATE', [job.id])
         job.invalidate_recordset(['tacare_status', 'is_published'])
-        if job.tacare_status != 'published' or not job.is_published:
+        if job.tacare_status != 'published' or not job.is_published or (job.tacare_deadline and job.tacare_deadline < fields.Date.today()):
             raise BadRequest('Tin hoặc hồ sơ không còn sẵn sàng.')
         if kind == 'application':
             self._require_candidate()

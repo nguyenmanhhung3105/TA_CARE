@@ -1,5 +1,12 @@
 # Odoo backend local for three websites
 
+> **Hiện hành 20/10/2026:** [làm lại Tủ Hồ Sơ, ảnh/carousel và nhiều hồ sơ](research/implementation_profile_refresh_2026-10-20.md). Tủ hiển thị hồ sơ ngay sau đăng nhập; có tab admin xem tất cả. Mỗi ứng viên được tạo nhiều hồ sơ. Kho/Tủ có carousel riêng, TA.CARE dùng ảnh tĩnh. Hai tài khoản ứng viên được yêu cầu đã có hai hồ sơ mỗi tài khoản. Các số liệu ngày 19/10 bên dưới là lịch sử trước đợt sửa này.
+
+> **Hiện hành 19/10/2026:** [demo tuyển dụng và việc linh hoạt](research/implementation_flexible_demo_2026-10-19.md) đã chạy trên Odoo local. Có 20 công việc (5 tuyển dụng + 15 linh hoạt), 15 hồ sơ (5 tuyển dụng + 10 có mục nhận việc). Chín tài khoản gốc được giữ nguyên. Có carousel ảnh chụp thật và form mới; Tủ yêu cầu đăng nhập, chỉ chủ hoặc admin xem dữ liệu. Số liệu 0 tin/0 hồ sơ ngày 17/10 bên dưới là lịch sử trước seed demo.
+
+
+> **Hiện hành 17/10/2026:** xem [triển khai form v2 và ba trang chủ độc lập](research/implementation_forms_homepages_2026-10-17.md). Ba homepage đã thay cấu trúc riêng, không còn dùng một mẫu hero/card chung. Form mới, consent và quyền tổ chức đã kiểm tra lại. Sau dọn QA: 9 tài khoản gốc giữ nguyên login/password/active/role; 0 tin, 0 hồ sơ, 0 kết nối; 10 lĩnh vực, 48 nhóm nghề. Các mục ngày cũ bên dưới là lịch sử.
+
 ## DB and Docker audit
 
 On 14–15 October 2026, `tacare_local` held three website records (`khovieclam.localhost:8069`, `tuhoso.localhost:8069`, `tacare.localhost:8069`) and nine existing users (four active, five archived). The role field showed one business account, one candidate account and seven pending accounts. Only Odoo system administrators are treated as web admin. `khovieclam_local` and `tuhoso_local` were legacy separate DBs; they were inspected but left untouched. Local pre-update dumps are in ignored `backups/tacare_local_before_odoo_ui_20261014.dump` and `backups/tacare_local_before_schema_20261014.dump`.
@@ -67,7 +74,7 @@ After a local addon update, run `python3 source/apps/tacare/addons/tacare_websit
 
 ## Current limits
 
-- The structured capability, availability, service area, preference, document, OCR, match snapshot, feedback, audit and integration models are installed but have no complete user flow yet. CV upload, OCR processing, verifier workflow and cross-domain SSO are not implemented.
+- The structured capability, availability, service area, preference, document, OCR, match snapshot, feedback, audit and integration models are installed but have no complete user flow yet. CV upload, OCR processing and verifier workflow are not implemented. Cross-domain SSO was added locally on 20 October 2026; see the latest SSO update below.
 - Matching remains calculated live and does not write `care.match.result`. Kho việc làm now shows evidence, unknowns, preferences and explicit work-mode conflicts without a percentage score or hiring decision.
 - Business account assignment remains an admin task in Odoo; no public self-grant of business role was enabled.
 - The JSON design is a target, with unresolved naming/cardinality/enum decisions listed in `docs/database_mapping.md`. This DEV implementation did not rename existing models or migrate production data.
@@ -90,3 +97,15 @@ docker compose run --rm --no-deps -T tacare shell -c /etc/odoo/local.conf -d tac
 ```
 
 The template changes preserve `tc-jobs`, `tc-profiles` and `tc-hub`. The workflow still deploys only `source/apps/tacare/addons/` on push to `main`; no push or server deploy was made here. The addon version is `19.0.3.0.0`; no Python system dependency or manual SQL migration is needed. Updating the addon creates new ORM tables/columns. The existing published-job revision review remains in place. Contact email still needs separate organization-specific consent after connection acceptance. The profile comparator uses exact declared skill names, disclosed education and shared evidence titles; it marks absent data unknown, so it is not a verified ranking algorithm. Structured candidate availability and source verification are outside this Kho phase.
+
+## Local update — restoration and login dialogs, 20 October 2026
+
+Current behavior is documented in [restoration and authentication](research/implementation_auth_restore_2026-10-20.md). TA.CARE restores the original orbit/story design without a photo carousel. Tủ starts with its carousel, then the owner/admin library, and includes a prominent TA.CARE link. Businesses use Kho + TA.CARE; candidates use Tủ + TA.CARE; only system admins use all three. Other homepages remain public; functions require a permitted login on the server. Login dialogs post the native Odoo login form and preserve CSRF/CAPTCHA/MFA hooks. Sessions remain separate per domain.
+
+Admin all-profiles views use allowed companies rather than only the active company. The local dataset remains 20 jobs (5 recruitment + 15 flexible), 20 profiles and 12 profile capabilities. Two requested candidates still have two profiles each; existing credentials were preserved. Local addon version is `19.0.6.1.0`. Python/XML/JS checks, responsive Chrome checks, role/login and profile isolation checks, existing-admin company checks, rollback schema/profile/flexible checks, and all three homepage/login HTTP probes passed. No production service was accessed or deployment triggered.
+
+## Local update — synchronized sign-in/out, 20 October 2026
+
+The owner explicitly requested SSO. [Current implementation and validation](research/implementation_sso_2026-10-20.md) supersedes the earlier separate-login behavior. Native cookies stay host-only; short-lived browser-bound handoffs synchronize the permitted sites after complete Odoo authentication. Global logout revokes the browser group on the server, and open tabs update within about three seconds while visible or when focused. Other browsers/devices remain independent. Account switching clears the previous account at excluded sites. No session ID or password travels in a handoff URL.
+
+Addon versions: `tacare_account_access` 19.0.3.0.0; `tacare_website` 19.0.7.0.0. Local backup: ignored `backups/sso_20261020/`. New technical models: `care.auth.session` and `care.auth.handoff`; no existing business model or credentials were renamed or reset. Production was not accessed or deployed.

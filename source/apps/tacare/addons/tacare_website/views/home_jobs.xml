@@ -1,0 +1,289 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <template id="home_navigation" name="Điều hướng riêng ba trang chủ">
+    <header t-if="site == 'khovieclam'" class="k-nav k-shell">
+      <a class="k-brand" href="/">
+        <img src="/tacare_website/static/src/img/khovieclam.png" width="48" height="48" alt="Logo Kho Việc Làm" />
+        <span>Kho Việc Làm<small>Công việc mở ra tương lai.</small>
+        </span>
+      </a>
+      <nav aria-label="Điều hướng Kho Việc Làm">
+        <a href="/" data-nav-link="1">Trang chủ</a><a href="/kvl/jobs" data-nav-link="1">Tìm việc</a>
+        <a href="#k-industries" data-nav-link="1">Khám phá nghề</a>
+        <a href="#k-journal" data-nav-link="1">Góc nghề nghiệp</a>
+      </nav>
+      <a class="k-employer" t-att-href="'/kvl/manage' if role in ('business','admin') else '/web/login?redirect=/kvl/manage'">Dành cho nhà tuyển dụng </a>
+      <a class="k-login" t-att-href="'/kvl/manage' if role in ('business','admin') else '/web/login'" t-esc="'Không gian của tôi' if not is_guest else 'Đăng nhập'" />
+    </header>
+    <header t-elif="site == 'tuhoso'" class="p-nav p-shell">
+      <a class="p-brand" href="/">
+        <img src="/tacare_website/static/src/img/tuhoso.png" width="40" height="44" alt="Logo Tủ Hồ Sơ" />
+        <span>Tủ Hồ Sơ<small>Bộ sưu tập những điều bạn có thể</small>
+        </span>
+      </a>
+      <nav aria-label="Điều hướng Tủ Hồ Sơ">
+        <a href="#p-collection">Bộ sưu tập năng lực</a>
+        <a href="#p-notes">Ghi chép</a>
+      </nav>
+      <a class="p-open" t-att-href="'/tuhoso/me' if role == 'candidate' else '/web/login?redirect=/tuhoso/me'">Mở hồ sơ của bạn <span></span>
+      </a>
+    </header>
+    <header t-else="" class="h-nav">
+      <a class="h-brand" href="/">
+        <img src="/tacare_website/static/src/img/tacare.png" width="58" height="42" alt="Logo TA.CARE" />
+        <strong>TA.CARE</strong>
+      </a>
+      <nav aria-label="Điều hướng TA.CARE"><a href="/" data-nav-link="1">Trang chủ</a><a href="#h-journey" data-nav-link="1">Hệ sinh thái</a><a href="#h-people" data-nav-link="1">Câu chuyện</a><a href="#h-questions" data-nav-link="1">Giải đáp</a>      </nav>
+      <a class="h-access" t-att-href="'/tacare/connections' if not is_guest else '/web/login?redirect=/tacare/connections'">Kết nối của tôi
+      </a>
+    </header>
+  </template>
+  <template id="home_jobs" name="Kho Việc Làm · Thị trường và chuyên mục nghề">
+    <div class="k-home" data-care-home="jobs">
+      <section class="k-opening k-shell">
+        <div class="k-edition">
+          <span>KHÁM PHÁ THẾ GIỚI CÔNG VIỆC</span>
+          <a href="#k-openings">
+            <span class="k-live-dot" /> Cơ hội đang mở <span t-esc="job_count" />
+          </a>
+        </div>
+        <div class="k-headline" data-reveal="1">
+          <h1>Công việc hôm nay.<br />
+            <em>Tương lai bạn chọn.</em>
+          </h1>
+          <div>
+            <p>Tìm vị trí tuyển dụng hoặc việc linh hoạt phù hợp với kỹ năng và thời gian của bạn.</p>
+            <a href="#k-industries">Khám phá các hướng đi <span></span>
+            </a>
+          </div>
+        </div>
+        <div class="k-photo-ribbon" aria-label="Những thế giới nghề nghiệp khác nhau">
+          <figure data-reveal="1">
+            <img src="/tacare_website/static/src/img/work-logistics.jpg" width="960" height="640" alt="Minh họa người làm logistics trong kho hàng" fetchpriority="high" />
+            <figcaption>
+              <span>01 / VẬN HÀNH</span>
+              <strong>Giữ mọi thứ chuyển động.</strong>
+            </figcaption>
+          </figure>
+          <figure data-reveal="1">
+            <img src="/tacare_website/static/src/img/work-tech.jpg" width="960" height="640" alt="Minh họa nhóm công nghệ trao đổi dự án trong studio" fetchpriority="high" />
+            <figcaption>
+              <span>02 / CÔNG NGHỆ &amp; SÁNG TẠO</span>
+              <strong>Biến ý tưởng thành điều có thật.</strong>
+            </figcaption>
+          </figure>
+          <figure data-reveal="1">
+            <img src="/tacare_website/static/src/img/work-health.jpg" width="960" height="640" alt="Minh họa nhân viên y tế trao đổi trong bệnh viện" fetchpriority="high" />
+            <figcaption>
+              <span>03 / CHĂM SÓC</span>
+              <strong>Làm nên khác biệt mỗi ngày.</strong>
+            </figcaption>
+          </figure>
+        </div>
+        <form class="k-search" action="/kvl/jobs" method="get" role="search">
+          <label for="k-query">BẠN MUỐN LÀM ĐIỀU GÌ TIẾP THEO?<input id="k-query" name="q" type="search" placeholder="Vị trí, kỹ năng hoặc địa điểm" />
+          </label>
+          <label for="k-sector">TRONG LĨNH VỰC NÀO?<select id="k-sector" name="sector">
+              <option value="">Tất cả lĩnh vực</option>
+              <option t-foreach="job_sectors" t-as="sector" t-att-value="sector.code" t-esc="sector.name" />
+            </select>
+          </label>
+          <button type="submit">Tìm cơ hội <span aria-hidden="true"></span>
+          </button>
+        </form>
+        <div class="k-quick">
+          <span>BẮT ĐẦU TỪ</span>
+          <a href="/kvl/jobs?type=internship">Thực tập</a>
+          <a href="/kvl/jobs?type=employment">Việc làm</a>
+          <a href="/kvl/jobs?type=freelance">Freelance</a>
+          <a href="/kvl/jobs?type=project">Dự án</a>
+        </div>
+      </section>
+      <section class="k-directory k-shell" id="k-industries" data-reveal="1">
+        <div class="k-section-title">
+          <div>
+            <span>01 / BẢN ĐỒ NGHỀ NGHIỆP</span>
+            <h2>Không chỉ một lối đi.</h2>
+          </div>
+          <p>Chọn lĩnh vực. Tìm hiểu nhóm nghề.<br />Khám phá điều hợp với bạn.</p>
+        </div>
+        <div class="k-directory-layout">
+          <div class="k-sector-menu" aria-label="Chọn lĩnh vực khám phá">
+            <button t-foreach="job_sectors" t-as="sector" type="button" t-att-data-sector-tab="sector.code" t-att-aria-pressed="'true' if sector_first else 'false'" t-att-aria-controls="'k-panel-' + sector.code">
+              <span t-esc="sector.name" />
+              <span aria-hidden="true"></span>
+            </button>
+          </div>
+          <div class="k-sector-content">
+            <div t-foreach="job_sectors" t-as="sector" t-att-id="'k-panel-' + sector.code" t-att-data-sector-panel="sector.code" t-att-hidden="None if sector_first else 'hidden'">
+              <span class="k-field-index" t-esc="'%02d' % (sector_index + 1)" />
+              <h3 t-esc="sector.name" />
+              <p>Mỗi nghề là một cách tạo ra giá trị. Chọn nhóm nghề gần với kinh nghiệm hoặc điều bạn muốn học tiếp.</p>
+              <div class="k-role-links">
+                <a t-foreach="positions.filtered(lambda p: p.sector_id == sector)" t-as="position" t-att-href="'/kvl/jobs?q=%s' % position.name">
+                  <span t-esc="position.name" />
+                  <span aria-hidden="true"></span>
+                </a>
+              </div>
+              <a class="k-underlined" t-att-href="'/kvl/jobs?sector=%s' % sector.code">Xem cơ hội trong lĩnh vực này </a>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="k-openings" id="k-openings">
+        <div class="k-shell">
+          <div class="k-section-title">
+            <div>
+              <span>02 / TIN TUYỂN DỤNG</span>
+              <h2>Cơ hội đang chờ<br />một lời chào.</h2>
+            </div>
+            <a class="k-underlined" href="/kvl/jobs">Xem tất cả tin </a>
+          </div>
+          <div class="tc-job-list">
+            <t t-foreach="jobs" t-as="job">
+              <t t-call="tacare_website.kvl_job_card">
+                <t t-set="card_context" t-value="'public'" />
+              </t>
+            </t>
+          </div>
+          <div t-if="not jobs" class="k-waiting">
+            <span></span>
+            <div>
+              <h3>Chương tiếp theo đang được chuẩn bị.</h3>
+              <p>Hiện chưa có tin công khai. Trong lúc chờ, hãy tìm hiểu các nhóm nghề hoặc chuẩn bị hồ sơ của bạn.</p>
+            </div>
+            <a t-att-href="urls['tuhoso']">Chuẩn bị hồ sơ </a>
+          </div>
+        </div>
+      </section>
+      <section class="k-editorial k-shell" id="k-journal">
+        <div class="k-section-title">
+          <div>
+            <span>03 / GÓC NHÌN NGHỀ NGHIỆP</span>
+            <h2>Hiểu nghề trước.<br />Chọn đường sau.</h2>
+          </div>
+          <p class="k-sample-note">Chuyên mục biên tập minh họa.<br />Có thể thay bằng nội dung chính thức.</p>
+        </div>
+        <div class="k-story-grid">
+          <article class="k-story-main" data-reveal="1">
+            <img src="/tacare_website/static/src/img/work-tech.jpg" width="960" height="640" loading="lazy" alt="Không gian làm việc nhóm trong lĩnh vực công nghệ" />
+            <span>CÔNG NGHỆ / CÁCH LÀM VIỆC</span>
+            <h3>Công việc tốt bắt đầu<br />từ một câu hỏi đúng.</h3>
+            <p>Đừng chỉ đọc chức danh. Hãy nhìn vào việc bạn sẽ làm mỗi ngày, người bạn phối hợp và điều bạn sẽ học được.</p>
+            <details>
+              <summary>Đọc ghi chú nghề nghiệp </summary>
+              <p>Khi đọc một tin tuyển dụng, thử viết ra ba điều: nhiệm vụ chính, tiêu chí thật sự bắt buộc và điều còn cần hỏi. Một mô tả rõ ràng giúp cả ứng viên lẫn người tuyển dụng bắt đầu cuộc trao đổi có căn cứ hơn.</p>
+            </details>
+          </article>
+          <div class="k-story-side">
+            <article data-reveal="1">
+              <img src="/tacare_website/static/src/img/work-logistics.jpg" width="960" height="640" loading="lazy" alt="Một góc công việc vận hành kho hàng" />
+              <div>
+                <span>LOGISTICS / HẬU TRƯỜNG</span>
+                <h3>Phía sau một đơn hàng đến đúng hẹn.</h3>
+                <details>
+                  <summary>Khám phá công việc </summary>
+                  <p>Vận hành kho, điều phối, chứng từ và kế hoạch chuỗi cung ứng có nhiệm vụ khác nhau. Khi tìm việc, xác định bạn thích làm với hàng hóa, dữ liệu hay phối hợp con người trước khi chọn nhóm nghề.</p>
+                </details>
+              </div>
+            </article>
+            <article data-reveal="1">
+              <img src="/tacare_website/static/src/img/work-health.jpg" width="960" height="640" loading="lazy" alt="Nhân viên y tế trao đổi chuyên môn" />
+              <div>
+                <span>Y TẾ / ĐIỀU KIỆN NGHỀ</span>
+                <h3>Năng lực chuyên môn cần đi cùng căn cứ.</h3>
+                <details>
+                  <summary>Tìm hiểu thêm </summary>
+                  <p>Chuẩn bị thông tin học vấn, trải nghiệm chuyên môn và giấy phép liên quan. Nêu rõ phạm vi, tình trạng và thời hạn của giấy phép để nhà tuyển dụng kiểm tra trực tiếp khi trao đổi.</p>
+                </details>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="k-career-strip">
+        <div class="k-shell">
+          <p>Bạn đang ở đâu<br />trên hành trình?</p>
+          <a href="/kvl/jobs?type=internship">
+            <span>01</span>
+            <strong>Tôi mới bắt đầu</strong>
+            <small>Khám phá thực tập và học từ trải nghiệm </small>
+          </a>
+          <a href="/kvl/jobs">
+            <span>02</span>
+            <strong>Tôi sẵn sàng bước tiếp</strong>
+            <small>Tìm một vai trò hợp với năng lực hiện tại </small>
+          </a>
+          <a href="/kvl/jobs?type=project">
+            <span>03</span>
+            <strong>Tôi muốn một hướng mới</strong>
+            <small>Bắt đầu từ dự án và công việc linh hoạt </small>
+          </a>
+        </div>
+      </section>
+      <section class="k-recruiter k-shell" data-reveal="1">
+        <div class="k-recruiter-copy">
+          <span>DÀNH CHO NHÀ TUYỂN DỤNG</span>
+          <h2>Đằng sau vị trí trống<br />là một người phù hợp.</h2>
+          <p>Bắt đầu bằng công việc cần làm, kỹ năng quan trọng và điều kiện thực tế. Một tin rõ ràng giúp đúng người hiểu cơ hội của bạn.</p>
+          <a class="k-solid" t-att-href="'/kvl/job/new' if role in ('business','admin') else '/web/login?redirect=/kvl/job/new'">Đăng nhu cầu tuyển dụng </a>
+        </div>
+        <div class="k-recruiter-paper">
+          <div>
+            <span>GHI CHÚ TUYỂN DỤNG</span>
+            <span></span>
+          </div>
+          <h3>Một tin tốt có gì?</h3>
+          <ol>
+            <li>
+              <strong>Rõ việc</strong>
+              <span>Nhiệm vụ và kết quả mong đợi.</span>
+            </li>
+            <li>
+              <strong>Rõ yêu cầu</strong>
+              <span>Phân biệt bắt buộc với ưu tiên.</span>
+            </li>
+            <li>
+              <strong>Rõ điều kiện</strong>
+              <span>Nơi làm, thời gian, thu nhập.</span>
+            </li>
+          </ol>
+        </div>
+      </section>
+      <section class="k-faq k-shell">
+        <h2>Trước khi bạn bắt đầu.</h2>
+        <div>
+          <details>
+            <summary>Tôi có cần đăng nhập để xem công việc?</summary>
+            <p>Bạn có thể đọc tin công khai. Khi gửi đề nghị hoặc quản lý tuyển dụng, hãy đăng nhập tài khoản có vai trò phù hợp.</p>
+          </details>
+          <details>
+            <summary>Chưa có nhiều kinh nghiệm thì nên bắt đầu ở đâu?</summary>
+            <p>Khám phá cơ hội thực tập, đọc kỹ yêu cầu và tìm các tin chấp nhận đào tạo. Trong hồ sơ, bạn có thể ghi dự án, hoạt động và kỹ năng đã sử dụng.</p>
+          </details>
+          <details>
+            <summary>Hồ sơ của tôi nằm ở đâu?</summary>
+            <p>
+              <a t-att-href="urls['tuhoso']">Tủ Hồ Sơ</a> là nơi bạn quản lý thông tin năng lực và quyền chia sẻ. Bạn có thể cập nhật dần trước khi tìm cơ hội.</p>
+          </details>
+        </div>
+      </section>
+      <footer class="k-footer">
+        <div class="k-shell">
+          <a class="k-brand" href="/">
+            <img src="/tacare_website/static/src/img/khovieclam.png" width="48" height="48" alt="" />
+            <span>Kho Việc Làm<small>Mỗi nghề, một giá trị.</small>
+            </span>
+          </a>
+          <nav aria-label="Liên kết cuối trang">
+            <a href="/kvl/jobs">Tìm công việc</a>
+            <a href="#k-industries" data-nav-link="1">Khám phá nghề</a>
+            <a t-if="'tuhoso' in switch_sites" t-att-href="urls['tuhoso']">Tủ Hồ Sơ </a>
+            <a t-att-href="urls['tacare']">TA.CARE </a>
+          </nav>
+          <p>Con người làm nên<br />những điều có ý nghĩa.</p>
+        </div>
+      </footer>
+    </div>
+  </template>
+</odoo>

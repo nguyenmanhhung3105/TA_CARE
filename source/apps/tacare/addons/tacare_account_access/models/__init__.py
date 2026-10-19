@@ -1,1 +1,1 @@
-from . import res_users, ir_http
+from . import res_users, auth_session, ir_http

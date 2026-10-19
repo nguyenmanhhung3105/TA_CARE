@@ -1,4 +1,4 @@
-"""Versioned, private matching snapshots; the UI may still use its live demo score."""
+"""Private matching snapshot schema; live comparisons do not persist snapshots."""
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 

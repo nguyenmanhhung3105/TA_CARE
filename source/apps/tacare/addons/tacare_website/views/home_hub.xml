@@ -1,0 +1,246 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <template id="home_hub" name="TA.CARE · Hành trình kết nối">
+    <div class="h-home" data-care-home="hub">
+      <section class="h-stage">
+        <div class="h-stage-orbits" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
+        <div class="h-stage-intro">
+          <span>CON NGƯỜI. NĂNG LỰC. CƠ HỘI.</span>
+          <h1>Kết nối những điều<br />
+            <em>có thể.</em>
+          </h1>
+          <p>Có một người đang tìm nơi để phát huy.<br />Có một cơ hội đang chờ đúng người.</p>
+          <a class="h-primary" href="#h-journey">Tìm điểm gặp nhau <span>↗</span>
+          </a>
+        </div>
+        <div class="h-floating h-floating-profile" aria-hidden="true">
+          <img src="/tacare_website/static/src/img/portfolio-studio.jpg" width="240" height="160" alt="" fetchpriority="high" />
+          <span>TỦ HỒ SƠ</span>
+          <strong>Điều bạn có thể làm.</strong>
+          <small>Kỹ năng · Trải nghiệm · Minh chứng</small>
+        </div>
+        <div class="h-floating h-floating-job" aria-hidden="true">
+          <span>KHO VIỆC LÀM</span>
+          <strong>Một hướng đi mới.</strong>
+          <div>
+            <span>Cơ hội</span>
+            <span>Định hướng</span>
+          </div>
+          <small>Tìm công việc có ý nghĩa với bạn.</small>
+          <b>↗</b>
+        </div>
+        <div class="h-stage-bottom">
+          <span>KHÔNG CHỈ GẶP NHAU.<br />HIỂU NHAU TRƯỚC KHI KẾT NỐI.</span>
+          <a href="#h-why">Cuộn để khám phá ↓</a>
+          <button type="button" data-motion-toggle="1" aria-pressed="false">Tạm dừng chuyển động</button>
+        </div>
+      </section>
+      <section class="h-manifesto h-shell" id="h-why" data-reveal="1">
+        <span class="h-eyebrow">ĐIỀU CHÚNG TÔI TIN</span>
+        <h2>Năng lực xứng đáng<br />được <em>nhìn thấy.</em>
+          <br />Cơ hội xứng đáng<br />được <em>thấu hiểu.</em>
+        </h2>
+        <div>
+          <p>Một hồ sơ cho thấy con người phía sau chức danh. Một tin tuyển dụng nói rõ công việc phía sau lời mời.</p>
+          <p>TA.CARE bắt đầu từ những thông tin rõ ràng để cuộc kết nối đầu tiên có nhiều ý nghĩa hơn.</p>
+          <a href="#h-journey">Một hành trình, ba điểm chạm ↘</a>
+        </div>
+      </section>
+      <figure class="h-wide-photo" data-reveal="1">
+        <img src="/tacare_website/static/src/img/community-wide.jpg" width="1440" height="810" loading="lazy" alt="Minh họa những người làm nghề khác nhau cùng trao đổi và phát triển một dự án" />
+        <figcaption>
+          <span>MỖI NGƯỜI MỘT THẾ MẠNH.</span>
+          <strong>Cùng nhau, nhiều khả năng hơn.</strong>
+          <small>Hình ảnh minh họa.</small>
+        </figcaption>
+      </figure>
+      <section class="h-journey h-shell" id="h-journey">
+        <div class="h-journey-heading">
+          <span class="h-eyebrow">TỪ NĂNG LỰC ĐẾN CUỘC TRAO ĐỔI</span>
+          <h2>Một hành trình.<br />Ba điểm chạm.</h2>
+        </div>
+        <div class="h-journey-grid">
+          <div class="h-story-stage" aria-hidden="true">
+            <figure data-story-visual="0" class="is-active">
+              <img src="/tacare_website/static/src/img/hero-profiles.jpg" width="1152" height="768" loading="lazy" alt="" />
+              <span>01 / HIỂU ĐIỀU BẠN CÓ</span>
+            </figure>
+            <figure data-story-visual="1">
+              <img src="/tacare_website/static/src/img/hero-jobs.jpg" width="1152" height="768" loading="lazy" alt="" />
+              <span>02 / KHÁM PHÁ ĐIỀU BẠN MUỐN</span>
+            </figure>
+            <figure data-story-visual="2">
+              <img src="/tacare_website/static/src/img/hero-connections.jpg" width="1152" height="768" loading="lazy" alt="" />
+              <span>03 / BẮT ĐẦU MỘT KẾT NỐI</span>
+            </figure>
+            <div class="h-story-progress">
+              <span class="is-active" data-story-dot="0" />
+              <span data-story-dot="1" />
+              <span data-story-dot="2" />
+            </div>
+          </div>
+          <div class="h-story-chapters">
+            <article data-story-step="0">
+              <span>01 / TỦ HỒ SƠ</span>
+              <h3>Cho năng lực<br />một câu chuyện.</h3>
+              <p>Ghi điều bạn biết, việc bạn đã làm và công việc bạn mong muốn. Một hồ sơ có căn cứ giúp người khác hiểu rõ hơn về bạn.</p>
+              <ul>
+                <li>Kỹ năng có ngữ cảnh sử dụng.</li>
+                <li>Trải nghiệm và minh chứng đi cùng.</li>
+                <li>Quyền chia sẻ do bạn lựa chọn.</li>
+              </ul>
+              <a t-att-href="urls['tuhoso']">Bắt đầu từ hồ sơ của bạn ↗</a>
+            </article>
+            <article data-story-step="1">
+              <span>02 / KHO VIỆC LÀM</span>
+              <h3>Cho cơ hội<br />một hình dung rõ.</h3>
+              <p>Khám phá công việc qua nhiệm vụ, yêu cầu và điều kiện thực tế. Người tuyển dụng có thể nêu chính xác điều cần tìm.</p>
+              <ul>
+                <li>Nhiều lĩnh vực và nhóm nghề.</li>
+                <li>Phân biệt yêu cầu với ưu tiên.</li>
+                <li>Rõ địa điểm, thời gian và thu nhập.</li>
+              </ul>
+              <a t-att-href="urls['khovieclam']">Đi tìm cơ hội tiếp theo ↗</a>
+            </article>
+            <article data-story-step="2">
+              <span>03 / TA.CARE</span>
+              <h3>Cho cuộc gặp<br />một lý do.</h3>
+              <p>Nhìn thấy điểm phù hợp, điều khác nhau và thông tin còn thiếu. Sau đó, hai bên chủ động gửi đề nghị hoặc lời mời trao đổi.</p>
+              <ul>
+                <li>Chỉ đối chiếu dữ liệu đã được đồng ý.</li>
+                <li>Thông tin thiếu được giữ là chưa biết.</li>
+                <li>Hai bên quyết định bước tiếp theo.</li>
+              </ul>
+              <a t-att-href="'/tacare/matching' if not is_guest else '/web/login?redirect=/tacare/matching'">Khám phá sự phù hợp ↗</a>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="h-connection-map">
+        <div class="h-shell">
+          <div>
+            <span class="h-eyebrow">ĐIỂM GẶP NHAU CÓ CĂN CỨ</span>
+            <h2>Hiểu nhau hơn.<br />Bắt đầu tốt hơn.</h2>
+            <p>Không cần đoán mọi thứ từ một chức danh. Hãy bắt đầu từ thông tin hai bên đã cung cấp.</p>
+          </div>
+          <div class="h-map" data-reveal="1">
+            <svg viewBox="0 0 900 330" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M50 165 C220 15 275 315 450 165 S680 15 850 165" class="h-map-track" />
+              <path d="M50 165 C220 15 275 315 450 165 S680 15 850 165" data-draw-path="1" />
+            </svg>
+            <article>
+              <span>01</span>
+              <h3>Năng lực</h3>
+              <p>Kỹ năng và kinh nghiệm<br />gắn với đúng nhóm nghề.</p>
+            </article>
+            <article>
+              <span>02</span>
+              <h3>Điều kiện</h3>
+              <p>Nơi làm, hình thức,<br />thời gian và thu nhập.</p>
+            </article>
+            <article>
+              <span>03</span>
+              <h3>Lựa chọn</h3>
+              <p>Điều cần hỏi thêm.<br />Cuộc trao đổi bạn muốn mở.</p>
+            </article>
+          </div>
+          <a class="h-map-link" t-att-href="'/tacare/matching' if not is_guest else '/web/login?redirect=/tacare/matching'">Xem căn cứ đối chiếu của bạn ↗</a>
+        </div>
+      </section>
+      <section class="h-people h-shell" id="h-people">
+        <div class="h-people-heading">
+          <span class="h-eyebrow">NHIỀU HÀNH TRÌNH, NHIỀU KHẢ NĂNG</span>
+          <h2>Đằng sau mỗi hồ sơ,<br />là một người đang tiến về phía trước.</h2>
+          <p>Ba tình huống minh họa — để bạn hình dung cách bắt đầu.</p>
+          <div class="h-gallery-controls">
+            <button type="button" data-story-scroll="-1" aria-label="Xem tình huống trước">←</button>
+            <button type="button" data-story-scroll="1" aria-label="Xem tình huống tiếp theo">→</button>
+          </div>
+        </div>
+        <div class="h-people-gallery" data-story-gallery="1" tabindex="0" aria-label="Các tình huống minh họa, có thể cuộn ngang">
+          <article>
+            <img src="/tacare_website/static/src/img/work-tech.jpg" width="960" height="640" loading="lazy" alt="Minh họa người mới bắt đầu nghề công nghệ cùng nhóm dự án" />
+            <div>
+              <span>01 / NGƯỜI MỚI BẮT ĐẦU</span>
+              <h3>Chưa có chức danh.<br />Đã có điều để kể.</h3>
+              <p>Bắt đầu từ đồ án, hoạt động và kỹ năng đã sử dụng. Tìm vị trí thực tập hoặc cơ hội chấp nhận đào tạo.</p>
+              <a t-att-href="urls['tuhoso']">Viết trang đầu tiên ↗</a>
+            </div>
+          </article>
+          <article>
+            <img src="/tacare_website/static/src/img/work-logistics.jpg" width="960" height="640" loading="lazy" alt="Minh họa một người có kinh nghiệm trong lĩnh vực logistics" />
+            <div>
+              <span>02 / NGƯỜI MUỐN BƯỚC TIẾP</span>
+              <h3>Đã có trải nghiệm.<br />Muốn một hướng đi mới.</h3>
+              <p>Làm rõ kinh nghiệm liên quan, điều kiện mong muốn và những năng lực có thể mang đến công việc tiếp theo.</p>
+              <a t-att-href="urls['khovieclam']">Tìm hướng đi mới ↗</a>
+            </div>
+          </article>
+          <article>
+            <img src="/tacare_website/static/src/img/work-health.jpg" width="960" height="640" loading="lazy" alt="Minh họa nhóm chuyên môn đang trao đổi công việc" />
+            <div>
+              <span>03 / ĐỘI NGŨ ĐANG TÌM NGƯỜI</span>
+              <h3>Không chỉ lấp chỗ trống.<br />Tìm người cùng làm tốt.</h3>
+              <p>Viết rõ nhiệm vụ và điều kiện bắt buộc. Xem hồ sơ đã chia sẻ và bắt đầu lời mời bằng một lý do cụ thể.</p>
+              <a t-att-href="urls['khovieclam'] + 'kvl/manage'">Mở không gian tuyển dụng ↗</a>
+            </div>
+          </article>
+        </div>
+      </section>
+      <section class="h-promise h-shell" data-reveal="1">
+        <div class="h-promise-symbol" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
+        <div>
+          <span class="h-eyebrow">SỰ TIN CẬY BẮT ĐẦU TỪ QUYỀN LỰA CHỌN</span>
+          <h2>Kết nối mở.<br />Quyền riêng tư rõ.</h2>
+          <p>Hồ sơ không tự chia sẻ mọi thông tin liên hệ. Bạn chọn mục đích chia sẻ; email chỉ được mở khi có kết nối được chấp nhận và quyền liên hệ cho đúng tổ chức.</p>
+          <a t-att-href="urls['tuhoso'] + 'tuhoso/me#profile-sharing'">Tìm hiểu quyền chia sẻ ↗</a>
+        </div>
+      </section>
+      <section class="h-questions h-shell" id="h-questions">
+        <span class="h-eyebrow">NHỮNG ĐIỀU BẠN CÓ THỂ MUỐN BIẾT</span>
+        <h2>Trước cuộc kết nối đầu tiên.</h2>
+        <details>
+          <summary>Ba website cùng giúp tôi như thế nào?</summary>
+          <p>Kho Việc Làm dành cho thông tin tuyển dụng. Tủ Hồ Sơ dành cho năng lực và trải nghiệm. TA.CARE giúp bạn xem căn cứ phù hợp và quản lý cuộc trao đổi giữa hai bên.</p>
+        </details>
+        <details>
+          <summary>Một hồ sơ thiếu thông tin có bị xem là không phù hợp?</summary>
+          <p>Thông tin chưa được khai hoặc chưa được chia sẻ được giữ là chưa đủ thông tin. Bạn có thể bổ sung hoặc trao đổi trực tiếp; hệ thống không tự kết luận từ dữ liệu thiếu.</p>
+        </details>
+        <details>
+          <summary>Kết quả đối chiếu có thay nhà tuyển dụng quyết định không?</summary>
+          <p>Kết quả giúp nhận ra điểm gặp nhau và điều cần hỏi thêm. Dữ liệu tự khai, minh chứng và điều kiện đặc thù vẫn cần được kiểm tra trong quá trình trao đổi.</p>
+        </details>
+      </section>
+      <footer class="h-footer">
+        <div class="h-shell">
+          <span>MỘT CUỘC KẾT NỐI MỚI ĐANG CHỜ.</span>
+          <h2>Điều tiếp theo,<br />
+            <em>bắt đầu từ bạn.</em>
+          </h2>
+          <div class="h-footer-actions">
+            <a t-att-href="urls['tuhoso']">Tôi muốn giới thiệu năng lực ↗</a>
+            <a t-att-href="urls['khovieclam']">Tôi muốn tìm cơ hội / tìm người ↗</a>
+          </div>
+          <div class="h-footer-bottom">
+            <a href="/">TA.CARE</a>
+            <p>Con người · Năng lực · Cơ hội</p>
+            <nav aria-label="Hệ sinh thái TA.CARE">
+              <a t-if="'khovieclam' in switch_sites" t-att-href="urls['khovieclam']">Kho Việc Làm</a>
+              <a t-if="'tuhoso' in switch_sites" t-att-href="urls['tuhoso']">Tủ Hồ Sơ</a>
+              <a href="#tc-main">Về đầu trang ↑</a>
+            </nav>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </template>
+</odoo>

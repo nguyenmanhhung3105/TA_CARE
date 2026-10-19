@@ -68,11 +68,11 @@ class ResUsers(models.Model):
             self._tacare_sync_role_groups()
         return result
 
-    @api.depends('tacare_account_role')
+    @api.depends('tacare_account_role', 'group_ids')
     def _compute_tacare_websites(self):
         websites = self.env['website'].sudo().search([])
         for user in self:
-            if user._is_internal():
+            if user.has_group('base.group_system'):
                 user.tacare_allowed_website_ids = websites
             else:
                 hosts = ROLE_HOSTS.get(user.tacare_account_role, set())
@@ -82,8 +82,8 @@ class ResUsers(models.Model):
     def _tacare_can_access_host(self, host):
         self.ensure_one()
         user = self.sudo()
-        # Existing internal administrators/operators remain governed by Odoo ACLs.
-        if user._is_internal() or user._is_public():
+        # Only system administrators can use all three product websites.
+        if user.has_group('base.group_system') or user._is_public():
             return True
         host = hostname(host)
         if host not in ROLE_HOSTS.get(user.tacare_account_role, set()):
@@ -99,6 +99,5 @@ class ResUsers(models.Model):
             if not self._tacare_can_access_host(host):
                 raise AccessDenied(_(
                     'Tài khoản chưa được cấp quyền đăng nhập website này. '
-                    'Doanh nghiệp dùng KhoViecLam hoặc TA.CARE; '
-                    'ứng viên dùng TuHoSo hoặc TA.CARE.'))
+                    'Liên hệ quản trị để kiểm tra vai trò và website được cấp.'))
         return auth_info

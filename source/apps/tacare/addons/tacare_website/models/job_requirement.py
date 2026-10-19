@@ -13,6 +13,18 @@ class CareJobSector(models.Model):
     _unique_code = models.Constraint('unique(code)', 'Mã ngành nghề đã tồn tại.')
 
 
+class CareJobPosition(models.Model):
+    _name = 'care.job.position'
+    _description = 'Nhóm nghề tuyển dụng TA.CARE'
+    _order = 'sector_id, name'
+
+    name = fields.Char(required=True)
+    code = fields.Char(required=True, index=True)
+    sector_id = fields.Many2one('care.job.sector', required=True, ondelete='restrict')
+    active = fields.Boolean(default=True)
+    _unique_code = models.Constraint('unique(code)', 'Mã nhóm nghề đã tồn tại.')
+
+
 class CareJobRequirement(models.Model):
     _name = 'care.job.requirement'
     _description = 'Điều kiện tuyển dụng TA.CARE'

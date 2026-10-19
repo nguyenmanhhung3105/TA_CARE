@@ -84,4 +84,22 @@
     <field name="groups" eval="[(4, ref('tacare_account_access.group_tacare_candidate'))]"/>
     <field name="domain_force">[('profile_id.user_id', '=', user.id)]</field>
   </record>
+  <record id="rule_flex_job_candidate_self" model="ir.rule">
+    <field name="name">Flexible work: candidate reads own jobs</field>
+    <field name="model_id" ref="hr.model_hr_job"/>
+    <field name="groups" eval="[(4, ref('tacare_account_access.group_tacare_candidate'))]"/>
+    <field name="domain_force">[('care_opportunity_kind', '=', 'flexible'), ('tacare_owner_user_id', '=', user.id), ('company_id', 'in', user.company_ids.ids)]</field>
+  </record>
+  <record id="rule_flex_profile_business_self" model="ir.rule">
+    <field name="name">Flexible work: business reads own personal profile</field>
+    <field name="model_id" ref="model_tacare_profile"/>
+    <field name="groups" eval="[(4, ref('tacare_account_access.group_tacare_business'))]"/>
+    <field name="domain_force">[('user_id', '=', user.id)]</field>
+  </record>
+  <record id="rule_flex_capability_business_self" model="ir.rule">
+    <field name="name">Flexible work: business reads own capabilities</field>
+    <field name="model_id" ref="model_care_profile_capability"/>
+    <field name="groups" eval="[(4, ref('tacare_account_access.group_tacare_business'))]"/>
+    <field name="domain_force">[('profile_id.user_id', '=', user.id)]</field>
+  </record>
 </odoo>

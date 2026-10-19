@@ -1,6 +1,7 @@
+import math
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
-from .hr_job import SECTORS, MODES
+from .hr_job import SECTORS, MODES, validate_numeric_values, preferred_currency
 
 
 class TacareProfile(models.Model):
@@ -17,6 +18,7 @@ class TacareProfile(models.Model):
                                           string='Người hỗ trợ hồ sơ')
     education_level_id = fields.Many2one('hr.recruitment.degree')
     name = fields.Char(required=True)
+    profile_title = fields.Char(size=160, string='Tên hồ sơ')
     headline = fields.Char()
     bio = fields.Text()
     education = fields.Char()
@@ -26,6 +28,25 @@ class TacareProfile(models.Model):
     mode = fields.Selection(MODES)
     availability = fields.Char()
     pay = fields.Char()
+    desired_position_id = fields.Many2one('care.job.position', ondelete='restrict')
+    region_id = fields.Many2one('res.country.state', ondelete='restrict')
+    desired_type = fields.Selection([('employment', 'Việc làm'), ('internship', 'Thực tập'),
+        ('freelance', 'Freelance'), ('project', 'Dự án')])
+    work_fraction = fields.Selection([('full', 'Toàn thời gian'), ('part', 'Bán thời gian'),
+        ('flexible', 'Linh hoạt')])
+    experience_known = fields.Boolean(default=False)
+    relevant_months = fields.Integer(string='Kinh nghiệm liên quan (tháng)')
+    salary_min = fields.Monetary(currency_field='salary_currency_id')
+    salary_currency_id = fields.Many2one('res.currency', default=lambda self: preferred_currency(self.env))
+    salary_period = fields.Selection([('month', 'Tháng'), ('hour', 'Giờ'), ('project', 'Dự án')])
+    salary_tax = fields.Selection([('gross', 'Trước thuế (gross)'), ('net', 'Sau thuế (net)'),
+        ('unknown', 'Chưa xác định')], default='unknown')
+    work_history = fields.Text(string='Kinh nghiệm làm việc')
+    education_details = fields.Text(string='Học vấn và chuyên ngành')
+    languages = fields.Text(string='Ngoại ngữ và trình độ')
+    licenses = fields.Text(string='Giấy phép / chứng chỉ và thời hạn')
+    travel = fields.Selection([('yes', 'Có thể'), ('no', 'Không thể')])
+    start_date = fields.Date(string='Ngày có thể bắt đầu')
     visible = fields.Boolean(default=True)
     scope = fields.Selection([('public', 'Công khai'), ('members', 'Thành viên'),
                               ('private', 'Riêng tư')], default='private', required=True)
@@ -48,17 +69,44 @@ class TacareProfile(models.Model):
     service_area_ids = fields.One2many('care.service.area', 'profile_id')
     preference_ids = fields.One2many('care.preference', 'profile_id')
     consent_ids = fields.One2many('care.consent', 'profile_id')
-    _unique_user = models.Constraint('unique(user_id)', 'Mỗi tài khoản chỉ có một hồ sơ TA.CARE.')
+    # Multiple purpose-specific profiles per owner, authorized for the local demo.
+    # Consent, skills, evidence and connections remain scoped to the profile ID.
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            validate_numeric_values(vals, ('salary_min', 'relevant_months'))
+        return super().create(vals_list)
 
     def write(self, vals):
-        tracked = {'name', 'headline', 'bio', 'education', 'education_level_id', 'sector',
+        validate_numeric_values(vals, ('salary_min', 'relevant_months'))
+        if 'desired_position_id' in vals and not {'experience_known', 'relevant_months'} <= vals.keys():
+            for profile in self:
+                changed = profile.desired_position_id.id != (vals['desired_position_id'] or False)
+                super(TacareProfile, profile).write({**vals, **({'experience_known': False, 'relevant_months': 0} if changed else {}),
+                                                   'version': profile.version + 1})
+            return True
+        tracked = {'name', 'profile_title', 'headline', 'bio', 'education', 'education_level_id', 'sector',
                    'location', 'goal', 'mode', 'availability', 'pay', 'visible', 'scope',
-                   'status', 'share_contact'}
+                   'status', 'share_contact', 'desired_position_id', 'region_id', 'desired_type',
+                   'work_fraction', 'experience_known', 'relevant_months', 'salary_min',
+                   'salary_currency_id', 'salary_period', 'salary_tax', 'work_history',
+                   'education_details', 'languages', 'licenses', 'travel', 'start_date'}
         if tracked.intersection(vals) and not self.env.context.get('care_skip_version'):
             for profile in self:
                 super(TacareProfile, profile).write({**vals, 'version': profile.version + 1})
             return True
         return super().write(vals)
+
+    @api.constrains('relevant_months', 'salary_min', 'desired_position_id', 'sector', 'experience_known')
+    def _check_preferences(self):
+        for profile in self:
+            if not 0 <= profile.relevant_months <= 960 or not math.isfinite(profile.salary_min) or profile.salary_min < 0:
+                raise ValidationError('Kinh nghiệm phải từ 0 đến 960 tháng; lương phải là số không âm.')
+            if profile.experience_known and not profile.desired_position_id:
+                raise ValidationError('Chọn nhóm nghề trước khi khai kinh nghiệm liên quan.')
+            if profile.desired_position_id and profile.desired_position_id.sector_id.code != profile.sector:
+                raise ValidationError('Nhóm nghề phải thuộc lĩnh vực đã chọn.')
 
 
 class TacareProfileSkill(models.Model):

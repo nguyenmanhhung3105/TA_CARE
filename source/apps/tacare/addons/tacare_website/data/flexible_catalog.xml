@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="flex_category_cleaning" model="care.capability.category">
+    <field name="code">cleaning</field>
+    <field name="name">Dọn dẹp nhà cửa</field>
+  </record>
+  <record id="flex_category_cooking" model="care.capability.category">
+    <field name="code">cooking</field>
+    <field name="name">Nấu ăn / phụ bếp</field>
+  </record>
+  <record id="flex_category_loading" model="care.capability.category">
+    <field name="code">loading</field>
+    <field name="name">Bốc xếp / chuyển đồ</field>
+  </record>
+  <record id="flex_category_garden" model="care.capability.category">
+    <field name="code">garden</field>
+    <field name="name">Chăm cây / làm vườn</field>
+  </record>
+  <record id="flex_category_farm" model="care.capability.category">
+    <field name="code">farm</field>
+    <field name="name">Nông nghiệp / chăn nuôi</field>
+  </record>
+  <record id="flex_category_repair" model="care.capability.category">
+    <field name="code">repair</field>
+    <field name="name">Sửa chữa / lắp đặt</field>
+  </record>
+  <record id="flex_category_tutoring" model="care.capability.category">
+    <field name="code">tutoring</field>
+    <field name="name">Gia sư / dạy kỹ năng</field>
+  </record>
+  <record id="flex_category_digital" model="care.capability.category">
+    <field name="code">digital</field>
+    <field name="name">Thiết kế / việc số</field>
+  </record>
+  <record id="flex_category_driving" model="care.capability.category">
+    <field name="code">driving</field>
+    <field name="name">Lái xe / theo chuyến</field>
+    <field name="risk_level">high</field>
+  </record>
+  <record id="flex_category_pets" model="care.capability.category">
+    <field name="code">pets</field>
+    <field name="name">Chăm sóc thú cưng</field>
+  </record>
+  <record id="flex_skill_type" model="hr.skill.type">
+    <field name="name">Việc linh hoạt</field>
+  </record>
+  <record id="flex_skill_level" model="hr.skill.level">
+    <field name="name">Tự khai</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="level_progress">25</field>
+  </record>
+  <record id="flex_skill_floor" model="hr.skill">
+    <field name="name">Lau sàn</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_floor</field>
+  </record>
+  <record id="flex_skill_kitchen" model="hr.skill">
+    <field name="name">Vệ sinh bếp</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_kitchen</field>
+  </record>
+  <record id="flex_skill_bathroom" model="hr.skill">
+    <field name="name">Vệ sinh nhà tắm</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_bathroom</field>
+  </record>
+  <record id="flex_skill_cooking" model="hr.skill">
+    <field name="name">Nấu ăn gia đình</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_cooking</field>
+  </record>
+  <record id="flex_skill_dishes" model="hr.skill">
+    <field name="name">Rửa dọn bếp</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_dishes</field>
+  </record>
+  <record id="flex_skill_loading" model="hr.skill">
+    <field name="name">Bốc xếp thùng hàng</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_loading</field>
+  </record>
+  <record id="flex_skill_packing" model="hr.skill">
+    <field name="name">Đóng gói</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_packing</field>
+  </record>
+  <record id="flex_skill_gardening" model="hr.skill">
+    <field name="name">Chăm cây</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_gardening</field>
+  </record>
+  <record id="flex_skill_repot" model="hr.skill">
+    <field name="name">Thay chậu</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_repot</field>
+  </record>
+  <record id="flex_skill_mowing" model="hr.skill">
+    <field name="name">Cắt cỏ</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_mowing</field>
+  </record>
+  <record id="flex_skill_feeding" model="hr.skill">
+    <field name="name">Chăm vật nuôi</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_feeding</field>
+  </record>
+  <record id="flex_skill_harvest" model="hr.skill">
+    <field name="name">Thu hoạch</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_harvest</field>
+  </record>
+  <record id="flex_skill_assembly" model="hr.skill">
+    <field name="name">Lắp ráp nội thất</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_assembly</field>
+  </record>
+  <record id="flex_skill_plumbing" model="hr.skill">
+    <field name="name">Sửa vòi nước</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_plumbing</field>
+  </record>
+  <record id="flex_skill_electrical" model="hr.skill">
+    <field name="name">Sửa thiết bị điện</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_electrical</field>
+  </record>
+  <record id="flex_skill_math" model="hr.skill">
+    <field name="name">Dạy Toán</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_math</field>
+  </record>
+  <record id="flex_skill_english" model="hr.skill">
+    <field name="name">Dạy tiếng Anh</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_english</field>
+  </record>
+  <record id="flex_skill_design" model="hr.skill">
+    <field name="name">Thiết kế đồ họa</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_design</field>
+  </record>
+  <record id="flex_skill_ladipage" model="hr.skill">
+    <field name="name">LadiPage</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_ladipage</field>
+  </record>
+  <record id="flex_skill_video" model="hr.skill">
+    <field name="name">Dựng video</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_video</field>
+  </record>
+  <record id="flex_skill_translation" model="hr.skill">
+    <field name="name">Dịch Anh–Việt</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_translation</field>
+  </record>
+  <record id="flex_skill_driving" model="hr.skill">
+    <field name="name">Lái ô tô</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_driving</field>
+  </record>
+  <record id="flex_skill_petcare" model="hr.skill">
+    <field name="name">Trông thú cưng</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_petcare</field>
+  </record>
+  <record id="flex_skill_walking" model="hr.skill">
+    <field name="name">Dắt chó đi dạo</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_walking</field>
+  </record>
+  <record id="flex_skill_excel" model="hr.skill">
+    <field name="name">Excel</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_excel</field>
+  </record>
+  <record id="flex_skill_sales" model="hr.skill">
+    <field name="name">Bán hàng</field>
+    <field name="skill_type_id" ref="flex_skill_type" />
+    <field name="care_code">flex_sales</field>
+  </record>
+</odoo>

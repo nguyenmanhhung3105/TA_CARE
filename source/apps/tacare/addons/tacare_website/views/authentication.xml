@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="site_switcher" name="Chuyển hệ thống theo vai trò">
+    <div class="tc-sitebar">
+      <div class="tc-sitebar-inner">
+        <span class="tc-sitebar-label">Hệ sinh thái TA.CARE</span>
+        <nav aria-label="Chuyển hệ thống" class="tc-system-links">
+          <a t-foreach="switch_sites" t-as="key" t-att-href="urls[key]" t-att-aria-current="'page' if site == key else None" t-esc="site_labels[key]"/>
+        </nav>
+        <a t-if="access_guest" href="/web/login?redirect=/" class="tc-sitebar-login" data-login-open="1">Đăng nhập</a>
+        <div t-else="" class="tc-sitebar-account"><span t-esc="'Quản trị' if role == 'admin' else 'Doanh nghiệp' if role == 'business' else 'Ứng viên'"/><a href="/web/session/logout?redirect=/">Đăng xuất</a></div>
+      </div>
+    </div>
+  </template>
+
+  <template id="login_dialog" name="Đăng nhập trong popup">
+    <dialog id="tc-login-dialog" class="tc-login-dialog" aria-labelledby="tc-login-title" aria-describedby="tc-login-description" t-att-open="'open' if login_open else None" t-att-data-auto-open="'1' if login_open else '0'">
+      <div class="tc-login-frame">
+        <aside class="tc-login-story" aria-hidden="true">
+          <img t-att-src="'/tacare_website/static/src/img/%s' % {'khovieclam':'work-team.jpg','tuhoso':'work-digital.jpg','tacare':'community-wide.jpg'}[site]" width="600" height="900" alt=""/>
+          <div><span>CON NGƯỜI · NĂNG LỰC · CƠ HỘI</span><strong t-esc="{'khovieclam':'Công việc mới bắt đầu từ đây.','tuhoso':'Mỗi hồ sơ, một hướng đi.','tacare':'Kết nối những điều có thể.'}[site]"/><p>Một tài khoản. Những không gian phù hợp với vai trò của bạn.</p></div>
+        </aside>
+        <section class="tc-login-content">
+          <button type="button" class="tc-login-close" data-login-close="1" aria-label="Đóng cửa sổ đăng nhập"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+          <a class="tc-login-brand" href="/"><img t-att-src="'/tacare_website/static/src/img/%s.png' % site" t-att-alt="'Logo ' + site_labels[site]" width="48" height="48"/><span t-esc="site_labels[site]"/></a>
+          <p class="tc-eyebrow">CHÀO MỪNG BẠN TRỞ LẠI</p>
+          <h2 id="tc-login-title">Đăng nhập</h2>
+          <p id="tc-login-description" t-esc="{'khovieclam':'Đăng và quản lý công việc trong không gian của bạn.','tuhoso':'Tạo và quản lý các hồ sơ của bạn. Admin có thể xem tất cả hồ sơ.','tacare':'Tiếp tục đối chiếu và quản lý các kết nối của bạn.'}[site]"/>
+          <p t-if="login_role_notice" class="tc-login-role-note">Tài khoản hiện tại chưa có quyền dùng chức năng này. Đăng nhập tài khoản được cấp quyền hoặc chuyển hệ thống ở thanh trên.</p>
+          <form action="/web/login" method="post" class="tc-login-form" data-captcha="login">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+            <input type="hidden" name="redirect" t-att-value="login_next"/>
+            <input type="hidden" name="type" value="password"/>
+            <label for="tc-login-identity">Email hoặc tên đăng nhập</label>
+            <input id="tc-login-identity" type="text" name="login" t-att-value="login_value" placeholder="Nhập email của bạn" autocomplete="username" autocapitalize="off" required="required" maxlength="254" autofocus="autofocus"/>
+            <label for="tc-login-password">Mật khẩu</label>
+            <div class="tc-login-password"><input id="tc-login-password" type="password" name="password" autocomplete="current-password" required="required" maxlength="4096" placeholder="Nhập mật khẩu"/><button type="button" data-login-password="1" aria-controls="tc-login-password" aria-pressed="false">Hiện</button></div>
+            <p t-if="login_error" class="tc-login-error" role="alert" t-esc="login_error"/>
+            <button type="submit" class="tc-button">Đăng nhập</button>
+          </form>
+          <p class="tc-login-access" t-esc="{'khovieclam':'Dành cho tài khoản doanh nghiệp và quản trị.','tuhoso':'Dành cho tài khoản ứng viên và quản trị.','tacare':'Dành cho tài khoản doanh nghiệp, ứng viên và quản trị.'}[site]"/>
+          <a href="/" class="tc-login-browse" data-login-close="1">Tiếp tục xem trang chủ</a>
+        </section>
+      </div>
+    </dialog>
+  </template>
+
+  <template id="product_auth_layout" inherit_id="tacare_website.live_layout" name="Popup và chuyển hệ thống trên ba website">
+    <xpath expr="//div[@id='wrap']" position="attributes"><attribute name="t-att-data-access-guest">'1' if access_guest else '0'</attribute><attribute name="t-att-data-url-languages">','.join(url_languages)</attribute><attribute name="t-att-data-session-user">request.session.uid or '0'</attribute></xpath>
+    <xpath expr="//t[@t-call='tacare_website.home_navigation']" position="before"><t t-call="tacare_website.site_switcher"/></xpath>
+    <xpath expr="//nav[hasclass('tc-site-switch')]" position="replace"/>
+    <xpath expr="//div[@id='wrap']" position="inside"><t t-call="tacare_website.login_dialog"/></xpath>
+  </template>
+
+  <template id="profile_content_guide" name="Tủ · Nội dung hồ sơ cụ thể">
+    <section class="pv-content-guide pv-shell" id="pv-content">
+      <div class="pv-content-heading"><p class="tc-eyebrow">MỘT HỒ SƠ DỄ HIỂU</p><h2>Rõ khả năng.<br/>Rõ điều bạn mong muốn.</h2><p>Chọn thông tin liên quan đến công việc bạn đang tìm. Bạn có thể tạo nhiều hồ sơ và cập nhật từng hồ sơ riêng.</p><a t-att-href="urls['tacare']">Tiếp tục đến TA.CARE</a></div>
+      <div class="pv-content-fields"><article><span>01</span><div><h3>Việc bạn làm được</h3><p>Chọn vị trí hoặc nghề, nêu kỹ năng và kinh nghiệm liên quan.</p><small>Frontend: HTML, CSS · Dọn nhà: lau sàn, vệ sinh bếp</small></div></article><article><span>02</span><div><h3>Điều kiện nhận việc</h3><p>Nêu cách làm, nơi làm, lịch rảnh và mức thu nhập mong muốn.</p><small>Chăm cây cuối tuần · Tại nhà khách · 80.000đ/giờ</small></div></article><article><span>03</span><div><h3>Minh chứng khi có sẵn</h3><p>Có thể thêm ảnh công việc đã làm. Không bắt buộc phải có ảnh để bắt đầu.</p><small>Ảnh khu vườn đã chăm, sản phẩm hoặc công việc đã hoàn thành</small></div></article></div>
+    </section>
+    <section class="pv-privacy pv-shell"><div><p class="tc-eyebrow">BẠN QUẢN LÝ HỒ SƠ CỦA MÌNH</p><h2>Tủ riêng cho từng tài khoản.</h2><p>Ứng viên chỉ thấy hồ sơ do mình tạo. Admin có tab “Tất cả hồ sơ” để quản lý hồ sơ trong hệ thống.</p></div><a class="tc-button tc-outline" href="/tuhoso/profiles?scope=mine">Mở tủ hồ sơ của tôi</a></section>
+  </template>
+</odoo>

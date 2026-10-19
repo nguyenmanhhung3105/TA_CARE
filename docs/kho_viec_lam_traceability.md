@@ -1,5 +1,10 @@
 # Kho việc làm: đối chiếu yêu cầu và mã Odoo 19 DEV
 
+> **20/10/2026:** [làm lại Tủ và hỗ trợ nhiều hồ sơ](research/implementation_profile_refresh_2026-10-20.md). Ứng viên chọn hồ sơ tuyển dụng cụ thể khi xem tin và đối chiếu. Quyền, kỹ năng và consent vẫn theo hồ sơ được chọn. Nhãn điều hướng Kho đổi thành “Đăng việc” / “Quản lý tin”; bỏ mũi tên trang trí. Luồng F01–F12 vẫn là tuyển dụng.
+
+> **Bổ sung local 19/10/2026:** [nhánh Việc linh hoạt](research/implementation_flexible_demo_2026-10-19.md) có form/lifecycle riêng và hiển thị chung trong Kho. Bảng F01–F12 tiếp tục mô tả **tuyển dụng**; không xem quy trình cá nhân đăng việc là quyền quản lý tuyển dụng của tổ chức. Các kiểm tra hồi quy tuyển dụng/consent vẫn được chạy. Nhánh mới tắt matching, dùng địa chỉ tĩnh và quyền sở hữu bản ghi.
+
+
 Nguồn: *Kho việc làm.docx*, mục “Vai trò”, các bảng F01–F12; *BÁO CÁO PHÂN TÍCH VÀ ĐỀ XUẤT CẤU TRÚC DỮ LIỆU HỆ T.docx*, phần bốn nhóm ngành và các ví dụ đối chiếu; `docs/database_mapping.md` và addon hiện có. “Đang tạo”, “Đang kiểm tra”, “Đang chỉnh sửa” trong bảng là bước giao diện, không phải trạng thái lưu DB. Ví dụ tên doanh nghiệp, lương và hồ sơ không phải dữ liệu vận hành hoặc quy tắc xét tuyển.
 
 | Yêu cầu / vị trí | Màn hình | Model / trường | Quyền | Điều kiện → kết quả | Hiện có / bổ sung | Cách kiểm tra |
@@ -18,6 +23,8 @@ Nguồn: *Kho việc làm.docx*, mục “Vai trò”, các bảng F01–F12; *B
 | F12, bảng 13 | Lời mời gửi/chi tiết | `tacare.connection` invitation | Người gửi còn quyền xử lý | Pending → cancelled; không rút kết nối đã có kết quả | Có hủy generic; giới hạn invitation và quyền | Rút pending / chặn accepted |
 
 ## Thiết kế biểu mẫu
+
+**Cập nhật v2 17/10/2026:** form chính dùng mô tả/yêu cầu/quyền lợi, kỹ năng chung có chọn bắt buộc và phần điều kiện bổ sung mở rộng. Đăng tin chấp nhận đào tạo không bị ép tạo một điều kiện bắt buộc. Nhóm nghề, tỉnh/thành, thời lượng và yêu cầu ứng viên được kiểm tra khi đăng tin v2. Hạn ứng tuyển có thể trước ngày bắt đầu. Các dòng `care.job.requirement` cũ được giữ để tương thích, không còn là bảng phải nhập trong form mới. Xem [triển khai và kiểm thử hiện hành](research/implementation_forms_homepages_2026-10-17.md). Đoạn tiếp theo mô tả phiên bản đầu trước v2.
 
 `hr.job` chuẩn chứa tên, số lượng, mô tả, company, website; `hr.job.skill` chuẩn chứa kỹ năng. `tacare_sector` cũ giữ tương thích; danh mục ngành mới có thể mở rộng mà không thêm mã selection. `care.job.requirement` lưu từng điều kiện với loại và mức bắt buộc/ưu tiên, thay vì một JSON dài. Lĩnh vực doanh nghiệp (`res.partner`), chuyên ngành học (dòng yêu cầu) và vị trí tuyển dụng (`hr.job`) tách riêng. Hình thức làm việc, thời lượng, lịch và ca tách riêng. Chỉ tên cần để lưu nháp; đăng tin cần tổ chức, vị trí, ngành, loại, hình thức, địa điểm hoặc remote, mô tả, hạn và ít nhất một điều kiện bắt buộc. Các trường đặc thù ngành là tùy chọn; ví dụ thương mại điện tử/kinh doanh/marketing/y tế kiểm tra khả năng nhập, không tự đặt chính sách loại ứng viên.
 

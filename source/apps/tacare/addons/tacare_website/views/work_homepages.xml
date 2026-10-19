@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="work_carousel" name="Ảnh chụp thế giới công việc">
+    <section class="fw-carousel" data-work-carousel="1" data-carousel-kind="jobs" aria-roledescription="carousel" aria-label="Những công việc tạo nên cuộc sống" tabindex="0">
+      <div class="fw-carousel-track">
+        <figure class="fw-slide is-active" data-work-slide="1" aria-roledescription="slide" aria-label="1 trên 4">
+          <img src="/tacare_website/static/src/img/work-team.jpg" width="1800" height="1000" fetchpriority="high" alt="Những người cùng làm việc và trao đổi quanh bàn trong văn phòng"/>
+          <figcaption><span>TUYỂN DỤNG / CÙNG NHAU PHÁT TRIỂN</span><strong>Một vị trí mới.<br/>Một hành trình dài.</strong><a t-att-href="urls['khovieclam'] + 'kvl/jobs?kind=recruitment'">Xem việc tuyển dụng</a></figcaption>
+        </figure>
+        <figure class="fw-slide" data-work-slide="1" aria-roledescription="slide" aria-label="2 trên 4" aria-hidden="true" inert="inert">
+          <img src="/tacare_website/static/src/img/work-cleaning.jpg" width="1800" height="1000" loading="eager" alt="Người làm vệ sinh đang chăm chút không gian trong nhà"/>
+          <figcaption><span>VIỆC LINH HOẠT / TỪ NHỮNG VIỆC QUEN THUỘC</span><strong>Thời gian của bạn.<br/>Giá trị cho mỗi ngày.</strong><a t-att-href="urls['khovieclam'] + 'kvl/jobs?kind=flexible'">Tìm việc linh hoạt </a></figcaption>
+        </figure>
+        <figure class="fw-slide" data-work-slide="1" aria-roledescription="slide" aria-label="3 trên 4" aria-hidden="true" inert="inert">
+          <img src="/tacare_website/static/src/img/work-warehouse.jpg" width="1800" height="1000" loading="eager" alt="Khu vực kho hàng với các kiện hàng và giá kệ"/>
+          <figcaption><span>BỐC XẾP / KHO HÀNG</span><strong>Công việc cần người.<br/>Rõ phạm vi, rõ tiền công.</strong><a t-att-href="urls['khovieclam'] + 'kvl/jobs?kind=flexible&amp;q=thùng'">Xem việc bốc xếp</a></figcaption>
+        </figure>
+        <figure class="fw-slide" data-work-slide="1" aria-roledescription="slide" aria-label="4 trên 4" aria-hidden="true" inert="inert">
+          <img src="/tacare_website/static/src/img/work-tools.jpg" width="1800" height="1000" loading="eager" alt="Dụng cụ cầm tay cho công việc lắp ráp và sửa chữa"/>
+          <figcaption><span>LẮP RÁP / SỬA CHỮA</span><strong>Một việc cần hoàn thành.<br/>Một người làm được.</strong><a t-att-href="urls['khovieclam'] + 'kvl/jobs?kind=flexible&amp;q=kệ'">Xem việc lắp ráp </a></figcaption>
+        </figure>
+      </div>
+      <div class="fw-carousel-controls"><div><button type="button" data-work-prev="1" aria-label="Ảnh trước">Trước</button><button type="button" data-work-next="1" aria-label="Ảnh tiếp theo">Sau</button></div><div class="fw-carousel-dots"><button type="button" data-work-dot="0" aria-label="Xem ảnh 1" aria-pressed="true"/><button type="button" data-work-dot="1" aria-label="Xem ảnh 2" aria-pressed="false"/><button type="button" data-work-dot="2" aria-label="Xem ảnh 3" aria-pressed="false"/><button type="button" data-work-dot="3" aria-label="Xem ảnh 4" aria-pressed="false"/></div><button type="button" data-work-pause="1" aria-pressed="false">Tạm dừng</button></div>
+      <span class="fw-carousel-status visually-hidden" aria-live="polite" aria-atomic="true"/>
+    </section>
+  </template>
+
+  <template id="work_jobs_home" inherit_id="tacare_website.home_jobs" name="Kho · Hai hướng và carousel">
+    <xpath expr="//div[hasclass('k-photo-ribbon')]" position="replace"><t t-call="tacare_website.work_carousel"/></xpath>
+    <xpath expr="//form[hasclass('k-search')]" position="before"><div class="fw-home-choices"><a href="/kvl/jobs?kind=recruitment"><strong>Tuyển dụng</strong><span>Vị trí lâu dài, thực tập, phát triển nghề nghiệp </span></a><a href="/kvl/jobs?kind=flexible"><strong>Việc linh hoạt</strong><span>Theo giờ, theo việc, theo ca và theo chuyến </span></a></div></xpath>
+    <xpath expr="//div[hasclass('k-section-title')]/div/span[text()='02 / TIN TUYỂN DỤNG']" position="replace"><span>02 / CÔNG VIỆC ĐANG MỞ</span></xpath>
+  </template>
+  <template id="work_profiles_home" inherit_id="tacare_website.home_profiles" name="Tủ · Trang chủ hồ sơ gọn">
+    <xpath expr="//div[@data-care-home='profiles']" position="replace"><div class="pv-home" data-care-home="profiles"><t t-call="tacare_website.profile_intro"/><t t-call="tacare_website.profile_guest_guide"/></div></xpath>
+  </template>
+  <template id="work_hub_home" inherit_id="tacare_website.home_hub" name="TA.CARE · Trang chủ không carousel" active="True">
+    <xpath expr="//div[@data-care-home='hub']" position="attributes"><attribute name="data-static-home">1</attribute></xpath>
+  </template>
+  <template id="work_navigation" inherit_id="tacare_website.home_navigation" name="Điều hướng ngắn gọn">
+    <xpath expr="//a[hasclass('k-employer')]" position="replace"><a class="k-employer" href="/kvl/flexible/new" data-nav-link="1">Đăng việc</a></xpath>
+    <xpath expr="//a[hasclass('k-login')]" position="replace"><a class="k-login" href="/kvl/flexible/mine" data-nav-link="1">Quản lý tin</a></xpath>
+    <xpath expr="//header[hasclass('p-nav')]" position="replace"><t t-elif="site == 'tuhoso'" t-call="tacare_website.profile_navigation"/></xpath>
+  </template>
+  <template id="work_layout_navigation" inherit_id="tacare_website.live_layout" name="Điều hướng hai nhánh">
+    <xpath expr="//nav[hasclass('tc-nav')]/t[@t-if=&quot;site == 'khovieclam'&quot;]" position="inside"><a t-if="not is_guest" href="/kvl/flexible/mine">Việc tôi đăng</a></xpath>
+    <xpath expr="//nav[hasclass('tc-nav')]/t[@t-elif=&quot;site == 'tuhoso'&quot;]/a[@href='/tuhoso/me']" position="replace"><a href="/tuhoso/profiles?scope=mine" data-nav-link="1">Hồ sơ của tôi</a></xpath>
+  </template>
+  <template id="work_recruitment_profile_nav" inherit_id="tacare_website.live_profile" name="Hồ sơ tuyển dụng · Chuyển nhánh">
+    <xpath expr="//t[@t-call='tacare_website.live_layout']" position="inside"><div class="fw-back-library"><a href="/tuhoso/profiles?kind=recruitment"> Tủ hồ sơ tuyển dụng</a><a href="/tuhoso/profiles?kind=flexible">Việc tôi nhận </a></div></xpath>
+  </template>
+  <template id="work_home_job_card" inherit_id="tacare_website.kvl_job_card" name="Thẻ trang chủ · Nhãn theo loại công việc">
+    <xpath expr="//p[hasclass('tc-job-sector')]" position="attributes"><attribute name="t-esc">job.flex_category_id.name if job.care_opportunity_kind == 'flexible' else (job.care_sector_id.name or dict(sectors).get(job.tacare_sector, 'Cơ hội'))</attribute></xpath>
+    <xpath expr="//div[hasclass('tc-job-tags')]/span[1]" position="attributes"><attribute name="t-esc">'Việc linh hoạt' if job.care_opportunity_kind == 'flexible' else dict(types).get(job.tacare_type, 'Cơ hội')</attribute></xpath>
+    <xpath expr="//div[hasclass('tc-job-tags')]/span[@t-if='job.tacare_mode']" position="attributes"><attribute name="t-esc">job._flex_label('flex_mode') if job.care_opportunity_kind == 'flexible' else dict(modes).get(job.tacare_mode)</attribute></xpath>
+    <xpath expr="//div[hasclass('tc-job-tags')]/span[@t-if='job.care_work_fraction']" position="attributes"><attribute name="t-if">job.care_work_fraction and job.care_opportunity_kind != 'flexible'</attribute></xpath>
+    <xpath expr="//p[hasclass('tc-job-deadline')]" position="replace"><p t-if="card_context == 'public'" class="tc-job-deadline"><t t-if="job.care_opportunity_kind == 'flexible'">Lịch: <t t-esc="job._flex_schedule_label()"/></t><t t-else="">Hạn nhận đề nghị: <t t-esc="job.tacare_deadline or 'Chưa nêu'"/></t></p></xpath>
+    <xpath expr="//a[hasclass('tc-job-action')][@t-if=&quot;card_context == 'public'&quot;]" position="attributes"><attribute name="t-esc">'Xem việc' if job.care_opportunity_kind == 'flexible' else 'Xem vị trí'</attribute></xpath>
+  </template>
+</odoo>

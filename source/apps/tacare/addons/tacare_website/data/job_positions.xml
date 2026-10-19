@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+  <record id="position_it_frontend" model="care.job.position"><field name="code">it_frontend</field><field name="name">Lập trình Frontend</field><field name="sector_id" ref="sector_it"/></record>
+  <record id="position_it_backend" model="care.job.position"><field name="code">it_backend</field><field name="name">Lập trình Backend</field><field name="sector_id" ref="sector_it"/></record>
+  <record id="position_it_fullstack" model="care.job.position"><field name="code">it_fullstack</field><field name="name">Lập trình Fullstack</field><field name="sector_id" ref="sector_it"/></record>
+  <record id="position_it_mobile" model="care.job.position"><field name="code">it_mobile</field><field name="name">Lập trình di động</field><field name="sector_id" ref="sector_it"/></record>
+  <record id="position_it_qa" model="care.job.position"><field name="code">it_qa</field><field name="name">Kiểm thử phần mềm</field><field name="sector_id" ref="sector_it"/></record>
+  <record id="position_it_data" model="care.job.position"><field name="code">it_data</field><field name="name">Phân tích dữ liệu</field><field name="sector_id" ref="sector_it"/></record>
+  <record id="position_it_devops" model="care.job.position"><field name="code">it_devops</field><field name="name">DevOps / hạ tầng</field><field name="sector_id" ref="sector_it"/></record>
+  <record id="position_it_security" model="care.job.position"><field name="code">it_security</field><field name="name">An toàn thông tin</field><field name="sector_id" ref="sector_it"/></record>
+  <record id="position_ecommerce_operation" model="care.job.position"><field name="code">ecommerce_operation</field><field name="name">Vận hành sàn thương mại điện tử</field><field name="sector_id" ref="sector_ecommerce"/></record>
+  <record id="position_ecommerce_store" model="care.job.position"><field name="code">ecommerce_store</field><field name="name">Quản lý gian hàng</field><field name="sector_id" ref="sector_ecommerce"/></record>
+  <record id="position_ecommerce_merchandising" model="care.job.position"><field name="code">ecommerce_merchandising</field><field name="name">Quản lý hàng hóa trực tuyến</field><field name="sector_id" ref="sector_ecommerce"/></record>
+  <record id="position_ecommerce_livestream" model="care.job.position"><field name="code">ecommerce_livestream</field><field name="name">Vận hành livestream</field><field name="sector_id" ref="sector_ecommerce"/></record>
+  <record id="position_ecommerce_crm" model="care.job.position"><field name="code">ecommerce_crm</field><field name="name">Chăm sóc khách hàng thương mại điện tử</field><field name="sector_id" ref="sector_ecommerce"/></record>
+  <record id="position_marketing_content" model="care.job.position"><field name="code">marketing_content</field><field name="name">Content Marketing</field><field name="sector_id" ref="sector_marketing"/></record>
+  <record id="position_marketing_performance" model="care.job.position"><field name="code">marketing_performance</field><field name="name">Performance Marketing</field><field name="sector_id" ref="sector_marketing"/></record>
+  <record id="position_marketing_seo" model="care.job.position"><field name="code">marketing_seo</field><field name="name">SEO</field><field name="sector_id" ref="sector_marketing"/></record>
+  <record id="position_marketing_brand" model="care.job.position"><field name="code">marketing_brand</field><field name="name">Thương hiệu / truyền thông</field><field name="sector_id" ref="sector_marketing"/></record>
+  <record id="position_marketing_social" model="care.job.position"><field name="code">marketing_social</field><field name="name">Social Media</field><field name="sector_id" ref="sector_marketing"/></record>
+  <record id="position_marketing_research" model="care.job.position"><field name="code">marketing_research</field><field name="name">Nghiên cứu thị trường</field><field name="sector_id" ref="sector_marketing"/></record>
+  <record id="position_sales_b2b" model="care.job.position"><field name="code">sales_b2b</field><field name="name">Kinh doanh B2B</field><field name="sector_id" ref="sector_sales"/></record>
+  <record id="position_sales_retail" model="care.job.position"><field name="code">sales_retail</field><field name="name">Bán hàng bán lẻ</field><field name="sector_id" ref="sector_sales"/></record>
+  <record id="position_sales_account" model="care.job.position"><field name="code">sales_account</field><field name="name">Quản lý khách hàng</field><field name="sector_id" ref="sector_sales"/></record>
+  <record id="position_sales_development" model="care.job.position"><field name="code">sales_development</field><field name="name">Phát triển kinh doanh</field><field name="sector_id" ref="sector_sales"/></record>
+  <record id="position_sales_telesales" model="care.job.position"><field name="code">sales_telesales</field><field name="name">Tư vấn bán hàng qua điện thoại</field><field name="sector_id" ref="sector_sales"/></record>
+  <record id="position_health_doctor" model="care.job.position"><field name="code">health_doctor</field><field name="name">Bác sĩ</field><field name="sector_id" ref="sector_health"/></record>
+  <record id="position_health_nurse" model="care.job.position"><field name="code">health_nurse</field><field name="name">Điều dưỡng</field><field name="sector_id" ref="sector_health"/></record>
+  <record id="position_health_pharmacist" model="care.job.position"><field name="code">health_pharmacist</field><field name="name">Dược sĩ</field><field name="sector_id" ref="sector_health"/></record>
+  <record id="position_health_lab" model="care.job.position"><field name="code">health_lab</field><field name="name">Kỹ thuật xét nghiệm</field><field name="sector_id" ref="sector_health"/></record>
+  <record id="position_health_imaging" model="care.job.position"><field name="code">health_imaging</field><field name="name">Kỹ thuật chẩn đoán hình ảnh</field><field name="sector_id" ref="sector_health"/></record>
+  <record id="position_health_rehabilitation" model="care.job.position"><field name="code">health_rehabilitation</field><field name="name">Phục hồi chức năng</field><field name="sector_id" ref="sector_health"/></record>
+  <record id="position_logistics_warehouse" model="care.job.position"><field name="code">logistics_warehouse</field><field name="name">Vận hành kho</field><field name="sector_id" ref="sector_logistics"/></record>
+  <record id="position_logistics_planning" model="care.job.position"><field name="code">logistics_planning</field><field name="name">Điều phối vận tải</field><field name="sector_id" ref="sector_logistics"/></record>
+  <record id="position_logistics_customs" model="care.job.position"><field name="code">logistics_customs</field><field name="name">Chứng từ / khai báo hải quan</field><field name="sector_id" ref="sector_logistics"/></record>
+  <record id="position_logistics_procurement" model="care.job.position"><field name="code">logistics_procurement</field><field name="name">Thu mua</field><field name="sector_id" ref="sector_logistics"/></record>
+  <record id="position_logistics_supply" model="care.job.position"><field name="code">logistics_supply</field><field name="name">Kế hoạch chuỗi cung ứng</field><field name="sector_id" ref="sector_logistics"/></record>
+  <record id="position_logistics_driver" model="care.job.position"><field name="code">logistics_driver</field><field name="name">Lái xe giao nhận</field><field name="sector_id" ref="sector_logistics"/></record>
+  <record id="position_design_graphic" model="care.job.position"><field name="code">design_graphic</field><field name="name">Thiết kế đồ họa</field><field name="sector_id" ref="sector_design"/></record>
+  <record id="position_design_product" model="care.job.position"><field name="code">design_product</field><field name="name">Thiết kế UI/UX sản phẩm</field><field name="sector_id" ref="sector_design"/></record>
+  <record id="position_design_motion" model="care.job.position"><field name="code">design_motion</field><field name="name">Thiết kế chuyển động</field><field name="sector_id" ref="sector_design"/></record>
+  <record id="position_design_interior" model="care.job.position"><field name="code">design_interior</field><field name="name">Thiết kế nội thất</field><field name="sector_id" ref="sector_design"/></record>
+  <record id="position_design_industrial" model="care.job.position"><field name="code">design_industrial</field><field name="name">Thiết kế công nghiệp</field><field name="sector_id" ref="sector_design"/></record>
+  <record id="position_design_fashion" model="care.job.position"><field name="code">design_fashion</field><field name="name">Thiết kế thời trang</field><field name="sector_id" ref="sector_design"/></record>
+  <record id="position_food_quality" model="care.job.position"><field name="code">food_quality</field><field name="name">Kiểm soát chất lượng thực phẩm</field><field name="sector_id" ref="sector_food"/></record>
+  <record id="position_food_agronomy" model="care.job.position"><field name="code">food_agronomy</field><field name="name">Kỹ thuật nông nghiệp</field><field name="sector_id" ref="sector_food"/></record>
+  <record id="position_support_service" model="care.job.position"><field name="code">support_service</field><field name="name">Chăm sóc khách hàng</field><field name="sector_id" ref="sector_support"/></record>
+  <record id="position_support_technical" model="care.job.position"><field name="code">support_technical</field><field name="name">Hỗ trợ kỹ thuật</field><field name="sector_id" ref="sector_support"/></record>
+  <record id="position_hr_recruitment" model="care.job.position"><field name="code">hr_recruitment</field><field name="name">Tuyển dụng</field><field name="sector_id" ref="sector_hr"/></record>
+  <record id="position_hr_payroll" model="care.job.position"><field name="code">hr_payroll</field><field name="name">Lương và phúc lợi</field><field name="sector_id" ref="sector_hr"/></record>
+</odoo>

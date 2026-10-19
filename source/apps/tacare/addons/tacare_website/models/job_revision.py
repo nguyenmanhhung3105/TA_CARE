@@ -51,7 +51,10 @@ class CareJobRevision(models.Model):
             'care_days_per_week', 'care_duration_months', 'care_shift_note',
             'care_income_type', 'care_income_period', 'care_requires_travel',
             'care_requires_license', 'care_requires_portfolio', 'care_requires_clinical',
-            '_requirements',
+            'care_position_id', 'care_region_id', 'care_candidate_requirements', 'care_benefits',
+            'care_training_provided', 'care_skills_any', 'care_salary_display', 'care_salary_basis',
+            'care_salary_tax', 'care_education_note', 'care_language_note', 'care_license_note',
+            'care_schedule_required', 'care_start_flexible', '_requirements',
         }
         for revision in self:
             if revision.state != 'submitted' or not reviewer.has_group('base.group_system'):
