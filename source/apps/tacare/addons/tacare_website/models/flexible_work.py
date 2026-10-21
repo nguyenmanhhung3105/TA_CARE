@@ -84,6 +84,18 @@ class FlexibleWorkMixin(models.AbstractModel):
             if not 0 <= item.flex_passengers <= 100:
                 raise ValidationError('Số hành khách không hợp lệ.')
 
+    def _care_photo_url(self):
+        """Existing credited stock photos illustrate a category, never its author."""
+        self.ensure_one()
+        photos = {'cleaning': 'cleaning', 'cooking': 'cooking', 'garden': 'garden',
+                  'farm': 'farm', 'loading': 'warehouse', 'repair': 'tools',
+                  'tutoring': 'learning', 'digital': 'digital', 'driving': 'driving', 'pets': 'cat'}
+        category = self.flex_category_id.code
+        if self._name == 'hr.job' and self.care_opportunity_kind == 'recruitment':
+            category = {'it': 'digital', 'marketing': 'digital', 'health': 'health',
+                        'education': 'tutoring', 'logistics': 'loading'}.get(self.tacare_sector, '')
+        return '/tacare_website/static/src/img/work-%s.jpg' % photos.get(category, 'team')
+
     def _flex_label(self, field):
         self.ensure_one()
         return dict(self._fields[field].selection).get(self[field], '')

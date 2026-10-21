@@ -1,0 +1,229 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo><template id="kvl_job_card" name="Kho Việc Làm · Thẻ vị trí dùng chung">
+    <article class="tc-job-unit">
+      <span class="tc-job-mark" aria-hidden="true" t-esc="(job.tacare_owner_partner_id.name or 'CV')[:2].upper()" />
+      <div class="tc-job-copy">
+        <p class="tc-job-sector" t-esc="job.care_sector_id.name or dict(sectors).get(job.tacare_sector, 'Cơ hội')" />
+        <h3>
+          <a t-att-href="'/kvl/job/%s/preview' % job.id if card_context == 'manage' else '/kvl/job/%s' % job.id" t-esc="job.name" />
+        </h3>
+        <p class="tc-job-meta">
+          <span t-esc="job.tacare_owner_partner_id.name" /> · <span t-esc="job.tacare_location or 'Chưa nêu địa điểm'" />
+          <t t-if="card_context == 'manage'"> · Tạo <span t-esc="job.create_date.date()" />
+          </t>
+        </p>
+        <div class="tc-job-tags">
+          <span t-esc="dict(types).get(job.tacare_type, 'Cơ hội')" />
+          <span t-if="job.tacare_mode" t-esc="dict(modes).get(job.tacare_mode)" />
+          <span t-if="job.care_work_fraction" t-esc="dict(job._fields['care_work_fraction'].selection).get(job.care_work_fraction)" />
+          <span t-if="card_context == 'public'" t-esc="job._care_income_label()" />
+          <span t-if="card_context == 'manage' and pending_counts.get(job.id)" class="tc-job-highlight">
+            <t t-esc="pending_counts[job.id]" /> kết nối đang chờ</span>
+        </div>
+        <p t-if="card_context == 'public'" class="tc-job-deadline">Hạn nhận đề nghị: <span t-esc="job.tacare_deadline or 'Chưa nêu'" />
+        </p>
+      </div>
+      <div class="tc-job-side"><a t-if="role == 'admin'" class="tc-delete-link" t-att-href="'/kvl/job/%s/remove' % job.id">Xóa tin</a>
+        <span t-att-class="'tc-kvl-status is-' + job.tacare_status" t-esc="dict(job._fields['tacare_status'].selection).get(job.tacare_status)" />
+        <a t-if="card_context == 'public'" class="tc-button tc-job-action" t-att-href="'/kvl/job/%s' % job.id">Xem vị trí</a>
+        <t t-else="">
+          <a class="tc-button tc-outline tc-job-action" t-att-href="'/kvl/job/%s/preview' % job.id">Xem trước</a>
+          <div class="tc-job-links">
+            <a t-att-href="'/kvl/job/%s/history' % job.id">Lịch sử</a>
+            <a t-if="role == 'admin' or job.tacare_owner_partner_id.id in editable_org_ids" t-att-href="'/kvl/job/%s/edit' % job.id">Chỉnh sửa</a>
+          </div>
+        </t>
+      </div>
+      <details t-if="card_context == 'manage' and (role == 'admin' or job.tacare_owner_partner_id.id in editable_org_ids)" class="tc-job-state">
+        <summary>Đổi trạng thái</summary>
+        <form t-att-action="'/kvl/job/%s/status' % job.id" method="post" class="tc-mini-form">
+          <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+          <label class="tc-check">
+            <input type="checkbox" name="confirm" value="yes" required="required" />
+            <span t-esc="'Tôi xác nhận còn nhu cầu tuyển dụng và đã kiểm tra tin.' if job.tacare_status in ('draft','paused','closed') else 'Tôi đã xem cảnh báo và xác nhận thao tác.'" />
+          </label>
+          <button t-if="job.tacare_status in ('draft','paused','closed')" class="tc-button" name="status" value="published" type="submit">Đăng / mở lại</button>
+          <button t-if="job.tacare_status == 'published'" class="tc-button tc-outline" name="status" value="paused" type="submit">Tạm ngừng</button>
+          <button t-if="job.tacare_status in ('published','paused')" class="tc-button tc-outline" name="status" value="closed" type="submit">Đóng tin</button>
+        </form>
+        <form t-if="job.tacare_status == 'draft'" t-att-action="'/kvl/job/%s/delete' % job.id" method="post" class="tc-mini-form">
+          <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+          <label class="tc-check">
+            <input type="checkbox" name="confirm" value="yes" required="required" />
+            <span>Tôi muốn xóa bản nháp này.</span>
+          </label>
+          <button class="tc-button tc-danger" type="submit">Xóa bản nháp</button>
+        </form>
+      </details>
+    </article>
+  </template>
+  <template id="live_jobs" name="Kho Việc Làm - Danh sách">
+    <t t-call="tacare_website.live_layout">
+      <div class="tc-market-list-head">
+        <p class="tc-eyebrow">KHO VIỆC LÀM / CƠ HỘI CÔNG KHAI</p>
+        <h1>Cơ hội để bạn lựa chọn</h1>
+        <p>Tìm công việc, thực tập và dự án theo ngành nghề, loại cơ hội và điều kiện làm việc.</p>
+      </div>
+      <form action="/kvl/jobs" method="get" class="tc-market-filters" role="search">
+        <label>Từ khóa<input type="search" name="q" t-att-value="query.get('q') or ''" placeholder="Tên tin hoặc địa điểm" />
+        </label>
+        <label>Lĩnh vực<select name="sector">
+            <option value="">Tất cả lĩnh vực</option>
+            <option t-foreach="job_sectors" t-as="opt" t-att-value="opt.code" t-att-selected="'selected' if query.get('sector') == opt.code else None" t-esc="opt.name" />
+          </select>
+        </label>
+        <label>Loại cơ hội<select name="type">
+            <option value="">Tất cả loại</option>
+            <option t-foreach="types" t-as="opt" t-att-value="opt[0]" t-att-selected="'selected' if query.get('type') == opt[0] else None" t-esc="opt[1]" />
+          </select>
+        </label>
+        <button type="submit" class="tc-button">Tìm cơ hội</button>
+        <a href="/kvl/jobs" class="tc-button tc-outline">Xóa lọc</a>
+      </form>
+      <nav class="tc-sector-chips" aria-label="Lọc nhanh theo ngành nghề">
+        <a href="/kvl/jobs" t-att-class="'is-active' if not query.get('sector') else ''">Tất cả ngành</a>
+        <a t-foreach="job_sectors" t-as="sector" t-att-href="'/kvl/jobs?sector=%s' % sector.code" t-att-class="'is-active' if query.get('sector') == sector.code else ''" t-esc="sector.name" />
+      </nav>
+      <div class="tc-market-list-results">
+        <div class="tc-results-head">
+          <h2>Kết quả tìm kiếm</h2>
+          <span>
+            <strong t-esc="len(jobs)" /> cơ hội</span>
+        </div>
+        <div class="tc-job-list">
+          <t t-foreach="jobs" t-as="job">
+            <t t-call="tacare_website.kvl_job_card">
+              <t t-set="card_context" t-value="'public'" />
+            </t>
+          </t>
+        </div>
+        <div t-if="not jobs" class="tc-empty">
+          <h3>Chưa tìm thấy cơ hội phù hợp</h3>
+          <p>Thử bỏ bớt bộ lọc để xem toàn bộ tin đang mở.</p>
+          <a href="/kvl/jobs">Xóa bộ lọc </a>
+        </div>
+      </div>
+    </t>
+  </template>
+  <template id="live_job_form" name="Kho Việc Làm - Form tin">
+    <t t-call="tacare_website.live_layout">
+      <p class="tc-breadcrumb">
+        <a href="/kvl/manage">Tin của tổ chức</a> / <span t-esc="'Sửa tin' if job else 'Tạo tin'" />
+      </p>
+      <div class="tc-page-head">
+        <p class="tc-eyebrow">BIÊN TẬP CƠ HỘI</p>
+        <h1 t-esc="'Sửa tin' if job else 'Tạo tin mới'" />
+        <p>Lưu nháp trước hoặc điền đủ các trường bắt buộc để đăng.</p>
+      </div>
+      <div t-if="error" class="tc-error" role="alert" t-esc="error" />
+      <form action="/kvl/job/save" method="post" class="tc-card tc-form">
+        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+        <input t-if="job" type="hidden" name="job_id" t-att-value="job.id" />
+        <div t-if="owners" class="tc-field">
+          <label for="owner_id">Tổ chức đăng tin</label>
+          <select id="owner_id" name="owner_id">
+            <option t-foreach="owners" t-as="owner" t-att-value="owner.id" t-esc="owner.partner_id.commercial_partner_id.name" />
+          </select>
+        </div>
+        <div t-if="organizations and len(organizations) &gt; 1 and not job" class="tc-field">
+          <label for="organization_id">Tổ chức đăng tin</label>
+          <select id="organization_id" name="organization_id" required="required">
+            <option t-foreach="organizations" t-as="organization" t-att-value="organization.id" t-esc="organization.name" />
+          </select>
+        </div>
+        <div class="tc-form-grid">
+          <div class="tc-field">
+            <label for="name">Tên cơ hội *</label>
+            <input id="name" name="name" required="required" t-att-value="vals.get('name') if vals else job.name if job else ''" />
+          </div>
+          <div class="tc-field">
+            <label for="sector">Lĩnh vực *</label>
+            <select id="sector" name="sector" required="required">
+              <option value="">Chọn lĩnh vực</option>
+              <option t-foreach="sectors" t-as="opt" t-att-value="opt[0]" t-att-selected="'selected' if (vals.get('sector') if vals else job.tacare_sector if job else '') == opt[0] else None" t-esc="opt[1]" />
+            </select>
+          </div>
+          <div class="tc-field">
+            <label for="type">Loại cơ hội *</label>
+            <select id="type" name="type" required="required">
+              <option value="">Chọn loại</option>
+              <option t-foreach="types" t-as="opt" t-att-value="opt[0]" t-att-selected="'selected' if (vals.get('type') if vals else job.tacare_type if job else '') == opt[0] else None" t-esc="opt[1]" />
+            </select>
+          </div>
+          <div class="tc-field">
+            <label for="mode">Hình thức *</label>
+            <select id="mode" name="mode" required="required">
+              <option value="">Chọn hình thức</option>
+              <option t-foreach="modes" t-as="opt" t-att-value="opt[0]" t-att-selected="'selected' if (vals.get('mode') if vals else job.tacare_mode if job else '') == opt[0] else None" t-esc="opt[1]" />
+            </select>
+          </div>
+          <div class="tc-field">
+            <label for="location">Địa điểm *</label>
+            <input id="location" name="location" required="required" t-att-value="vals.get('location') if vals else job.tacare_location if job else ''" />
+          </div>
+          <div class="tc-field">
+            <label for="quantity">Số lượng</label>
+            <input id="quantity" name="quantity" type="number" min="1" t-att-value="vals.get('quantity') if vals else job.no_of_recruitment if job else 1" />
+          </div>
+          <div class="tc-field">
+            <label for="start">Ngày bắt đầu</label>
+            <input id="start" name="start" type="date" t-att-value="vals.get('start') if vals else str(job.tacare_start or '') if job else ''" />
+          </div>
+          <div class="tc-field">
+            <label for="deadline">Hạn nhận đề nghị *</label>
+            <input id="deadline" name="deadline" type="date" required="required" t-att-value="vals.get('deadline') if vals else str(job.tacare_deadline or '') if job else ''" />
+          </div>
+          <div class="tc-field">
+            <label for="experience_min">Kinh nghiệm tối thiểu (năm)</label>
+            <input id="experience_min" name="experience_min" type="number" min="0" step="0.5" t-att-value="vals.get('experience_min') if vals else job.care_experience_min if job else 0" />
+          </div>
+          <div class="tc-field">
+            <label for="salary_min">Thù lao tối thiểu</label>
+            <input id="salary_min" name="salary_min" type="number" min="0" t-att-value="vals.get('salary_min') if vals else job.care_salary_min if job else 0" />
+          </div>
+          <div class="tc-field">
+            <label for="salary_max">Thù lao tối đa</label>
+            <input id="salary_max" name="salary_max" type="number" min="0" t-att-value="vals.get('salary_max') if vals else job.care_salary_max if job else 0" />
+          </div>
+          <div class="tc-field">
+            <label for="schedule">Lịch / thời lượng</label>
+            <input id="schedule" name="schedule" t-att-value="vals.get('schedule') if vals else job.tacare_schedule if job else ''" />
+          </div>
+          <div class="tc-field">
+            <label for="pay">Thù lao / lương</label>
+            <input id="pay" name="pay" t-att-value="vals.get('pay') if vals else job.tacare_pay if job else ''" />
+          </div>
+          <div class="tc-field">
+            <label for="required_skills">Kỹ năng bắt buộc * (cách nhau bằng dấu phẩy)</label>
+            <input id="required_skills" name="required_skills" required="required" t-att-value="vals.get('required_skills') if vals else job.tacare_required_skills if job else ''" />
+          </div>
+          <div class="tc-field">
+            <label for="preferred_skills">Kỹ năng ưu tiên</label>
+            <input id="preferred_skills" name="preferred_skills" t-att-value="vals.get('preferred_skills') if vals else job.tacare_preferred_skills if job else ''" />
+          </div>
+        </div>
+        <div class="tc-field">
+          <label for="description">Nhiệm vụ và mô tả *</label>
+          <textarea id="description" name="description" rows="5" required="required">
+            <t t-esc="vals.get('description') if vals else job.tacare_description_text if job else ''" />
+          </textarea>
+        </div>
+        <div class="tc-field">
+          <label for="outcome">Đầu ra mong đợi</label>
+          <textarea id="outcome" name="outcome" rows="3">
+            <t t-esc="vals.get('outcome') if vals else job.tacare_outcome if job else ''" />
+          </textarea>
+        </div>
+        <label class="tc-check">
+          <input type="checkbox" name="matching_enabled" t-att-checked="'checked' if (vals.get('matching_enabled') == 'on' if vals else job.care_matching_enabled if job else True) else None" />
+          <span>Cho phép gợi ý kết nối cho tin này</span>
+        </label>
+        <div class="tc-actions">
+          <button class="tc-button tc-outline" type="submit" name="intent" value="draft" formnovalidate="formnovalidate">Lưu nháp</button>
+          <button class="tc-button" type="submit" name="intent" value="publish">Đăng tin</button>
+          <a class="tc-button tc-plain" href="/kvl/manage">Hủy</a>
+        </div>
+      </form>
+    </t>
+  </template>
+</odoo>

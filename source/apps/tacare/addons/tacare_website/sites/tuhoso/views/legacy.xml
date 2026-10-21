@@ -1,0 +1,459 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo><template id="live_profile" name="Tủ Hồ Sơ · Hồ sơ năng lực">
+    <t t-call="tacare_website.live_layout">
+      <t t-if="edit">
+        <t t-set="field_errors" t-value="{}" />
+        <div class="tc-editor-workspace">
+          <aside class="tc-editor-sidebar">
+            <p class="tc-eyebrow">TỦ HỒ SƠ CỦA BẠN</p>
+            <strong>Thể hiện năng lực.<br />Mở thêm cơ hội.</strong>
+            <nav aria-label="Các phần của hồ sơ">
+              <a href="#profile-intro">Giới thiệu</a>
+              <a href="#profile-preferences">Mong muốn</a>
+              <a href="#profile-experience">Kinh nghiệm</a>
+              <a href="#profile-education">Học vấn</a>
+              <a href="#profile-languages">Ngoại ngữ</a>
+              <a href="#profile-licenses">Giấy phép</a>
+              <a href="#profile-skills">Kỹ năng</a>
+              <a href="#profile-evidence">Minh chứng</a>
+              <a href="#profile-sharing">Quyền chia sẻ</a>
+            </nav>
+            <p>Bắt đầu từ thông tin đang có. Bạn có thể bổ sung dần.</p>
+          </aside>
+          <div class="tc-editor-main">
+            <div class="tc-page-head">
+              <p class="tc-eyebrow">KHÔNG GIAN CÁ NHÂN</p>
+              <h1>Hồ sơ của tôi</h1>
+              <p>Ghi rõ điều bạn biết, việc bạn đã làm và công việc bạn muốn tìm.</p>
+            </div>
+            <div t-if="error" class="tc-error" role="alert" t-esc="error" />
+            <form action="/tuhoso/profile/save" method="post" class="tc-form" data-kvl-unsaved="1">
+              <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+              <input type="hidden" name="profile_id" t-att-value="profile.id" />
+              <section id="profile-intro" class="tc-card tc-form-section">
+                <p class="tc-eyebrow">01 / GIỚI THIỆU</p>
+                <h2>Giới thiệu bản thân</h2>
+                <label>Họ và tên *<input name="name" type="text" t-att-value="vals.get('name', '')" required="required" minlength="2" maxlength="160" />
+                  <small t-if="field_errors.get('name')" class="tc-field-error" t-esc="field_errors['name']" />
+                </label>
+                <label>Chức danh / giới thiệu ngắn<input name="headline" type="text" t-att-value="vals.get('headline', '')" maxlength="180" placeholder="Ví dụ: Nhân viên vận hành sàn thương mại điện tử" />
+                  <small t-if="field_errors.get('headline')" class="tc-field-error" t-esc="field_errors['headline']" />
+                </label>
+                <label>Đôi nét về bạn<textarea name="bio" rows="3" placeholder="Thế mạnh, mối quan tâm và cách bạn làm việc.">
+                    <t t-esc="vals.get('bio', '')" />
+                  </textarea>
+                  <small t-if="field_errors.get('bio')" class="tc-field-error" t-esc="field_errors['bio']" />
+                </label>
+              </section>
+              <section id="profile-preferences" class="tc-card tc-form-section">
+                <p class="tc-eyebrow">02 / MONG MUỐN</p>
+                <h2>Công việc bạn muốn tìm</h2>
+                <div class="tc-form-grid">
+                  <label>Lĩnh vực mong muốn<select name="sector">
+                      <option value="">Chọn thông tin</option>
+                      <option t-foreach="sectors" t-as="opt" t-att-value="opt[0]" t-att-selected="'selected' if str(vals.get('sector', '')) == str(opt[0]) else None" t-esc="opt[1]" />
+                    </select>
+                    <small t-if="field_errors.get('sector')" class="tc-field-error" t-esc="field_errors['sector']" />
+                  </label>
+                  <label>Nhóm nghề mong muốn chính<select name="desired_position_id" data-position-select="1">
+                      <option value="">Chưa chọn nhóm nghề</option>
+                      <option t-foreach="positions" t-as="position" t-att-value="position.id" t-att-data-sector="position.sector_id.code" t-att-selected="'selected' if str(vals.get('desired_position_id','')) == str(position.id) else None" t-esc="position.name" />
+                    </select>
+                  </label>
+                  <label>Loại cơ hội<select name="desired_type">
+                      <option value="">Chọn thông tin</option>
+                      <option t-foreach="profile._fields['desired_type'].selection" t-as="opt" t-att-value="opt[0]" t-att-selected="'selected' if str(vals.get('desired_type', '')) == str(opt[0]) else None" t-esc="opt[1]" />
+                    </select>
+                    <small t-if="field_errors.get('desired_type')" class="tc-field-error" t-esc="field_errors['desired_type']" />
+                  </label>
+                  <label>Thời lượng làm việc<select name="work_fraction">
+                      <option value="">Chọn thông tin</option>
+                      <option t-foreach="profile._fields['work_fraction'].selection" t-as="opt" t-att-value="opt[0]" t-att-selected="'selected' if str(vals.get('work_fraction', '')) == str(opt[0]) else None" t-esc="opt[1]" />
+                    </select>
+                    <small t-if="field_errors.get('work_fraction')" class="tc-field-error" t-esc="field_errors['work_fraction']" />
+                  </label>
+                  <label>Hình thức làm việc<select name="mode">
+                      <option value="">Chưa xác định</option>
+                      <option t-foreach="modes" t-as="opt" t-att-value="opt[0]" t-att-selected="'selected' if str(vals.get('mode', '')) == str(opt[0]) else None" t-esc="opt[1]" />
+                    </select>
+                    <small t-if="field_errors.get('mode')" class="tc-field-error" t-esc="field_errors['mode']" />
+                  </label>
+                  <label>Tỉnh / thành muốn làm việc<select name="region_id">
+                      <option value="">Chọn thông tin</option>
+                      <option t-foreach="[(s.id, s.name) for s in regions]" t-as="opt" t-att-value="opt[0]" t-att-selected="'selected' if str(vals.get('region_id', '')) == str(opt[0]) else None" t-esc="opt[1]" />
+                    </select>
+                    <small t-if="field_errors.get('region_id')" class="tc-field-error" t-esc="field_errors['region_id']" />
+                  </label>
+                  <label>Khu vực hiện tại<input name="location" type="text" t-att-value="vals.get('location', '')" maxlength="250" />
+                    <small t-if="field_errors.get('location')" class="tc-field-error" t-esc="field_errors['location']" />
+                  </label>
+                  <label>Ngày có thể bắt đầu<input name="start_date" type="date" t-att-value="vals.get('start_date', '')" />
+                    <small t-if="field_errors.get('start_date')" class="tc-field-error" t-esc="field_errors['start_date']" />
+                  </label>
+                </div>
+                <label>Định hướng và mong muốn khác<textarea name="goal" rows="3" placeholder="Loại công việc, môi trường hoặc mục tiêu bạn quan tâm.">
+                    <t t-esc="vals.get('goal', '')" />
+                  </textarea>
+                  <small t-if="field_errors.get('goal')" class="tc-field-error" t-esc="field_errors['goal']" />
+                </label>
+                <label>Lịch có thể làm việc<input name="availability" type="text" t-att-value="vals.get('availability', '')" maxlength="300" placeholder="Ví dụ: Thứ 2–6, không làm ca đêm" />
+                  <small t-if="field_errors.get('availability')" class="tc-field-error" t-esc="field_errors['availability']" />
+                </label>
+                <label>Có thể đi công tác / di chuyển?<select name="travel">
+                    <option value="">Chưa xác định</option>
+                    <option t-foreach="profile._fields['travel'].selection" t-as="opt" t-att-value="opt[0]" t-att-selected="'selected' if str(vals.get('travel', '')) == str(opt[0]) else None" t-esc="opt[1]" />
+                  </select>
+                  <small t-if="field_errors.get('travel')" class="tc-field-error" t-esc="field_errors['travel']" />
+                </label>
+                <details>
+                  <summary>Mức lương cố định mong muốn (tùy chọn)</summary>
+                  <div class="tc-form-grid">
+                    <label>Mức tối thiểu<input name="salary_min" type="number" t-att-value="vals.get('salary_min', '')" min="0" step="any" />
+                      <small>Để trống nếu muốn thỏa thuận.</small>
+                      <small t-if="field_errors.get('salary_min')" class="tc-field-error" t-esc="field_errors['salary_min']" />
+                    </label>
+                    <label>Tiền tệ<select name="salary_currency_id">
+                        <option value="">Chọn thông tin</option>
+                        <option t-foreach="[(c.id, c.name) for c in currencies]" t-as="opt" t-att-value="opt[0]" t-att-selected="'selected' if str(vals.get('salary_currency_id', '')) == str(opt[0]) else None" t-esc="opt[1]" />
+                      </select>
+                      <small t-if="field_errors.get('salary_currency_id')" class="tc-field-error" t-esc="field_errors['salary_currency_id']" />
+                    </label>
+                    <label>Kỳ trả<select name="salary_period">
+                        <option value="">Chọn thông tin</option>
+                        <option t-foreach="profile._fields['salary_period'].selection" t-as="opt" t-att-value="opt[0]" t-att-selected="'selected' if str(vals.get('salary_period', '')) == str(opt[0]) else None" t-esc="opt[1]" />
+                      </select>
+                      <small t-if="field_errors.get('salary_period')" class="tc-field-error" t-esc="field_errors['salary_period']" />
+                    </label>
+                    <label>Trước / sau thuế<select name="salary_tax">
+                        <option value="">Chọn thông tin</option>
+                        <option t-foreach="profile._fields['salary_tax'].selection" t-as="opt" t-att-value="opt[0]" t-att-selected="'selected' if str(vals.get('salary_tax', '')) == str(opt[0]) else None" t-esc="opt[1]" />
+                      </select>
+                      <small t-if="field_errors.get('salary_tax')" class="tc-field-error" t-esc="field_errors['salary_tax']" />
+                    </label>
+                  </div>
+                </details>
+              </section>
+              <section id="profile-experience" class="tc-card tc-form-section">
+                <p class="tc-eyebrow">03 / KINH NGHIỆM</p>
+                <h2>Kinh nghiệm liên quan</h2>
+                <input type="hidden" name="experience_position_id" t-att-value="vals.get('experience_position_id', '')" />
+                <label class="tc-check">
+                  <input type="checkbox" name="experience_known" t-att-checked="'checked' if vals.get('experience_known') == 'on' else None" />
+                  <span>Tôi đã xác định số tháng kinh nghiệm liên quan cho nhóm nghề mong muốn chính</span>
+                </label>
+                <label>Số tháng kinh nghiệm liên quan<input name="relevant_months" type="number" t-att-value="vals.get('relevant_months', '')" min="0" max="960" />
+                  <small>0 = chưa có kinh nghiệm; bỏ đánh dấu phía trên = chưa xác định. Không cộng trùng thời gian.</small>
+                  <small t-if="field_errors.get('relevant_months')" class="tc-field-error" t-esc="field_errors['relevant_months']" />
+                </label>
+                <label>Những công việc đã làm<textarea name="work_history" rows="5" placeholder="Mỗi công việc: đơn vị, vị trí, thời gian và trách nhiệm / kết quả. Có thể ghi thực tập và công việc tự do.">
+                    <t t-esc="vals.get('work_history', '')" />
+                  </textarea>
+                  <small t-if="field_errors.get('work_history')" class="tc-field-error" t-esc="field_errors['work_history']" />
+                </label>
+              </section>
+              <section id="profile-education" class="tc-card tc-form-section">
+                <p class="tc-eyebrow">04 / HỌC VẤN</p>
+                <h2>Học vấn và chuyên ngành</h2>
+                <label>Tóm tắt học vấn<input name="education" type="text" t-att-value="vals.get('education', '')" maxlength="250" placeholder="Ví dụ: Cử nhân Kinh tế – Đại học…" />
+                  <small t-if="field_errors.get('education')" class="tc-field-error" t-esc="field_errors['education']" />
+                </label>
+                <label>Quá trình học tập<textarea name="education_details" rows="4" placeholder="Tên trường, chuyên ngành, bằng cấp, thời gian học và tình trạng tốt nghiệp.">
+                    <t t-esc="vals.get('education_details', '')" />
+                  </textarea>
+                  <small t-if="field_errors.get('education_details')" class="tc-field-error" t-esc="field_errors['education_details']" />
+                </label>
+              </section>
+              <section id="profile-languages" class="tc-card tc-form-section">
+                <p class="tc-eyebrow">05 / NGOẠI NGỮ</p>
+                <h2>Ngoại ngữ</h2>
+                <label>Ngoại ngữ và mức sử dụng<textarea name="languages" rows="3" placeholder="Ví dụ: Tiếng Anh – giao tiếp với khách hàng. Chứng chỉ: tên, điểm và ngày thi nếu có.">
+                    <t t-esc="vals.get('languages', '')" />
+                  </textarea>
+                  <small t-if="field_errors.get('languages')" class="tc-field-error" t-esc="field_errors['languages']" />
+                </label>
+              </section>
+              <section id="profile-licenses" class="tc-card tc-form-section">
+                <p class="tc-eyebrow">06 / GIẤY PHÉP</p>
+                <h2>Giấy phép và chứng chỉ</h2>
+                <label>Giấy phép / chứng chỉ đang có<textarea name="licenses" rows="3" placeholder="Tên, đơn vị cấp, phạm vi hành nghề, ngày cấp và hết hạn. Không nhập số định danh cá nhân.">
+                    <t t-esc="vals.get('licenses', '')" />
+                  </textarea>
+                  <small t-if="field_errors.get('licenses')" class="tc-field-error" t-esc="field_errors['licenses']" />
+                </label>
+              </section>
+              <div class="tc-save-bar">
+                <button class="tc-button" type="submit">Lưu thông tin hồ sơ</button>
+                <span>Kỹ năng, minh chứng và quyền chia sẻ được lưu riêng bên dưới.</span>
+              </div>
+            </form>
+            <section id="profile-skills" class="tc-card">
+              <h2>Kỹ năng</h2>
+              <div class="tc-list">
+                <article t-foreach="skill_items" t-as="skill">
+                  <strong t-esc="skill.name" />
+                  <span t-esc="dict(skill._fields['level'].selection).get(skill.level)" />
+                  <p t-esc="skill.use or ''" />
+                  <details t-if="edit" t-att-open="'open' if child_form == 'skill_edit' and child_id == skill.id else None">
+                    <summary>Sửa kỹ năng</summary>
+                    <form t-att-action="'/tuhoso/skill/%s/save' % skill.id" method="post" class="tc-mini-form">
+                      <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+              <input type="hidden" name="profile_id" t-att-value="profile.id" />
+                      <label>Tên kỹ năng<input name="name" required="required" t-att-value="child_values.get('name', '') if child_form == 'skill_edit' and child_id == skill.id else (skill.name)" maxlength="80" />
+                      </label>
+                      <label>Mức độ<select name="level">
+                          <option t-foreach="skill._fields['level'].selection" t-as="opt" t-att-value="opt[0]" t-att-selected="'selected' if (child_values.get('level') if child_form == 'skill_edit' and child_id == skill.id else skill.level) == opt[0] else None" t-esc="opt[1]" />
+                        </select>
+                      </label>
+                      <label>Đã dùng vào việc gì?<input name="use" t-att-value="child_values.get('use', '') if child_form == 'skill_edit' and child_id == skill.id else (skill.use or '')" maxlength="250" />
+                      </label>
+                      <button class="tc-button" type="submit">Lưu kỹ năng</button>
+                    </form>
+                    <form t-att-action="'/tuhoso/skill/%s/delete' % skill.id" method="post">
+                      <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+              <input type="hidden" name="profile_id" t-att-value="profile.id" />
+                      <button class="tc-button tc-outline" type="submit">Xóa kỹ năng</button>
+                    </form>
+                  </details>
+                </article>
+              </div>
+              <p t-if="not skill_items" class="tc-empty">Chưa có kỹ năng nào.</p>
+              <form t-if="edit" action="/tuhoso/skill/add" method="post" class="tc-mini-form">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+              <input type="hidden" name="profile_id" t-att-value="profile.id" />
+                <label>Tên kỹ năng<input name="name" required="required" t-att-value="child_values.get('name', '') if child_form == 'skill_add' else ('')" maxlength="80" />
+                </label>
+                <label>Mức độ<select name="level">
+                    <option value="learning" t-att-selected="'selected' if (child_values.get('level') if child_form == 'skill_add' else 'basic') == 'learning' else None">Mới học</option>
+                    <option value="basic" t-att-selected="'selected' if (child_values.get('level') if child_form == 'skill_add' else 'basic') == 'basic' else None">Cơ bản</option>
+                    <option value="good" t-att-selected="'selected' if (child_values.get('level') if child_form == 'skill_add' else 'basic') == 'good' else None">Khá</option>
+                    <option value="advanced" t-att-selected="'selected' if (child_values.get('level') if child_form == 'skill_add' else 'basic') == 'advanced' else None">Thành thạo</option>
+                  </select>
+                </label>
+                <label>Đã dùng vào việc gì?<input name="use" t-att-value="child_values.get('use', '') if child_form == 'skill_add' else ('')" maxlength="250" />
+                </label>
+                <button class="tc-button" type="submit">Thêm kỹ năng</button>
+              </form>
+            </section>
+            <section id="profile-evidence" class="tc-card">
+              <h2>Minh chứng và trải nghiệm</h2>
+              <div class="tc-list">
+                <article t-foreach="evidence_items" t-as="evidence">
+                  <strong t-esc="evidence.title" />
+                  <span t-esc="evidence.role" />
+                  <p t-esc="evidence.description or ''" />
+                  <p t-if="evidence.result">
+                    <strong>Kết quả:</strong>
+                    <span t-esc="evidence.result" />
+                  </p>
+                  <a t-if="evidence.url" t-att-href="evidence.url" target="_blank" rel="noopener noreferrer">Xem liên kết minh chứng </a>
+                  <small t-esc="dict(evidence._fields['status'].selection).get(evidence.status)" />
+                  <details t-if="edit" t-att-open="'open' if child_form == 'evidence_edit' and child_id == evidence.id else None">
+                    <summary>Sửa minh chứng</summary>
+                    <form t-att-action="'/tuhoso/evidence/%s/save' % evidence.id" method="post" class="tc-mini-form">
+                      <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+              <input type="hidden" name="profile_id" t-att-value="profile.id" />
+                      <label>Tên dự án / hoạt động<input name="title" required="required" t-att-value="child_values.get('title', '') if child_form == 'evidence_edit' and child_id == evidence.id else (evidence.title)" maxlength="250" />
+                      </label>
+                      <label>Vai trò<input name="role" required="required" t-att-value="child_values.get('role', '') if child_form == 'evidence_edit' and child_id == evidence.id else (evidence.role)" maxlength="250" />
+                      </label>
+                      <label>Bạn đã làm gì?<textarea name="description" rows="3">
+                          <t t-esc="child_values.get('description', '') if child_form == 'evidence_edit' and child_id == evidence.id else (evidence.description or '')" />
+                        </textarea>
+                      </label>
+                      <label>Kết quả<input name="result" t-att-value="child_values.get('result', '') if child_form == 'evidence_edit' and child_id == evidence.id else (evidence.result or '')" maxlength="250" />
+                      </label>
+                      <label>Liên kết<input name="url" type="url" t-att-value="child_values.get('url', '') if child_form == 'evidence_edit' and child_id == evidence.id else (evidence.url or '')" />
+                      </label>
+                      <label>Ai được xem?<select name="visibility">
+                          <option value="private" t-att-selected="'selected' if (child_values.get('visibility') if child_form == 'evidence_edit' and child_id == evidence.id else evidence.visibility) == 'private' else None">Riêng tư</option>
+                          <option value="members" t-att-selected="'selected' if (child_values.get('visibility') if child_form == 'evidence_edit' and child_id == evidence.id else evidence.visibility) == 'members' else None">Thành viên</option>
+                          <option value="public" t-att-selected="'selected' if (child_values.get('visibility') if child_form == 'evidence_edit' and child_id == evidence.id else evidence.visibility) == 'public' else None">Công khai</option>
+                        </select>
+                      </label>
+                      <button class="tc-button" type="submit">Lưu minh chứng</button>
+                    </form>
+                    <form t-att-action="'/tuhoso/evidence/%s/delete' % evidence.id" method="post">
+                      <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+              <input type="hidden" name="profile_id" t-att-value="profile.id" />
+                      <button class="tc-button tc-outline" type="submit">Xóa minh chứng</button>
+                    </form>
+                  </details>
+                </article>
+              </div>
+              <p t-if="not evidence_items" class="tc-empty">Chưa có minh chứng được chia sẻ.</p>
+              <form t-if="edit" action="/tuhoso/evidence/add" method="post" class="tc-mini-form">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+              <input type="hidden" name="profile_id" t-att-value="profile.id" />
+                <label>Tên dự án / hoạt động<input name="title" required="required" t-att-value="child_values.get('title', '') if child_form == 'evidence_add' else ('')" maxlength="250" />
+                </label>
+                <label>Vai trò của bạn<input name="role" required="required" t-att-value="child_values.get('role', '') if child_form == 'evidence_add' else ('')" maxlength="250" />
+                </label>
+                <label>Bạn đã làm gì?<textarea name="description" rows="3">
+                    <t t-esc="child_values.get('description', '') if child_form == 'evidence_add' else ('')" />
+                  </textarea>
+                </label>
+                <label>Kết quả<input name="result" t-att-value="child_values.get('result', '') if child_form == 'evidence_add' else ('')" maxlength="250" />
+                </label>
+                <label>Liên kết minh chứng<input name="url" type="url" t-att-value="child_values.get('url', '') if child_form == 'evidence_add' else ('')" />
+                </label>
+                <button class="tc-button" type="submit">Thêm minh chứng</button>
+              </form>
+            </section>
+            <section t-if="edit" id="profile-sharing" class="tc-card">
+              <h2>Quyền chia sẻ</h2>
+              <form action="/tuhoso/sharing/save" method="post" class="tc-mini-form">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+              <input type="hidden" name="profile_id" t-att-value="profile.id" />
+                <label>Ai xem được?<select name="scope">
+                    <option value="private" t-att-selected="'selected' if profile.scope == 'private' else None">Riêng tư</option>
+                    <option value="members" t-att-selected="'selected' if profile.scope == 'members' else None">Thành viên đăng nhập</option>
+                    <option value="public" t-att-selected="'selected' if profile.scope == 'public' else None">Mọi người</option>
+                  </select>
+                </label>
+                <label class="tc-check">
+                  <input type="checkbox" name="visible" t-att-checked="'checked' if profile.visible else None" />
+                  <span>Cho phép khám phá hồ sơ trong phạm vi đã chọn</span>
+                </label>
+                <label class="tc-check">
+                  <input type="checkbox" name="matching" t-att-checked="'checked' if matching_enabled else None" />
+                  <span>Đồng ý xử lý hồ sơ để gợi ý phù hợp</span>
+                </label>
+                <p>Thông tin chia sẻ gồm giới thiệu, mong muốn, kinh nghiệm, học vấn, ngoại ngữ, giấy phép và kỹ năng. Minh chứng còn phụ thuộc phạm vi xem của từng mục. Email chỉ mở khi có kết nối được chấp nhận và quyền liên hệ riêng cho đúng tổ chức.</p>
+                <button class="tc-button" type="submit">Lưu quyền chia sẻ</button>
+              </form>
+              <p t-if="profile.visible and profile.scope == 'public'">
+                <a t-att-href="'/tuhoso/profile/%s' % profile.id">Xem hồ sơ </a>
+              </p>
+            </section>
+          </div>
+        </div>
+      </t>
+      <t t-else="">
+        <div class="tc-page-head">
+          <p class="tc-eyebrow">HỒ SƠ NĂNG LỰC</p>
+          <h1 t-esc="profile.name" />
+          <p t-esc="profile.headline or ''" />
+        </div>
+        <section class="tc-card">
+          <h2>Giới thiệu</h2>
+          <p class="tc-prose" t-esc="profile.bio or profile.goal or 'Đang cập nhật'" />
+          <p t-esc="profile.education or ''" />
+          <p t-esc="profile.location or ''" />
+        </section>
+        <section id="profile-skills" class="tc-card">
+          <h2>Kỹ năng</h2>
+          <div class="tc-list">
+            <article t-foreach="skill_items" t-as="skill">
+              <strong t-esc="skill.name" />
+              <span t-esc="dict(skill._fields['level'].selection).get(skill.level)" />
+              <p t-esc="skill.use or ''" />
+              <details t-if="edit" t-att-open="'open' if child_form == 'skill_edit' and child_id == skill.id else None">
+                <summary>Sửa kỹ năng</summary>
+                <form t-att-action="'/tuhoso/skill/%s/save' % skill.id" method="post" class="tc-mini-form">
+                  <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+              <input type="hidden" name="profile_id" t-att-value="profile.id" />
+                  <label>Tên kỹ năng<input name="name" required="required" t-att-value="child_values.get('name', '') if child_form == 'skill_edit' and child_id == skill.id else (skill.name)" maxlength="80" />
+                  </label>
+                  <label>Mức độ<select name="level">
+                      <option t-foreach="skill._fields['level'].selection" t-as="opt" t-att-value="opt[0]" t-att-selected="'selected' if (child_values.get('level') if child_form == 'skill_edit' and child_id == skill.id else skill.level) == opt[0] else None" t-esc="opt[1]" />
+                    </select>
+                  </label>
+                  <label>Đã dùng vào việc gì?<input name="use" t-att-value="child_values.get('use', '') if child_form == 'skill_edit' and child_id == skill.id else (skill.use or '')" maxlength="250" />
+                  </label>
+                  <button class="tc-button" type="submit">Lưu kỹ năng</button>
+                </form>
+                <form t-att-action="'/tuhoso/skill/%s/delete' % skill.id" method="post">
+                  <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+              <input type="hidden" name="profile_id" t-att-value="profile.id" />
+                  <button class="tc-button tc-outline" type="submit">Xóa kỹ năng</button>
+                </form>
+              </details>
+            </article>
+          </div>
+          <p t-if="not skill_items" class="tc-empty">Chưa có kỹ năng nào.</p>
+          <form t-if="edit" action="/tuhoso/skill/add" method="post" class="tc-mini-form">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+              <input type="hidden" name="profile_id" t-att-value="profile.id" />
+            <label>Tên kỹ năng<input name="name" required="required" t-att-value="child_values.get('name', '') if child_form == 'skill_add' else ('')" maxlength="80" />
+            </label>
+            <label>Mức độ<select name="level">
+                <option value="learning" t-att-selected="'selected' if (child_values.get('level') if child_form == 'skill_add' else 'basic') == 'learning' else None">Mới học</option>
+                <option value="basic" t-att-selected="'selected' if (child_values.get('level') if child_form == 'skill_add' else 'basic') == 'basic' else None">Cơ bản</option>
+                <option value="good" t-att-selected="'selected' if (child_values.get('level') if child_form == 'skill_add' else 'basic') == 'good' else None">Khá</option>
+                <option value="advanced" t-att-selected="'selected' if (child_values.get('level') if child_form == 'skill_add' else 'basic') == 'advanced' else None">Thành thạo</option>
+              </select>
+            </label>
+            <label>Đã dùng vào việc gì?<input name="use" t-att-value="child_values.get('use', '') if child_form == 'skill_add' else ('')" maxlength="250" />
+            </label>
+            <button class="tc-button" type="submit">Thêm kỹ năng</button>
+          </form>
+        </section>
+        <section id="profile-evidence" class="tc-card">
+          <h2>Minh chứng và trải nghiệm</h2>
+          <div class="tc-list">
+            <article t-foreach="evidence_items" t-as="evidence">
+              <strong t-esc="evidence.title" />
+              <span t-esc="evidence.role" />
+              <p t-esc="evidence.description or ''" />
+              <p t-if="evidence.result">
+                <strong>Kết quả:</strong>
+                <span t-esc="evidence.result" />
+              </p>
+              <a t-if="evidence.url" t-att-href="evidence.url" target="_blank" rel="noopener noreferrer">Xem liên kết minh chứng </a>
+              <small t-esc="dict(evidence._fields['status'].selection).get(evidence.status)" />
+              <details t-if="edit" t-att-open="'open' if child_form == 'evidence_edit' and child_id == evidence.id else None">
+                <summary>Sửa minh chứng</summary>
+                <form t-att-action="'/tuhoso/evidence/%s/save' % evidence.id" method="post" class="tc-mini-form">
+                  <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+              <input type="hidden" name="profile_id" t-att-value="profile.id" />
+                  <label>Tên dự án / hoạt động<input name="title" required="required" t-att-value="child_values.get('title', '') if child_form == 'evidence_edit' and child_id == evidence.id else (evidence.title)" maxlength="250" />
+                  </label>
+                  <label>Vai trò<input name="role" required="required" t-att-value="child_values.get('role', '') if child_form == 'evidence_edit' and child_id == evidence.id else (evidence.role)" maxlength="250" />
+                  </label>
+                  <label>Bạn đã làm gì?<textarea name="description" rows="3">
+                      <t t-esc="child_values.get('description', '') if child_form == 'evidence_edit' and child_id == evidence.id else (evidence.description or '')" />
+                    </textarea>
+                  </label>
+                  <label>Kết quả<input name="result" t-att-value="child_values.get('result', '') if child_form == 'evidence_edit' and child_id == evidence.id else (evidence.result or '')" maxlength="250" />
+                  </label>
+                  <label>Liên kết<input name="url" type="url" t-att-value="child_values.get('url', '') if child_form == 'evidence_edit' and child_id == evidence.id else (evidence.url or '')" />
+                  </label>
+                  <label>Ai được xem?<select name="visibility">
+                      <option value="private" t-att-selected="'selected' if (child_values.get('visibility') if child_form == 'evidence_edit' and child_id == evidence.id else evidence.visibility) == 'private' else None">Riêng tư</option>
+                      <option value="members" t-att-selected="'selected' if (child_values.get('visibility') if child_form == 'evidence_edit' and child_id == evidence.id else evidence.visibility) == 'members' else None">Thành viên</option>
+                      <option value="public" t-att-selected="'selected' if (child_values.get('visibility') if child_form == 'evidence_edit' and child_id == evidence.id else evidence.visibility) == 'public' else None">Công khai</option>
+                    </select>
+                  </label>
+                  <button class="tc-button" type="submit">Lưu minh chứng</button>
+                </form>
+                <form t-att-action="'/tuhoso/evidence/%s/delete' % evidence.id" method="post">
+                  <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+              <input type="hidden" name="profile_id" t-att-value="profile.id" />
+                  <button class="tc-button tc-outline" type="submit">Xóa minh chứng</button>
+                </form>
+              </details>
+            </article>
+          </div>
+          <p t-if="not evidence_items" class="tc-empty">Chưa có minh chứng được chia sẻ.</p>
+          <form t-if="edit" action="/tuhoso/evidence/add" method="post" class="tc-mini-form">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+              <input type="hidden" name="profile_id" t-att-value="profile.id" />
+            <label>Tên dự án / hoạt động<input name="title" required="required" t-att-value="child_values.get('title', '') if child_form == 'evidence_add' else ('')" maxlength="250" />
+            </label>
+            <label>Vai trò của bạn<input name="role" required="required" t-att-value="child_values.get('role', '') if child_form == 'evidence_add' else ('')" maxlength="250" />
+            </label>
+            <label>Bạn đã làm gì?<textarea name="description" rows="3">
+                <t t-esc="child_values.get('description', '') if child_form == 'evidence_add' else ('')" />
+              </textarea>
+            </label>
+            <label>Kết quả<input name="result" t-att-value="child_values.get('result', '') if child_form == 'evidence_add' else ('')" maxlength="250" />
+            </label>
+            <label>Liên kết minh chứng<input name="url" type="url" t-att-value="child_values.get('url', '') if child_form == 'evidence_add' else ('')" />
+            </label>
+            <button class="tc-button" type="submit">Thêm minh chứng</button>
+          </form>
+        </section>
+      </t>
+    </t>
+  </template>
+  </odoo>

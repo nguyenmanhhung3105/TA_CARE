@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="admin_home_matching" inherit_id="tacare_website.home_hub" name="TA.CARE · Tổng quan đối chiếu của admin">
+    <xpath expr="//section[hasclass('h-stage')]" position="after">
+      <section t-if="admin_overview" class="h-shell tc-admin-overview" id="admin-matching" aria-labelledby="admin-matching-title">
+        <div class="tc-section-heading"><div><p class="tc-eyebrow">QUẢN TRỊ / VIỆC VÀ HỒ SƠ</p><h2 id="admin-matching-title">Các gợi ý đang có căn cứ</h2><p>Xem việc cần người và hồ sơ nhận việc cùng căn cứ đối chiếu. Chỉ dùng hồ sơ có quyền chia sẻ hiện hành.</p></div><a class="tc-button tc-outline" href="/tacare/matching">Mở trang đối chiếu</a></div>
+        <form method="get" action="/#admin-matching" class="tc-filter"><label>Tin cần đối chiếu<select name="home_job"><option value="">Sáu tin cập nhật gần nhất</option><option t-foreach="admin_overview['jobs']" t-as="j" t-att-value="j.id" t-att-selected="str(j.id) == admin_overview['selected_id']" t-esc="j.name"/></select></label><button class="tc-button" type="submit">Xem gợi ý</button></form>
+        <p class="tc-help">Hiển thị tối đa 3 cặp, từ <t t-esc="admin_overview['checked_job_count']"/> tin được chọn. Đây là đối chiếu dữ liệu tự khai, chưa phải quyết định tuyển hoặc nhận việc.</p>
+        <div class="tc-admin-pairs"><article t-foreach="admin_overview['pairs']" t-as="pair" class="tc-card" t-att-data-match-job="pair['job'].id" t-att-data-match-profile="pair['profile'].id"><p class="tc-eyebrow" t-esc="'VIỆC LINH HOẠT' if pair['job'].care_opportunity_kind == 'flexible' else 'TUYỂN DỤNG'"/><h3 t-esc="pair['job'].name"/><p class="tc-pair-profile"><strong>Hồ sơ:</strong> <t t-esc="pair['profile'].profile_title or pair['profile'].headline or pair['profile'].name"/></p><p><strong>Căn cứ đã khai:</strong> <t t-esc="', '.join(pair['reason']['matched']) or 'Định hướng và điều kiện làm việc'"/></p><div class="tc-action-row"><a class="tc-button tc-outline" t-att-href="'/tacare/matching?job=%s' % pair['job'].id">Xem căn cứ</a><a t-att-href="'/tacare/job/%s/profile/%s' % (pair['job'].id, pair['profile'].id)">Xem hồ sơ</a></div></article></div>
+        <p t-if="not admin_overview['pairs']" class="tc-empty">Chưa có cặp được chia sẻ phù hợp trong nhóm tin này. Có thể chọn tin khác; chủ hồ sơ cần bật quyền tìm thấy và đối chiếu. Ba ví dụ dưới đây luôn có sẵn để xem cách trình bày.</p>
+        <div class="tc-section-heading tc-example-heading"><div><p class="tc-eyebrow">TÌNH HUỐNG HƯ CẤU</p><h2>3 ví dụ đối chiếu</h2><p>Xem cùng lúc nhu cầu, hồ sơ và lý do có thể hoặc chưa thể kết nối.</p></div><a href="/tacare/examples">Xem đầy đủ ba ví dụ</a></div>
+        <div class="tc-admin-pairs"><article t-foreach="admin_overview['examples']" t-as="example" class="tc-card tc-home-example"><p class="tc-eyebrow">VÍ DỤ <t t-esc="example_index + 1"/></p><h3 t-esc="example['job']"/><p t-esc="example['profile']"/><strong class="tc-example-outcome" t-esc="example['outcome']"/><ul><li t-foreach="example['comparisons'][:3]" t-as="row"><strong t-esc="row['name']"/>: <span t-esc="row['basis']"/></li></ul><a href="/tacare/examples">Xem toàn bộ căn cứ</a></article></div>
+      </section>
+    </xpath>
+    <xpath expr="//div[hasclass('h-stage-intro')]" position="inside"><a t-if="admin_overview" class="h-admin-jump" href="#admin-matching">Xem gợi ý và 3 ví dụ</a></xpath>
+  </template>
+</odoo>

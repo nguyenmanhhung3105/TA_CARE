@@ -20,7 +20,7 @@ function initCareNavigation() {
     if (url.pathname === '/tuhoso/profiles') return path === '/tuhoso/me' ||
       /^\/tuhoso\/(profile|work)\/\d+(\/edit)?$/.test(path) || path === '/tuhoso/work/new';
     if (url.pathname === '/tacare/connections') return /^\/tacare\/connection\/\d+/.test(path);
-    if (url.pathname === '/tacare/matching') return /^\/tacare\/job\/\d+$/.test(path);
+    if (url.pathname === '/tacare/matching') return path === '/tacare/examples' || /^\/tacare\/job\/\d+(\/profile\/\d+)?$/.test(path);
     return false;
   };
   const updateRoutes = () => {

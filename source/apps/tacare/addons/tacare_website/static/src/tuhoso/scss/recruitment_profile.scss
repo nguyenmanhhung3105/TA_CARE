@@ -1,0 +1,26 @@
+.tc-live {
+  .rp-admin-notice { padding:18px 22px; margin-bottom:20px; border:1px solid var(--tc-line); border-left:4px solid var(--tc-green); border-radius:10px; background:var(--tc-soft); font-size:15px; }
+  .rp-admin-notice p { margin:8px 0 0; }
+  .rp-completion { padding:18px 22px; margin-bottom:22px; border:1px solid var(--tc-line); border-radius:10px; background:white; }
+  .rp-completion summary { min-height:44px; font-weight:600; cursor:pointer; }
+  .rp-completion summary span { font-weight:400; font-size:14px; color:var(--tc-muted); }
+  .rp-completion p { font-size:14px; color:var(--tc-muted); margin:12px 0 0; }
+  .rp-completion ul { margin:12px 0; padding-left:22px; }
+  .rp-records>p { color:var(--tc-muted); }
+  .rp-timeline-row { border-top:1px solid var(--tc-line); padding:22px 0; }
+  .rp-timeline-row:first-child { border-top:0; padding-top:8px; }
+  .rp-timeline-row h3 { margin:0 0 6px; }
+  .rp-timeline-row .rp-timeline-subtitle { font-weight:600; margin:0 0 5px; }
+  .rp-timeline-row .rp-timeline-date { font-size:14px; color:var(--tc-muted); margin:0 0 14px; }
+  .rp-timeline-row summary,.rp-add-history>summary { min-height:44px; display:flex; align-items:center; padding-block:10px; cursor:pointer; color:var(--tc-green); font-weight:600; }
+  .rp-timeline-form { padding-block:16px 10px; gap:18px; }
+  .rp-timeline-form .tc-button { justify-self:start; }
+  .rp-history-delete { margin:0; }.rp-history-delete button { background:transparent; border:0; padding:8px 0; color:var(--tc-danger); min-height:44px; text-decoration:underline; }
+  .rp-add-history { border-top:1px solid var(--tc-line); margin-top:14px; padding-top:10px; }
+  .rp-profile-summary { margin-top:28px; }
+  .rp-skill-list { display:grid; gap:18px; }.rp-skill-list article+article { border-top:1px solid var(--tc-line); padding-top:18px; }
+  .rp-skill-list h3 { margin:0; }.rp-skill-list p { margin-block:8px 0; }
+  .rp-profile-summary .rp-salary { font-size:20px; color:var(--tc-green); font-weight:600; }
+  [data-recruitment-start] { border:0; padding:0; display:grid; gap:18px; }
+  [data-recruitment-start] legend { font-size:20px; font-weight:600; }
+}

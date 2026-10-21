@@ -65,6 +65,9 @@ jobs:
 
       - name: Kết nối server và triển khai
         env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
           COMMIT_SHA: ${{ github.sha }}
@@ -74,6 +77,15 @@ jobs:
         run: |
           set -euo pipefail
           umask 077
+
+          : "${DEPLOY_HOST:?Missing DEPLOY_HOST secret}"
+          : "${DEPLOY_USER:?Missing DEPLOY_USER secret}"
+          : "${DEPLOY_SSH_KEY:?Missing DEPLOY_SSH_KEY secret}"
+          : "${DEPLOY_KNOWN_HOSTS:?Missing DEPLOY_KNOWN_HOSTS secret}"
+          DEPLOY_PORT=${DEPLOY_PORT:-22}
+          [[ "$DEPLOY_HOST" =~ ^[A-Za-z0-9][A-Za-z0-9.-]{0,252}$ ]] || { echo 'Invalid deploy host'; exit 1; }
+          [[ "$DEPLOY_USER" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || { echo 'Invalid deploy user'; exit 1; }
+          [[ "$DEPLOY_PORT" =~ ^[1-9][0-9]{0,4}$ ]] && (( 10#$DEPLOY_PORT <= 65535 )) || { echo 'Invalid SSH port'; exit 1; }
 
           ssh_dir=$(mktemp -d)
           trap 'rm -rf "$ssh_dir"' EXIT
@@ -101,5 +113,7 @@ jobs:
             -o ConnectTimeout=20 \
             -o ServerAliveInterval=30 \
             -o ServerAliveCountMax=6 \
-            tacare-deploy@123.30.111.85 \
+            -p "$DEPLOY_PORT" \
+            -l "$DEPLOY_USER" \
+            "$DEPLOY_HOST" \
             "$remote_command"

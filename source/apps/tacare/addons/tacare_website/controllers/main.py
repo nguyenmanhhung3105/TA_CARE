@@ -48,7 +48,12 @@ class TacareWebsite(Website):
             for key, value in {'khovieclam': 'https://khovieclam.vn/',
                                'tuhoso': 'https://tuhoso.com/', 'tacare': 'https://tacare.vn/'}.items()
         }
+        admin_overview = False
+        if site == 'tacare' and not request.env.user._is_public() and request.env.user.has_group('base.group_system'):
+            from ..sites.tacare.examples import TacareExamples
+            admin_overview = TacareExamples()._home_admin_matches(**kw)
         response = request.render('tacare_website.live_home', {
+            'admin_overview': admin_overview,
             **site_context(site, urls),
             'site': site,
             'role': ('admin' if request.env.user.has_group('base.group_system') else

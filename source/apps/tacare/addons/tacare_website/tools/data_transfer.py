@@ -2,8 +2,9 @@
 
 Run only from a trusted Odoo shell. No routes, install hooks or automatic seeds.
 The private JSON bundle contains password hashes for NEW portal accounts only.
-It deliberately excludes original accounts/profiles, administrators, sessions,
-consents, connections, configuration and uploaded documents.
+Only the four approved portal identities are selected in v2. Existing target
+credentials are never rewritten. Other accounts, administrators, sessions,
+consents, connections, configuration and uploaded documents are excluded.
 """
 import base64
 import hashlib
@@ -13,14 +14,16 @@ import re
 from datetime import date, datetime
 from pathlib import Path
 
-FORMAT = 'tacare.demo.v1'
+FORMAT = 'tacare.demo.v2'
+LEGACY_FORMAT = 'tacare.demo.v1'
 NAMESPACE = 'tacare_transfer'
 STATE_KEY = 'tacare.transfer.demo.v1.hashes'
 MAX_BYTES = 32 * 1024 * 1024
-LOGIN = re.compile(r'(?:demo-flex-(?:0[0-9]|1[0-5])@example\.invalid|ungvien[12]@tacare\.vn)\Z')
+LEGACY_LOGIN = re.compile(r'(?:demo-flex-(?:0[0-9]|1[0-5])@example\.invalid|ungvien[12]@tacare\.vn)\Z')
+LOGIN = re.compile(r'(?:ungvien[12]@tacare\.vn|student\.test@tuhoso\.com|hr\.hozota@khovieclam\.vn)\Z')
 KEYS = {
     'hr.job': re.compile(r'(?:recruitment-0[1-5]|flex-job-(?:0[1-9]|1[0-5]))\Z'),
-    'tacare.profile': re.compile(r'(?:profile-(?:0[1-9]|1[0-5])|refresh-uv[12]-(?:recruitment|flexible))\Z'),
+    'tacare.profile': re.compile(r'(?:profile-(?:0[1-9]|1[0-5])|refresh-(?:uv[12]|student)-(?:recruitment|flexible))\Z'),
     'care.profile.capability': re.compile(r'(?:flex-service-(?:0[1-9]|1[0-5])|refresh-uv[12]-flexible)\Z'),
 }
 FLEX = '''flex_category_id flex_mode flex_region_id flex_location flex_destination
@@ -50,7 +53,21 @@ FIELDS = {
     'tacare.profile.skill': '''name level use skill_id skill_level_id years_experience'''.split(),
     'care.job.requirement': ['sequence', 'category', 'name', 'mandatory', 'skill_id'],
 }
+LEGACY_FIELDS = {model: names[:] for model, names in FIELDS.items()}
+FIELDS['hr.job'] += ['description', 'website_description']
+FIELDS['tacare.profile'] += ['career_level', 'salary_max', 'salary_negotiable', 'relocation', 'portfolio_url', 'preferred_conditions']
+FIELDS.update({
+    'tacare.profile.experience': 'sequence organization position employment_type location start_date end_date is_current responsibilities achievements tools'.split(),
+    'tacare.profile.education': 'sequence school qualification_id major start_date end_date is_current description'.split(),
+    'tacare.profile.evidence': 'title role description result url evidence_type issued_at category_id visibility'.split(),
+})
+PROFILE_CHILDREN = ('care.profile.capability', 'tacare.profile.skill', 'tacare.profile.experience',
+                    'tacare.profile.education', 'tacare.profile.evidence')
 MODEL_ORDER = list(FIELDS)
+
+
+def bundle_fields(bundle):
+    return LEGACY_FIELDS if bundle['format'] == LEGACY_FORMAT else FIELDS
 
 
 def canonical(value):
@@ -81,16 +98,18 @@ def load_bundle(path):
 
 
 def validate_bundle(data):
-    if not isinstance(data, dict) or set(data) != {'format', 'accounts', 'records'} or data['format'] != FORMAT:
+    if not isinstance(data, dict) or set(data) != {'format', 'accounts', 'records'} or data['format'] not in (FORMAT, LEGACY_FORMAT):
         raise ValueError('Unsupported data bundle format')
     if not isinstance(data['accounts'], list) or not 1 <= len(data['accounts']) <= 18:
-        raise ValueError('Expected fictional demo portal accounts')
+        raise ValueError('Expected selected portal accounts')
+    allowed_fields = bundle_fields(data)
+    login_pattern = LEGACY_LOGIN if data['format'] == LEGACY_FORMAT else LOGIN
     logins, roles = set(), {}
     for account in data['accounts']:
         if not isinstance(account, dict) or set(account) != {'login', 'name', 'role', 'password_hash'}:
             raise ValueError('Invalid account fields')
         login = account['login']
-        if not isinstance(login, str) or not LOGIN.fullmatch(login) or login in logins:
+        if not isinstance(login, str) or not login_pattern.fullmatch(login) or login in logins:
             raise ValueError('Account is outside the demo selection or duplicated')
         logins.add(login)
         if account['role'] not in ('business', 'candidate') or not isinstance(account['name'], str) or not account['name'].strip():
@@ -106,14 +125,14 @@ def validate_bundle(data):
         if not isinstance(row, dict) or set(row) != {'model', 'key', 'parent', 'values'}:
             raise ValueError('Invalid record envelope')
         model, key, values = row['model'], row['key'], row['values']
-        if model not in FIELDS or not isinstance(key, str) or not key or len(key) > 250:
+        if model not in allowed_fields or not isinstance(key, str) or not key or len(key) > 250:
             raise ValueError('Unsupported model/key')
         if (model, key) in seen:
             raise ValueError('Duplicate record identity')
         seen.add((model, key))
         if model in KEYS and not KEYS[model].fullmatch(key):
             raise ValueError('Record is outside the demo selection')
-        if not isinstance(values, dict) or set(values) != set(FIELDS[model]):
+        if not isinstance(values, dict) or set(values) != set(allowed_fields[model]):
             raise ValueError('Missing or forbidden fields in data bundle')
         parent = row['parent']
         if not isinstance(parent, str):
@@ -122,6 +141,8 @@ def validate_bundle(data):
             raise ValueError('Owner is outside the selected accounts')
         if model == 'tacare.profile' and (values['scope'] != 'private' or values['visible'] is not False or values['share_contact'] is not False):
             raise ValueError('Transferred profiles must remain private')
+        if model == 'tacare.profile.evidence' and values['visibility'] != 'private':
+            raise ValueError('Transferred evidence must remain private')
         if model == 'hr.job' and values['care_matching_enabled'] is not False:
             raise ValueError('Demo matching must remain disabled')
         if model == 'hr.job':
@@ -131,7 +152,7 @@ def validate_bundle(data):
                 raise ValueError('Public visibility must agree with the job state')
     keys = {model: {key for kind, key in seen if kind == model} for model in FIELDS}
     for row in data['records']:
-        if row['model'] in ('care.profile.capability', 'tacare.profile.skill') and row['parent'] not in keys['tacare.profile']:
+        if row['model'] in PROFILE_CHILDREN and row['parent'] not in keys['tacare.profile']:
             raise ValueError('Missing parent profile')
         if row['model'] == 'care.job.requirement' and row['parent'] not in keys['hr.job']:
             raise ValueError('Missing parent job')
@@ -156,9 +177,9 @@ def _reference(record):
     return {'xmlid': xmlid}
 
 
-def _pack(record):
+def _pack(record, field_map=None):
     result = {}
-    for name in FIELDS[record._name]:
+    for name in (field_map or FIELDS)[record._name]:
         field, value = record._fields[name], record[name]
         if field.type == 'many2one':
             value = _reference(value)
@@ -172,13 +193,14 @@ def _pack(record):
     return result
 
 
-def _snapshot(record):
+def _snapshot(record, field_map=None):
     # A server edit in another website language must also block an overwrite.
     protected = {'tacare.profile': ['verification_level', 'reputation_score'],
-                 'tacare.profile.skill': ['verified', 'verified_on']}.get(record._name, [])
-    return {'values': _pack(record), 'protected': {name: str(record[name]) for name in protected}, 'translations': {
+                 'tacare.profile.skill': ['verified', 'verified_on'],
+                 'tacare.profile.evidence': ['status', 'verified_by', 'verified_at', 'assigned_verifier_id', 'verification_note', 'score']}.get(record._name, [])
+    return {'values': _pack(record, field_map), 'protected': {name: str(record[name]) for name in protected}, 'translations': {
         name: record._fields[name]._get_stored_translations(record)
-        for name in FIELDS[record._name]
+        for name in (field_map or FIELDS)[record._name]
         if record._fields[name].store and record._fields[name].translate}}
 
 
@@ -210,11 +232,20 @@ def export_demo(env, path):
             records.append(dict(model=model, key=record.flex_demo_key, parent=parent, values=values))
             parents[(model, record.id)] = record.flex_demo_key
             if model == 'tacare.profile':
-                if record.evidence_ids or record.availability_ids or record.service_area_ids or record.preference_ids:
+                if record.availability_ids or record.service_area_ids or record.preference_ids:
                     raise ValueError('Extended profile children need a separate reviewed transfer; export stopped')
                 for skill in record.skill_ids.sorted('id'):
                     records.append(dict(model=skill._name, key=record.flex_demo_key + ':' + skill.name,
                                         parent=record.flex_demo_key, values=_pack(skill)))
+                for kind, children in [('experience', record.experience_ids), ('education', record.education_ids), ('evidence', record.evidence_ids)]:
+                    for child in children.sorted('id'):
+                        if kind == 'evidence' and (child.status != 'unverified' or child.document_ids or child.profile_skill_id or child.issued_by_partner_id or child.supersedes_id or child.assigned_verifier_id or child.verified_by or child.verified_at or child.verification_note or child.score):
+                            raise ValueError('Verified/linked/uploaded evidence needs a separate reviewed transfer')
+                        child_values = _pack(child)
+                        if kind == 'evidence':
+                            child_values['visibility'] = 'private'
+                        records.append(dict(model=child._name, key=record.flex_demo_key + ':' + kind + ':' + str(child.id),
+                                            parent=record.flex_demo_key, values=child_values))
             if model == 'hr.job':
                 if record.care_revision_ids:
                     raise ValueError('Reviewed job history needs a separate transfer; export stopped')
@@ -305,6 +336,7 @@ def import_bundle(env, path):
     env = _environment(env)
     bundle = load_bundle(path)
     env.cr.execute("SELECT pg_advisory_xact_lock(hashtext('tacare.transfer.demo.v1'))")
+    field_map = bundle_fields(bundle)
     company = env.ref('base.main_company')
     websites = env['website'].search([])
     from urllib.parse import urlsplit
@@ -368,8 +400,16 @@ def import_bundle(env, path):
                         actual = actual.id
                     if actual != expected:
                         raise ValueError('A transferred record changed owner/company/site; refusing to overwrite')
-                current = _pack(record)
-                if hashes.get(name) != digest(_snapshot(record)):
+                current = _pack(record, field_map)
+                expected = hashes.get(name)
+                snapshot = digest(_snapshot(record, field_map))
+                # A v1 hash can be upgraded only if all newly managed fields are still defaults.
+                legacy_ok = False
+                if bundle['format'] == FORMAT and model in LEGACY_FIELDS and expected != snapshot:
+                    extras = set(FIELDS[model]) - set(LEGACY_FIELDS[model])
+                    defaults = env[model].default_get(list(extras))
+                    legacy_ok = all(record[k] == defaults.get(k, False) for k in extras) and expected == digest(_snapshot(record, LEGACY_FIELDS))
+                if expected != snapshot and not legacy_ok:
                     raise ValueError('A transferred record was edited on the server; reconcile before importing')
                 if current == values:
                     unchanged += 1
@@ -377,7 +417,7 @@ def import_bundle(env, path):
                     record.write(decoded)
                     updated += 1
             identities[(model, key)] = record
-            hashes[name] = digest(_snapshot(record))
+            hashes[name] = digest(_snapshot(record, field_map))
             if model == 'hr.job' and record.tacare_status == 'published' and record._care_publish_errors():
                 raise ValueError('An imported job is not publishable')
             if model == 'care.profile.capability' and record.flex_state == 'available' and record._flex_ready_errors():
