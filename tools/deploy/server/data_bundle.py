@@ -30,7 +30,7 @@ def verify(raw, expected):
         raise ValueError('Invalid data size or SHA256')
     data = json.loads(raw, object_pairs_hook=pairs,
                       parse_constant=lambda _: (_ for _ in ()).throw(ValueError('Nonfinite JSON')))
-    if not isinstance(data, dict) or set(data) != {'format', 'accounts', 'records'} or data['format'] != 'tacare.demo.v1':
+    if not isinstance(data, dict) or set(data) != {'format', 'accounts', 'records'} or data['format'] not in ('tacare.demo.v1', 'tacare.demo.v2'):
         raise ValueError('Only the reviewed demo bundle format is supported')
     if not isinstance(data['accounts'], list) or not 1 <= len(data['accounts']) <= 18:
         raise ValueError('Invalid account count')

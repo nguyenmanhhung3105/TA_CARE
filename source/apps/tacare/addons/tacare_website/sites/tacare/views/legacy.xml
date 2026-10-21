@@ -1,0 +1,162 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo><template id="live_matching" name="TA.CARE - Sự phù hợp">
+    <t t-call="tacare_website.live_layout">
+      <div class="tc-page-head">
+        <p class="tc-eyebrow">TA.CARE / GỢI Ý CÓ CĂN CỨ</p>
+        <h1>Sự phù hợp có lý do</h1><a href="/tacare/examples">Xem ba ví dụ đối chiếu</a>
+        <p>Đối chiếu dữ liệu đã đồng ý chia sẻ. Kỹ năng chưa ghi nhận là chưa đủ thông tin; không có điểm phần trăm tuyển dụng.</p>
+      </div>
+      <form t-if="kind == 'profiles'" action="/tacare/matching" method="get" class="tc-filter">
+        <label>Chọn tin cần người<select name="job">
+            <option t-foreach="jobs" t-as="job" t-att-value="job.id" t-att-selected="'selected' if selected and selected.id == job.id else None" t-esc="job.name" />
+          </select>
+        </label>
+        <button class="tc-button" type="submit">Xem gợi ý</button>
+        <a class="tc-button tc-outline" t-att-href="urls['khovieclam'] + 'kvl/manage'">Quản lý tin</a>
+      </form>
+      <p t-if="kind == 'jobs' and not matching_enabled" class="tc-alert">Bật quyền đối chiếu trong <a t-att-href="urls['tuhoso'] + 'tuhoso/me?profile_id=%s' % profile.id">hồ sơ của bạn</a> để nhận gợi ý.</p>
+      <p t-if="kind == 'jobs' and not profile.skill_ids" class="tc-alert">Thêm kỹ năng trong <a t-att-href="urls['tuhoso'] + 'tuhoso/me?profile_id=%s' % profile.id">hồ sơ của bạn</a> để có thêm căn cứ đối chiếu.</p>
+      <div class="tc-match-list">
+        <article t-foreach="matches" t-as="pair" class="tc-match-card">
+          <t t-set="record" t-value="pair[0]" />
+          <t t-set="reason" t-value="pair[1]" />
+          <div class="tc-match-main">
+            <p class="tc-eyebrow">CĂN CỨ ĐỐI CHIẾU</p>
+            <h2 t-esc="record.name" />
+            <p t-if="kind == 'jobs'" t-esc="record.tacare_owner_partner_id.name" />
+            <p t-if="kind == 'profiles'" t-esc="record.headline or 'Hồ sơ năng lực'" />
+            <a t-if="kind == 'jobs'" t-att-href="'/tacare/job/%s?profile_id=%s' % (record.id, profile.id)">Xem cơ hội và ứng tuyển </a>
+            <t t-else="">
+              <a t-att-href="'/tacare/job/%s/profile/%s' % (selected.id, record.id)">Xem hồ sơ </a>
+              <form t-if="selected and (role == 'admin' or selected.tacare_owner_partner_id.id in editable_org_ids)" action="/tacare/request/send" method="post" class="tc-mini-form">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                <input type="hidden" name="type" value="invitation" />
+                <input type="hidden" name="job_id" t-att-value="selected.id" />
+                <input type="hidden" name="profile_id" t-att-value="record.id" />
+                <label>Lời mời<textarea name="message" rows="2" required="required" />
+                </label>
+                <button class="tc-button" type="submit">Gửi lời mời</button>
+              </form>
+            </t>
+          </div>
+          <div class="tc-match-basis">
+            <t t-call="tacare_website.comparison_rows">
+              <t t-set="comparisons" t-value="reason['comparisons']" />
+            </t>
+          </div>
+        </article>
+      </div>
+      <p t-if="not matches" class="tc-empty">Chưa có gợi ý được chia sẻ cho tài khoản này. Hãy hoàn thiện hồ sơ hoặc kiểm tra tin đang hiển thị.</p>
+    </t>
+  </template>
+  <template id="live_connections" name="TA.CARE - Kết nối">
+    <t t-call="tacare_website.live_layout">
+      <div class="tc-page-head">
+        <p class="tc-eyebrow">TA.CARE</p>
+        <h1>Đề nghị và lời mời</h1>
+        <p>Theo dõi phản hồi của hai phía tại đây.</p>
+      </div>
+      <div class="tc-list">
+        <article t-foreach="items" t-as="item" class="tc-card">
+          <span class="tc-eyebrow" t-esc="dict(item._fields['type'].selection).get(item.type)" />
+          <h2>
+            <a t-att-href="'/tacare/connection/%s' % item.id" t-esc="item.job_id.name" />
+          </h2>
+          <p>
+            <span t-esc="item.snapshot_name" /> · <span t-att-class="'tc-status is-' + item.status" t-esc="dict(item._fields['status'].selection).get(item.status)" />
+          </p>
+          <p t-esc="item.message or ''" />
+          <a t-att-href="'/tacare/connection/%s' % item.id">Xem chi tiết </a>
+        </article>
+      </div>
+      <p t-if="not items" class="tc-empty">Chưa có đề nghị nào.</p>
+    </t>
+  </template>
+  <template id="live_connection_detail" name="TA.CARE - Chi tiết kết nối">
+    <t t-call="tacare_website.live_layout">
+      <p class="tc-breadcrumb">
+        <a href="/tacare/connections">Kết nối</a> / <span t-esc="item.job_id.name" />
+      </p>
+      <div class="tc-page-head">
+        <p class="tc-eyebrow" t-esc="dict(item._fields['type'].selection).get(item.type)" />
+        <h1 t-esc="item.job_id.name" />
+        <p>
+          <span t-esc="item.snapshot_name" /> · <span t-att-class="'tc-status is-' + item.status" t-esc="dict(item._fields['status'].selection).get(item.status)" />
+        </p>
+      </div>
+      <div class="tc-detail-grid">
+        <section class="tc-card">
+          <h2>Thông tin đề nghị</h2>
+          <p t-esc="item.message or 'Không có lời nhắn'" />
+          <p>
+            <strong>Hồ sơ khi gửi:</strong>
+            <span t-esc="item.snapshot_headline or 'Chưa có giới thiệu'" />
+          </p>
+          <p>
+            <strong>Kỹ năng:</strong>
+            <span t-esc="item.snapshot_skills or 'Chưa cập nhật'" />
+          </p>
+          <p t-if="show_contact">
+            <strong>Email liên hệ:</strong>
+            <span t-esc="item.profile_id.user_id.partner_id.email or 'Chưa cung cấp'" />
+          </p>
+          <p t-else="">Ứng viên chưa cấp quyền email cho tổ chức này hoặc đã thu hồi quyền.</p>
+          <form t-if="role == 'candidate' and item.profile_id.user_id.id == request.env.user.id and item.status == 'accepted'" t-att-action="'/tacare/connection/%s/contact' % item.id" method="post" class="tc-inline-form">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+            <button t-if="show_contact" type="submit" name="action" value="revoke">Thu hồi quyền email</button>
+            <button t-else="" type="submit" name="action" value="grant">Chia sẻ email cho tổ chức này</button>
+          </form>
+          <p t-if="item.result">
+            <strong>Kết quả:</strong>
+            <span t-esc="dict(item._fields['result'].selection).get(item.result)" />
+          </p>
+          <p t-if="item.result_note" t-esc="item.result_note" />
+        </section>
+        <aside class="tc-card">
+          <h2>Phản hồi</h2>
+          <form t-if="can_respond" t-att-action="'/tacare/connection/%s/respond' % item.id" method="post" class="tc-stack">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+            <button class="tc-button" name="status" value="accepted" type="submit">Đồng ý trao đổi</button>
+            <button class="tc-button tc-outline" name="status" value="declined" type="submit">Từ chối</button>
+          </form>
+          <form t-if="can_cancel" t-att-action="'/tacare/connection/%s/cancel' % item.id" method="post">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+            <button class="tc-button tc-outline" type="submit">Hủy đề nghị</button>
+          </form>
+          <form t-if="item.status == 'accepted'" t-att-action="'/tacare/connection/%s/result' % item.id" method="post" class="tc-mini-form">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+            <label>Kết quả<select name="result">
+                <option value="discussed">Đã trao đổi</option>
+                <option value="reviewing">Đang xem xét</option>
+                <option value="joined">Tham gia cơ hội</option>
+                <option value="stopped">Không tiếp tục</option>
+              </select>
+            </label>
+            <label>Ghi chú<textarea name="note" rows="3" />
+            </label>
+            <button class="tc-button" type="submit">Lưu kết quả</button>
+          </form>
+        </aside>
+      </div>
+    </t>
+  </template>
+  <template id="live_notifications" name="TA.CARE - Thông báo">
+    <t t-call="tacare_website.live_layout">
+      <div class="tc-page-head">
+        <p class="tc-eyebrow">TA.CARE</p>
+        <h1>Thông báo</h1>
+      </div>
+      <div class="tc-list">
+        <article t-foreach="items" t-as="item" t-att-class="'tc-card' + ('' if item.is_read else ' tc-unread')">
+          <p t-esc="item.message" />
+          <a t-if="item.connection_id" t-att-href="'/tacare/connection/%s' % item.connection_id.id">Xem kết nối </a>
+          <form t-if="not item.is_read" t-att-action="'/tacare/notification/%s/read' % item.id" method="post" class="tc-inline-form">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+            <button type="submit">Đánh dấu đã đọc</button>
+          </form>
+        </article>
+      </div>
+      <p t-if="not items" class="tc-empty">Chưa có thông báo.</p>
+    </t>
+  </template>
+  </odoo>

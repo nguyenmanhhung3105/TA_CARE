@@ -1,5 +1,7 @@
 # Chọn phát hành có hoặc không kèm dữ liệu
 
+**Cập nhật 22/10/2026:** bộ hiện tại là bundle v2 (20 tin, 6 hồ sơ, 12 offer và các mục hồ sơ chi tiết). Dùng [hướng dẫn phát hành hiện tại](deploy_current_data_2026-10-22.md). Các con số v1 bên dưới là phạm vi lịch sử ngày 20/10; không dùng lại gói cũ cho dữ liệu mới.
+
 Ngày 20/10/2026: đã viết và kiểm tra bộ công cụ **ở local**. Chưa cài trên server, chưa commit thay đổi của đợt này, chưa push hay deploy production. Chủ dự án tự truy cập server để cài bằng các lệnh bên dưới.
 
 | Lựa chọn mỗi lần phát hành | Kết quả |
@@ -23,6 +25,10 @@ Gói có **hash mật khẩu** cho tài khoản portal mới để giữ khả n
 
 Hồ sơ nhập ở phạm vi riêng tư, không tự cấp consent; matching của tin demo tắt. Company đích là XML ID `base.main_company`; tin thuộc website chuẩn `khovieclam.vn`. Không sửa website/domain có sẵn. Nếu server dùng company nghiệp vụ khác, cần chỉnh mapping trước khi nhập.
 
+## Cấu hình kết nối riêng
+
+Thông tin kết nối thật được lưu ngoài Git. Xem [quy ước cấu hình riêng](security_configuration.md) để đặt SSH alias `tacare-server` ở máy vận hành và GitHub Actions secrets `DEPLOY_HOST`, `DEPLOY_USER`, tùy chọn `DEPLOY_PORT`, cùng key/known-hosts hiện có. Không ghi địa chỉ hoặc tài khoản SSH thật trong tài liệu, workflow hay commit.
+
 ## 1. Cài bộ chọn chế độ trên server — chỉ một lần
 
 Đã đọc script root-owned do người vận hành gửi. `--check` đã báo PostgreSQL 16 và systemd isolation khả dụng. Sudoers hiện cho `tacare-deploy` gọi `/usr/local/lib/tacare-deploy/deploy.sh` mà không hạn chế danh sách tham số; không cần mở thêm quyền.
@@ -31,7 +37,7 @@ Trên **Mac**, tại thư mục dự án:
 
 ```bash
 python3 tools/deploy/build_server_package.py
-scp runtime/releases/tacare-deploy-modes-v1.tar.gz truongnth@123.30.111.85:~/
+scp runtime/releases/tacare-deploy-modes-v1.tar.gz tacare-server:~/
 ```
 
 Trên **server**:
@@ -88,7 +94,7 @@ bash tools/deploy/export_local_demo.sh
 Lệnh in **PRIVATE FILE** và **SHA256**, không thay database. Dùng đường dẫn vừa in để chuyển gói:
 
 ```bash
-scp /duong/dan/PRIVATE_FILE.json truongnth@123.30.111.85:~/tacare-release-data.json
+scp /duong/dan/PRIVATE_FILE.json tacare-server:~/tacare-release-data.json
 ```
 
 Trên server, thay `SHA256_CUA_GOI` bằng 64 ký tự vừa in:

@@ -111,3 +111,24 @@ Admin all-profiles views use allowed companies rather than only the active compa
 The owner explicitly requested SSO. [Current implementation and validation](research/implementation_sso_2026-10-20.md) supersedes the earlier separate-login behavior. Native cookies stay host-only; short-lived browser-bound handoffs synchronize the permitted sites after complete Odoo authentication. Global logout revokes the browser group on the server, and open tabs update within about three seconds while visible or when focused. Other browsers/devices remain independent. Account switching clears the previous account at excluded sites. No session ID or password travels in a handoff URL.
 
 Addon versions: `tacare_account_access` 19.0.3.0.0; `tacare_website` 19.0.7.0.0. Local backup: ignored `backups/sso_20261020/`. New technical models: `care.auth.session` and `care.auth.handoff`; no existing business model or credentials were renamed or reset. Production was not accessed or deployed.
+
+
+## Local update — product packages and account-owned demo, 21 October 2026
+
+See [implementation and checks](research/implementation_account_refresh_2026-10-21.md). Addon `tacare_website` 19.0.8.0.0 now groups product controllers/templates under `sites/khovieclam`, `sites/tuhoso`, `sites/tacare`; shared models/authentication and XML IDs remain intact. Website-specific assets use Odoo's required `static/` path.
+
+The local dataset supersedes the counts above: 20 detailed jobs, 7 profiles attached to existing accounts, 12 work offers. Old 15 demo profile shells were removed after rehoming useful offers. No existing account credentials/roles or consents were changed. Profile sharing is still opt-in by the owner. TA.CARE has live explainable flexible comparisons and `/tacare/examples` with three clearly fictional UI scenarios. No booking/payment/transport operation or persisted matching snapshot was added. Production was not accessed or deployed; the ID 22 shown in the production screenshot does not exist locally.
+
+
+## Local update — admin removal and visual polish, 21 October 2026
+
+Addon `tacare_website` is now 19.0.8.1.0. See [behavior, implementation and tests](research/implementation_admin_polish_2026-10-21.md). System admins have scoped confirmation/POST deletion for Kho jobs and Tủ profiles/offers; linked history is retained outside active lists. Kho's candidate navigation tab is removed. TA.CARE's admin homepage shows current consent-checked pairs and three clearly fictional examples after the orbit. A final shared stylesheet normalizes reading hierarchy across all three sites and moves native select chevrons 16px inside the field. The local sample dataset remains unchanged after disposable QA cleanup. Production was not accessed or deployed.
+
+
+## Local update — detailed recruitment profiles and admin editing, session 21 October 2026
+
+Addon `tacare_website` 19.0.9.0.0 adds structured work and education entries to the existing profile, fuller job preferences/portfolio/salary range, and an explicit owner/admin editor at `/tuhoso/profile/<id>/edit`. Admin content editing stays separate from owner-only consent. Three existing fictional recruitment profiles are enriched without account or sharing changes. See [behavior, schema, data and validation](research/implementation_recruitment_profile_2026-10-21.md). Production was not accessed or deployed.
+
+Kiểm chứng bổ sung hồ sơ tuyển dụng: Chrome PASS admin/owner/cross-profile/consent và form tạo/sửa, 1440/375/320 px; ORM recruitment + schema rollback PASS; HTTP ba trang chủ/login PASS. Đã dọn QA, đối chiếu 20 việc làm / 6 hồ sơ gắn account / 12 offer và 3 kinh nghiệm + 3 học tập mẫu. Xem `docs/research/implementation_recruitment_profile_2026-10-21.md`.
+
+22/10/2026: đã chuẩn bị bundle `tacare.demo.v2`, kiểm thử Odoo rollback và công cụ deploy offline/container; 4 portal + 58 bản ghi nghiệp vụ gồm các mục hồ sơ mới. Gói JSON riêng ở ignored runtime, không commit hash mật khẩu. Hướng dẫn vận hành hiện tại: `docs/deploy_current_data_2026-10-22.md`. Chưa push/cài gate hoặc nhập server.

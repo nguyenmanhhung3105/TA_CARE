@@ -4,16 +4,22 @@ from odoo.exceptions import ValidationError
 from odoo.http import request
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound
 
-from .flexible_work import TacareFlexible
+from ..sites.tuhoso.flexible import ProfileFlexible
 
 
-class TacareProfiles(TacareFlexible):
+class TacareProfiles(ProfileFlexible):
     def _render(self, template, site='tacare', **values):
-        if template == 'kvl_job_detail' and request.httprequest.path.startswith('/tacare/job/'):
+        if template in ('kvl_job_detail', 'kvl_candidate_detail') and '/tacare/job/' in request.httprequest.path:
             site = 'tacare'
         if template in ('work_form', 'live_profile', 'live_matching', 'kvl_job_detail') and not self._user()._is_public():
             values['own_profiles'] = request.env['tacare.profile'].sudo().search([
-                ('user_id', '=', self._user().id), ('company_id', '=', request.env.company.id)], order='id desc')
+                ('user_id', '=', self._user().id), ('company_id', '=', request.env.company.id), ('status', '!=', 'archived')], order='id desc')
+        if template in ('live_profile', 'profile_overview', 'profile_metadata_editor') and values.get('profile'):
+            profile = values['profile']
+            values.update(degree_options=request.env['hr.recruitment.degree'].sudo().search([]),
+                recruitment_gaps=profile._recruitment_gaps(),
+                timeline_values={'%s-%s' % (kind, row.id): self._timeline_values(row, kind)
+                    for kind, rows in [('experience', profile.experience_ids), ('education', profile.education_ids)] for row in rows})
         return super()._render(template, site=site, **values)
 
     @http.route('/tacare/job/<int:job_id>', auth='user', website=True, methods=['GET'])
@@ -22,8 +28,14 @@ class TacareProfiles(TacareFlexible):
         # matching consent. Candidates keep the application flow inside TA.CARE.
         self._flex_user()
         if not request.env['hr.job'].sudo().search_count(self._job_domain() + [
-                ('id', '=', job_id), ('care_opportunity_kind', '=', 'recruitment')]):
+                ('id', '=', job_id)]):
             raise NotFound()
+        job = request.env['hr.job'].sudo().browse(job_id)
+        if job.care_opportunity_kind == 'flexible':
+            profile = self._my_profile()
+            return self._render('work_detail', site='tacare', record=job, is_service=False,
+                owner=False, profile=profile, matching_detail=True,
+                reason=self._match(job, profile) if profile else False)
         return self.job_detail(job_id, **kw)
 
     def _flex_profile(self, create=False):
@@ -31,13 +43,13 @@ class TacareProfiles(TacareFlexible):
         if request.params.get('profile_id'):
             return self._my_profile()
         profiles = request.env['tacare.profile'].sudo()
-        profile = profiles.search([('user_id', '=', self._user().id),
-            ('company_id', '=', request.env.company.id), ('care_recruitment_enabled', '=', False)], order='id', limit=1)
-        if not profile and create:
-            profile = profiles.create({'user_id': self._user().id, 'name': self._user().name,
+        if profiles.search_count([('user_id', '=', self._user().id)]):
+            raise BadRequest('Chọn hồ sơ cụ thể để lưu công việc nhận làm.')
+        if create:
+            return profiles.create({'user_id': self._user().id, 'name': self._user().name,
                 'profile_title': 'Hồ sơ nhận việc', 'care_recruitment_enabled': False,
                 'scope': 'private', 'visible': False})
-        return profile
+        return profiles
 
     @http.route()
     def profile_library(self, **kw):
@@ -49,7 +61,7 @@ class TacareProfiles(TacareFlexible):
         if scope == 'all' and self._role() != 'admin':
             raise Forbidden('Chỉ quản trị được xem toàn bộ hồ sơ.')
         company_ids = self._user().company_ids.ids if self._role() == 'admin' else [request.env.company.id]
-        domain = [('company_id', 'in', company_ids)]
+        domain = [('company_id', 'in', company_ids), ('status', '!=', 'archived')]
         if scope == 'mine':
             domain.append(('user_id', '=', self._user().id))
         all_profiles = request.env['tacare.profile'].sudo().search(domain, order='write_date desc, id desc')
@@ -96,11 +108,25 @@ class TacareProfiles(TacareFlexible):
         self._flex_user()
         title = (kw.get('profile_title') or '').strip()
         kind = kw.get('kind')
-        if set(kw) - {'csrf_token', 'profile_title', 'kind'} or not 2 <= len(title) <= 160 or kind not in ('recruitment', 'flexible'):
+        if set(kw) - {'csrf_token', 'profile_title', 'kind', 'headline', 'bio', 'sector', 'desired_position_id'} or not 2 <= len(title) <= 160 or kind not in ('recruitment', 'flexible'):
             return self._render('profile_create', site='tuhoso', vals=kw,
                 error='Nhập tên hồ sơ từ 2–160 ký tự và chọn mục đích tạo hồ sơ.')
+        extra = {}
+        if kind == 'recruitment':
+            try:
+                headline, bio, sector = (kw.get('headline') or '').strip(), (kw.get('bio') or '').strip(), kw.get('sector') or False
+                position_id = int(kw.get('desired_position_id') or 0)
+                position = request.env['care.job.position'].sudo().browse(position_id).exists()
+                if len(headline) > 180 or len(bio) > 20000 or sector and sector not in dict(request.env['tacare.profile']._fields['sector'].selection):
+                    raise ValueError()
+                if position_id and (not position or position.sector_id.code != sector):
+                    raise ValueError()
+                extra.update(headline=headline, bio=bio, sector=sector, desired_position_id=position.id)
+            except (ValueError, TypeError):
+                return self._render('profile_create', site='tuhoso', vals=kw,
+                    error='Kiểm tra giới thiệu và chọn nhóm nghề thuộc lĩnh vực đã chọn. Nội dung đã nhập được giữ lại.')
         profile = request.env['tacare.profile'].sudo().create({
-            'user_id': self._user().id, 'name': self._user().name, 'profile_title': title,
+            **extra, 'user_id': self._user().id, 'name': self._user().name, 'profile_title': title,
             'care_recruitment_enabled': kind == 'recruitment', 'scope': 'private', 'visible': False})
         self._audit('profile.created', profile)
         url = '/tuhoso/me' if kind == 'recruitment' else '/tuhoso/work/new'
@@ -110,11 +136,16 @@ class TacareProfiles(TacareFlexible):
     def profile_public(self, profile_id, **kw):
         self._flex_user()
         company_ids = self._user().company_ids.ids if self._role() == 'admin' else [request.env.company.id]
-        domain = [('id', '=', profile_id), ('company_id', 'in', company_ids)]
+        domain = [('id', '=', profile_id), ('company_id', 'in', company_ids), ('status', '!=', 'archived')]
         if self._role() != 'admin':
             domain.append(('user_id', '=', self._user().id))
         profile = request.env['tacare.profile'].sudo().search(domain, limit=1)
         if not profile:
             raise NotFound()
         return self._render('profile_overview', site='tuhoso', profile=profile,
-            owner=profile.user_id == self._user(), services=profile.capability_ids)
+            owner=profile.user_id == self._user(), services=profile.capability_ids,
+            matching_enabled=bool(self._current_consent(profile, 'matching')))
+
+    @http.route('/tacare/job/<int:job_id>/profile/<int:profile_id>', auth='user', website=True, methods=['GET'])
+    def hub_candidate_detail(self, job_id, profile_id, **kw):
+        return self.kvl_candidate_detail(job_id, profile_id, **kw)

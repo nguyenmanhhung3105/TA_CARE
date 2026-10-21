@@ -15,7 +15,7 @@
           </nav>
           <div class="tc-workbench-divider" />
           <nav aria-label="Hồ sơ và kết nối">
-            <a href="/kvl/candidates">Hồ sơ liên quan</a>
+            <a t-att-href="urls['tacare'] + 'tacare/matching'">Kết nối tại TA.CARE</a>
             <a href="/tacare/connections?type=application">Đề nghị đã nhận</a>
             <a href="/tacare/connections?type=invitation">Lời mời đã gửi</a>
           </nav>
@@ -29,7 +29,7 @@
               <a t-if="role == 'admin' or editable_org_ids" class="tc-button" href="/kvl/job/new">Tạo tin tuyển dụng</a>
               <a class="tc-button tc-outline" href="/tacare/connections?type=application">Đề nghị đã nhận</a>
               <a class="tc-button tc-outline" href="/tacare/connections?type=invitation">Lời mời đã gửi</a>
-              <a class="tc-button tc-outline" href="/kvl/candidates">Hồ sơ liên quan</a>
+              <a class="tc-button tc-outline" t-att-href="urls['tacare'] + 'tacare/matching'">Kết nối tại TA.CARE</a>
             </div>
           </div>
           <div t-if="organizations" class="tc-actions tc-kvl-org-links">
@@ -390,7 +390,7 @@
         </p>
         <span t-if="preview" t-att-class="'tc-kvl-status is-' + job.tacare_status" t-esc="dict(job._fields['tacare_status'].selection).get(job.tacare_status)" />
       </div>
-      <div class="tc-detail-grid">
+      <figure class="fw-detail-photo"><img t-att-src="job._care_photo_url()" width="1200" height="600" t-att-alt="'Ảnh minh họa công việc: ' + job.name"/><figcaption>Ảnh minh họa lĩnh vực tuyển dụng.</figcaption></figure><div class="tc-detail-grid">
         <div class="tc-stack">
           <section class="tc-card">
             <h2>Công việc sẽ làm</h2>
@@ -471,7 +471,7 @@
           </section>
         </div>
         <aside class="tc-card">
-          <h2>Thông tin tuyển dụng</h2>
+          <h2>Thông tin tuyển dụng</h2><a t-if="role == 'admin'" class="tc-delete-link" t-att-href="'/kvl/job/%s/remove' % job.id">Xóa tin</a>
           <dl>
             <dt>Vị trí</dt>
             <dd t-esc="job.care_position or job.name" />

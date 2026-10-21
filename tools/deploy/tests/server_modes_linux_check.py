@@ -42,7 +42,7 @@ assert backups[0].stat().st_mode & 0o777 == 0o700
 
 gate = str(ROOT / 'data_bundle.py')
 source = Path('/tmp/private-bundle.json')
-raw = json.dumps({'format': 'tacare.demo.v1', 'accounts': [{}], 'records': [{}]}).encode()
+raw = json.dumps({'format': 'tacare.demo.v2', 'accounts': [{}], 'records': [{}]}).encode()
 source.write_bytes(raw)
 source.chmod(0o600)
 sha = hashlib.sha256(raw).hexdigest()

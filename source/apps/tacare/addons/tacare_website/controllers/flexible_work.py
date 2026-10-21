@@ -27,13 +27,16 @@ class TacareFlexible(TacareLive):
 
     def _flex_own(self, model, record_id):
         self._flex_user()
-        domain = [('id', '=', record_id), ('company_id', '=', request.env.company.id)]
+        company_ids = self._user().company_ids.ids if self._role() == 'admin' else [request.env.company.id]
+        domain = [('id', '=', record_id), ('company_id', 'in', company_ids)]
         if model == 'hr.job':
             domain.append(('care_opportunity_kind', '=', 'flexible'))
             if self._role() != 'admin':
                 domain.append(('tacare_owner_user_id', '=', self._user().id))
-        elif self._role() != 'admin':
-            domain.append(('profile_id.user_id', '=', self._user().id))
+        else:
+            domain.append(('profile_id.status', '!=', 'archived'))
+            if self._role() != 'admin':
+                domain.append(('profile_id.user_id', '=', self._user().id))
         record = request.env[model].sudo().search(domain, limit=1)
         if not record:
             raise NotFound()
@@ -48,115 +51,15 @@ class TacareFlexible(TacareLive):
                 'care_recruitment_enabled': False, 'scope': 'private'})
         return profile
 
-    @http.route()
-    def jobs(self, **kw):
-        domain = self._job_domain()
-        kind = kw.get('kind', '') or ('recruitment' if kw.get('type') or kw.get('sector') else '')
-        if kind in ('recruitment', 'flexible'):
-            domain.append(('care_opportunity_kind', '=', kind))
-        jobs = request.env['hr.job'].sudo().search(domain, order='create_date desc, id desc')
-        query = (kw.get('q') or '').strip().casefold()
-        if query:
-            jobs = jobs.filtered(lambda j: query in ' '.join(filter(None, [
-                j.name, j.tacare_location, j.flex_location, j.tacare_required_skills,
-                ', '.join(j.flex_skill_ids.mapped('name'))])).casefold())
-        if kind == 'flexible':
-            for param, attr in [('category', 'flex_category_id'), ('region', 'flex_region_id')]:
-                if kw.get(param):
-                    if not kw[param].isdigit():
-                        raise BadRequest('Bộ lọc không hợp lệ.')
-                    jobs = jobs.filtered(lambda j: j[attr].id == int(kw[param]))
-            for param, attr in [('mode', 'flex_mode'), ('unit', 'flex_pay_unit'), ('schedule', 'flex_schedule')]:
-                if kw.get(param):
-                    jobs = jobs.filtered(lambda j: j[attr] == kw[param])
-        elif kind == 'recruitment':
-            if kw.get('sector'):
-                jobs = jobs.filtered(lambda j: j.care_sector_id.code == kw['sector'] or j.tacare_sector == kw['sector'])
-            if kw.get('type'):
-                jobs = jobs.filtered(lambda j: j.tacare_type == kw['type'])
-            if kw.get('mode'):
-                jobs = jobs.filtered(lambda j: j.tacare_mode == kw['mode'])
-        return self._render('work_jobs', site='khovieclam', jobs=jobs, query=kw,
-                            kind=kind, mine=False)
 
-    @http.route()
-    def job_detail(self, job_id, **kw):
-        job = request.env['hr.job'].sudo().search(self._job_domain() + [('id', '=', job_id)], limit=1)
-        if not job:
-            raise NotFound()
-        if job.care_opportunity_kind != 'flexible':
-            return super().job_detail(job_id, **kw)
-        return self._render('work_detail', site='khovieclam', record=job, is_service=False,
-                            owner=self._role() == 'admin' or job.tacare_owner_user_id == self._user())
 
-    @http.route('/kvl/flexible/mine', auth='user', website=True)
-    def flexible_mine(self, **kw):
-        self._flex_user()
-        domain = [('care_opportunity_kind', '=', 'flexible'), ('company_id', '=', request.env.company.id)]
-        if self._role() != 'admin':
-            domain.append(('tacare_owner_user_id', '=', self._user().id))
-        jobs = request.env['hr.job'].sudo().search(domain, order='create_date desc, id desc')
-        return self._render('work_jobs', site='khovieclam', jobs=jobs, query={}, kind='flexible', mine=True)
 
-    @http.route('/kvl/flexible/<int:record_id>', auth='user', website=True)
-    def flexible_preview(self, record_id, **kw):
-        item = self._flex_own('hr.job', record_id)
-        return self._render('work_detail', site='khovieclam', record=item, is_service=False, owner=True)
 
-    @http.route('/tuhoso/profiles', auth='user', website=True)
-    def profile_library(self, **kw):
-        self._flex_user()
-        kind = kw.get('kind', 'recruitment')
-        if kind not in ('recruitment', 'flexible'):
-            raise BadRequest('Loại hồ sơ không hợp lệ.')
-        domain = [('company_id', '=', request.env.company.id)]
-        if self._role() != 'admin':
-            domain.append(('user_id', '=', self._user().id))
-        profiles = request.env['tacare.profile'].sudo().search(domain)
-        services = request.env['care.profile.capability'].sudo().search([('profile_id', 'in', profiles.ids)])
-        if kind == 'recruitment':
-            profiles = profiles.filtered('care_recruitment_enabled')
-            if kw.get('q'):
-                q = kw['q'].casefold()
-                profiles = profiles.filtered(lambda p: q in ((p.name or '') + ' ' + (p.headline or '')).casefold())
-            if kw.get('sector'):
-                profiles = profiles.filtered(lambda p: p.sector == kw['sector'])
-        else:
-            if kw.get('q'):
-                q = kw['q'].casefold()
-                services = services.filtered(lambda s: q in ((s.title or '') + ' ' + s.profile_id.name).casefold())
-            for param, attr in [('category', 'category_id'), ('region', 'flex_region_id')]:
-                if kw.get(param):
-                    if not kw[param].isdigit():
-                        raise BadRequest('Bộ lọc không hợp lệ.')
-                    services = services.filtered(lambda s: s[attr].id == int(kw[param]))
-            for param, attr in [('mode', 'flex_mode'), ('unit', 'flex_pay_unit'), ('state', 'flex_state')]:
-                if kw.get(param):
-                    services = services.filtered(lambda s: s[attr] == kw[param])
-        return self._render('work_profiles', site='tuhoso', kind=kind, profiles=profiles,
-                            services=services, query=kw)
 
-    @http.route(auth='user')
-    def profile_public(self, profile_id, **kw):
-        # Tủ Hồ Sơ is now a personal workspace. Recruitment candidate access remains
-        # on the separately authorized Kho routes, never this URL.
-        self._flex_user()
-        domain = [('id', '=', profile_id), ('company_id', '=', request.env.company.id)]
-        if self._role() != 'admin':
-            domain.append(('user_id', '=', self._user().id))
-        profile = request.env['tacare.profile'].sudo().search(domain, limit=1)
-        if not profile:
-            raise NotFound()
-        return self._render('live_profile', site='tuhoso', profile=profile, edit=False,
-                            evidence_items=profile.evidence_ids, skill_items=profile.skill_ids)
 
-    @http.route('/tuhoso/work/<int:record_id>', auth='user', website=True)
-    def service_detail(self, record_id, **kw):
-        item = self._flex_own('care.profile.capability', record_id)
-        return self._render('work_detail', site='tuhoso', record=item, is_service=True, owner=True)
 
     def _work_values(self, record, submitted=None):
-        vals = {}
+        vals = {'matching_enabled': 'on' if not record or record._name == 'hr.job' and record.care_matching_enabled else ''}
         if record:
             for name, field in record._fields.items():
                 if name.startswith('flex_') and field.type not in ('many2many', 'binary'):
@@ -179,21 +82,10 @@ class TacareFlexible(TacareLive):
             vals['preferred_skill_ids'] = [int(x) for x in request.httprequest.form.getlist('preferred_skill_ids') if x.isdigit()]
             vals['flex_weekdays'] = ','.join(request.httprequest.form.getlist('weekdays'))
             vals['flex_negotiable'] = submitted.get('flex_negotiable', '')
+            vals['matching_enabled'] = submitted.get('matching_enabled', '')
         return vals
 
-    @http.route(['/kvl/flexible/new', '/kvl/flexible/<int:record_id>/edit'], auth='user', website=True)
-    def flexible_form(self, record_id=None, **kw):
-        self._flex_user()
-        item = self._flex_own('hr.job', record_id) if record_id else False
-        return self._render('work_form', site='khovieclam', record=item, is_service=False,
-                            vals=self._work_values(item), error=False)
 
-    @http.route(['/tuhoso/work/new', '/tuhoso/work/<int:record_id>/edit'], auth='user', website=True)
-    def service_form(self, record_id=None, **kw):
-        self._flex_user()
-        item = self._flex_own('care.profile.capability', record_id) if record_id else False
-        return self._render('work_form', site='tuhoso', record=item, is_service=True,
-                            vals=self._work_values(item), error=False)
 
     def _parse_work(self, kw):
         form = request.httprequest.form
@@ -208,7 +100,7 @@ class TacareFlexible(TacareLive):
         allowed = set(texts + selections + numbers + ('name', 'description', 'quantity', 'id', 'intent',
             'csrf_token', 'flex_category_id', 'flex_region_id', 'flex_date_from', 'flex_date_to',
             'weekdays', 'skill_ids', 'preferred_skill_ids', 'flex_negotiable', 'flex_passengers',
-            'flex_image', 'remove_image'))
+            'flex_image', 'remove_image', 'matching_enabled'))
         if request.httprequest.path.startswith('/tuhoso/'):
             allowed.add('profile_id')
         if set(form.keys()) - allowed:
@@ -314,7 +206,7 @@ class TacareFlexible(TacareLive):
                     vals.update(name=name, tacare_description_text=description, no_of_recruitment=quantity,
                         tacare_location=vals['flex_location'], tacare_type='task',
                         tacare_mode={'onsite': 'office', 'remote': 'remote', 'hybrid': 'hybrid'}.get(vals['flex_mode']),
-                        care_matching_enabled=False,
+                        care_matching_enabled=kw.get('matching_enabled') == 'on',
                         tacare_status='published' if publish else 'draft', is_published=publish)
                     if not item:
                         vals.update(care_opportunity_kind='flexible',
@@ -347,8 +239,15 @@ class TacareFlexible(TacareLive):
         item = self._flex_own('care.profile.capability' if service else 'hr.job', record_id)
         allowed = ('draft', 'available', 'paused') if service else ('draft', 'published', 'paused', 'closed')
         state = kw.get('state')
+        if set(kw) - {'csrf_token', 'state'}:
+            raise BadRequest('Biểu mẫu có trường không được phép thay đổi.')
         if state not in allowed:
             raise BadRequest('Trạng thái không hợp lệ.')
+        current = item.flex_state if service else item.tacare_status
+        transitions = ({'draft': ('available',), 'available': ('paused',), 'paused': ('available',)} if service else
+            {'draft': ('published',), 'published': ('paused', 'closed'), 'paused': ('published', 'closed'), 'closed': ('published',)})
+        if state not in transitions.get(current, ()):
+            raise BadRequest('Thao tác không phù hợp với trạng thái hiện tại. Vui lòng tải lại trang.')
         if state in ('available', 'published'):
             missing = item._flex_ready_errors() if service else item._care_publish_errors()
             if missing:

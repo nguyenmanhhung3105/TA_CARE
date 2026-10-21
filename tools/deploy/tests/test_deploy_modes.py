@@ -89,6 +89,11 @@ class BundleTests(unittest.TestCase):
         raw = json.dumps({'format': transfer.FORMAT, 'accounts': [{}], 'records': [{}]}).encode()
         key = hashlib.sha256(raw).hexdigest()
         self.assertEqual(gate.verify(raw, key)['accounts'], 1)
+        legacy = json.dumps({'format': transfer.LEGACY_FORMAT, 'accounts': [{}], 'records': [{}]}).encode()
+        self.assertEqual(gate.verify(legacy, hashlib.sha256(legacy).hexdigest())['records'], 1)
+        unknown = raw.replace(transfer.FORMAT.encode(), b'tacare.demo.v99')
+        with self.assertRaises(ValueError):
+            gate.verify(unknown, hashlib.sha256(unknown).hexdigest())
         for content, checksum in [(raw, 'a' * 64), (raw, '../file'),
                                   (b'{"format":1,"format":2}', hashlib.sha256(b'{"format":1,"format":2}').hexdigest())]:
             with self.assertRaises(ValueError):
@@ -135,6 +140,37 @@ class WorkflowTests(unittest.TestCase):
                            'REQUESTED_MODE': mode, 'REQUESTED_DATA': data, 'GITHUB_OUTPUT': str(output)}
             result = subprocess.run(['bash', '-c', workflow_scripts()[0]], env=environment, capture_output=True, text=True)
             return result.returncode, output.read_text()
+
+    def test_ssh_uses_private_configuration_and_rejects_missing_or_unsafe_values(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fake = Path(directory) / 'ssh'
+            fake.write_text('#!/usr/bin/env bash\nprintf "%s\n" "$@"\n')
+            fake.chmod(0o755)
+            environment = {**os.environ, 'PATH': directory + ':' + os.environ['PATH'],
+                           'DEPLOY_HOST': 'deploy.example.invalid', 'DEPLOY_USER': 'release-test',
+                           'DEPLOY_PORT': '2222', 'DEPLOY_SSH_KEY': 'synthetic-key',
+                           'DEPLOY_KNOWN_HOSTS': 'synthetic-known-hosts', 'COMMIT_SHA': 'a' * 40,
+                           'DEPLOY_MODE': 'code', 'DATA_SHA256': ''}
+            script = workflow_scripts()[1]
+            def run(extra):
+                return subprocess.run(['bash', '-c', script], env={**environment, **extra}, capture_output=True, text=True)
+            result = run({})
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn('-p\n2222\n-l\nrelease-test\ndeploy.example.invalid\n', result.stdout)
+            self.assertIn('StrictHostKeyChecking=yes', result.stdout)
+            self.assertIn('sudo -n /usr/local/lib/tacare-deploy/deploy.sh ' + 'a' * 40, result.stdout)
+            self.assertNotIn('synthetic-key', result.stdout)
+            default_port = run({'DEPLOY_PORT': ''})
+            self.assertEqual(default_port.returncode, 0)
+            self.assertIn('-p\n22\n', default_port.stdout)
+            for override in ({'DEPLOY_HOST': ''}, {'DEPLOY_USER': ''}, {'DEPLOY_SSH_KEY': ''},
+                             {'DEPLOY_KNOWN_HOSTS': ''}, {'DEPLOY_HOST': '-oProxyCommand=bad'},
+                             {'DEPLOY_HOST': 'host;bad'}, {'DEPLOY_USER': 'user;bad'},
+                             {'DEPLOY_PORT': '0'}, {'DEPLOY_PORT': '65536'}, {'DEPLOY_PORT': '22;bad'}):
+                result = run(override)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertNotIn('sudo -n', result.stdout)
+                self.assertNotIn('synthetic-key', result.stderr)
 
     def test_selection_and_safe_inputs(self):
         key = 'b' * 64

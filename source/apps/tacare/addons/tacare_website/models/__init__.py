@@ -3,3 +3,5 @@ from . import matching, connection, operations, job_revision
 
 from . import profile_comparison
 from . import flexible_work
+
+from . import recruitment_profile

@@ -8,6 +8,10 @@ class HrJobComparison(models.Model):
     def _care_compare_profile(self, profile, allow_profile=False, allow_skills=False):
         self.ensure_one()
         profile.ensure_one()
+        if self.care_opportunity_kind == 'flexible':
+            return self._care_compare_flexible(profile, allow_profile, allow_skills)
+        if not profile.care_recruitment_enabled:
+            return dict(matched=[], missing=[], preferred_found=[], comparisons=[], rank=0, eligible=False)
         rows = []
 
         def add(name, result, basis, mandatory=False, category='Điều kiện làm việc'):
@@ -96,3 +100,62 @@ class HrJobComparison(models.Model):
                     same_location=allow_profile and bool(profile.region_id) and
                         (self.tacare_mode == 'remote' or profile.region_id == self.care_region_id),
                     comparisons=rows, rank=sum(row['result'] == 'met' for row in rows))
+
+    def _care_compare_flexible(self, profile, allow_profile=False, allow_skills=False):
+        """Static, conservative suggestions; explicit conflicts exclude an offer.
+
+        Unknown details stay visible for review. No distance, booking or verified
+        competence is inferred from self-declared skills, prices or photographs.
+        """
+        self.ensure_one()
+        profile.ensure_one()
+        empty = dict(matched=[], missing=[], preferred_found=[], comparisons=[], rank=0, eligible=False)
+        if not allow_profile or not allow_skills or self.flex_pay_unit == 'trip':
+            return empty
+        offers = profile.capability_ids.filtered(lambda s: s.active and s.flex_state == 'available' and
+            s.category_id == self.flex_category_id and s.flex_pay_unit != 'trip')
+        candidates = []
+        for offer in offers:
+            rows = []
+            def add(name, result, basis):
+                rows.append(dict(name=name, result=result, basis=basis, mandatory=True, category='Việc linh hoạt'))
+            add('Nghề / đầu việc', 'met', offer.title + ' · Cùng nhóm công việc tự khai.')
+            for title, expected, actual in [('Cách thực hiện', self.flex_mode, offer.flex_mode),
+                    ('Tỉnh / thành', self.flex_region_id.id if self.flex_mode != 'remote' else False,
+                     offer.flex_region_id.id)]:
+                if expected:
+                    add(title, 'unknown' if not actual else 'met' if expected == actual else 'unmet',
+                        'Hai bên cùng lựa chọn.' if actual == expected else
+                        'Hai bên khai khác nhau.' if actual else 'Chưa đủ thông tin.')
+            if self.flex_date_to and offer.flex_date_from and offer.flex_date_from > self.flex_date_to or \
+                    self.flex_date_from and offer.flex_date_to and offer.flex_date_to < self.flex_date_from:
+                add('Khoảng ngày', 'unmet', 'Khoảng nhận việc và ngày cần người không giao nhau.')
+            else:
+                add('Khoảng ngày', 'unknown', 'Cần xác nhận lịch trống thực tế trước khi nhận việc.')
+            job_days, offer_days = set((self.flex_weekdays or '').split(',')) - {''}, set((offer.flex_weekdays or '').split(',')) - {''}
+            if job_days and offer_days:
+                add('Ngày trong tuần', 'met' if job_days <= offer_days else 'unmet',
+                    'Đối chiếu các ngày cần người với ngày nhận việc đã khai.')
+            if self.flex_time_from and offer.flex_time_from:
+                fits = offer.flex_time_from <= self.flex_time_from and offer.flex_time_to >= self.flex_time_to
+                add('Khung giờ', 'met' if fits else 'unmet', 'Giờ nhận việc phải bao phủ khung giờ cần người.')
+            if self.flex_rate_min and offer.flex_rate_min and self.flex_pay_unit == offer.flex_pay_unit and \
+                    self.flex_pay_basis == offer.flex_pay_basis and offer.currency_id.name == 'VND':
+                maximum = self.flex_rate_max or self.flex_rate_min
+                add('Tiền công', 'met' if maximum >= offer.flex_rate_min else 'unmet',
+                    'Ngân sách và mức nhận cùng đơn vị; chi phí ngoài tiền công cần thống nhất riêng.')
+            else:
+                add('Tiền công', 'unknown', 'Cần cùng đơn vị tiền, cách tính và phạm vi giá để đối chiếu.')
+            skills = set(offer.flex_skill_ids.ids)
+            matched = [s.name for s in self.flex_skill_ids if s.id in skills]
+            missing = [s.name for s in self.flex_skill_ids if s.id not in skills]
+            for skill in self.flex_skill_ids:
+                add(skill.name, 'met' if skill.id in skills else 'unknown',
+                    'Có trong đầu việc tự khai.' if skill.id in skills else 'Chưa khai; cần trao đổi, không kết luận thiếu kỹ năng.')
+            add('Khu vực cụ thể và phạm vi công việc', 'unknown',
+                'Bên cần: %s. Bên nhận: %s. Cần xác nhận địa chỉ, di chuyển, dụng cụ và đầu ra.' %
+                (self.flex_location or 'Từ xa', offer.flex_location or 'Từ xa'))
+            candidates.append(dict(matched=matched, missing=missing, preferred_found=[], comparisons=rows,
+                rank=sum(r['result'] == 'met' for r in rows), eligible=not any(r['result'] == 'unmet' for r in rows)))
+        eligible = [r for r in candidates if r['eligible']]
+        return max(eligible, key=lambda r: r['rank']) if eligible else empty

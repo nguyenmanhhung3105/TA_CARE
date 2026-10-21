@@ -1,3 +1,5 @@
+> **Bổ sung local phiên 21/10/2026:** form tuyển dụng chi tiết dùng lại `tacare.profile`, thêm các trường mong muốn/portfolio và hai bảng con `tacare.profile.experience`, `tacare.profile.education` (FK `profile_id` owner/admin scoped; portal read-only). Giữ text kinh nghiệm/học vấn cũ và native `education_level_id`. Xem [triển khai hồ sơ tuyển dụng](research/implementation_recruitment_profile_2026-10-21.md). Không đổi model/ID hoặc mở consent cho admin thay chủ hồ sơ.
+
 # Đối chiếu ERD, Database và Odoo DEV
 
 > **Hiện hành 20/10/2026:** theo yêu cầu mới, `tacare.profile.user_id` là quan hệ nhiều hồ sơ/một user; đã gỡ constraint `tacare_profile_unique_user` bằng migration 19.0.6.0.0 và thêm `profile_title`. Giữ model, ID hồ sơ và mọi FK cũ. Kỹ năng, capability, minh chứng, consent và kết nối tiếp tục gắn đúng `profile_id`, không gộp theo user. Các đoạn “một hồ sơ/user” bên dưới là quyết định cũ, đã được thay bằng [triển khai này](research/implementation_profile_refresh_2026-10-20.md).

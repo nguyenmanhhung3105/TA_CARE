@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="matching_examples" name="TA.CARE · Ví dụ đối chiếu">
+    <t t-call="tacare_website.live_layout">
+      <div class="tc-page-head"><p class="tc-eyebrow">TA.CARE / VÍ DỤ HƯ CẤU</p><h1>Từ nhu cầu đến một lời trao đổi</h1><p>Ba tình huống minh họa cách đọc căn cứ phù hợp. Đây là dữ liệu giả lập để xem giao diện, không phải kết quả đối chiếu tài khoản của bạn.</p><a class="tc-button" href="/tacare/matching">Đối chiếu dữ liệu của tôi</a></div>
+      <div class="tc-match-list"><article t-foreach="examples" t-as="sample" class="tc-match-card"><div class="tc-match-main"><p class="tc-eyebrow">TÌNH HUỐNG MẪU</p><h2 t-esc="sample['job']"/><p t-esc="sample['profile']"/><strong t-esc="sample['outcome']"/><p>Chỉ gửi đề nghị khi hồ sơ đã cho phép đối chiếu. Thông tin liên hệ cần sự đồng ý riêng sau khi hai bên chấp nhận trao đổi.</p></div><div class="tc-match-basis"><t t-call="tacare_website.comparison_rows"><t t-set="comparisons" t-value="sample['comparisons']"/></t></div></article></div>
+    </t>
+  </template>
+</odoo>

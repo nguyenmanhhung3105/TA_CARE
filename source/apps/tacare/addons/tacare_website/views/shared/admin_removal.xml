@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="admin_removal" name="Quản trị · Xác nhận xóa">
+    <t t-call="tacare_website.live_layout"><div class="tc-removal-panel tc-card"><p class="tc-eyebrow">QUẢN TRỊ / XÁC NHẬN</p><h1>Xóa <t t-esc="plan['label']"/></h1><h2 t-esc="plan['title']"/>
+      <p t-if="plan['archive']">Bản ghi này đã có lịch sử: <t t-esc="', '.join(plan['dependencies'])"/>. Thao tác sẽ gỡ bản ghi khỏi danh sách và ngừng gợi ý mới; lịch sử đã phát sinh được giữ lại. Các kết nối đang chờ sẽ bị hủy.</p>
+      <p t-else="">Bản ghi và nội dung con thuộc bản ghi sẽ được xóa vĩnh viễn. Tài khoản người dùng được giữ nguyên.</p>
+      <p t-if="plan['kind'] == 'profile'">Các công việc nhận làm trong hồ sơ cũng được gỡ; quyền chia sẻ của hồ sơ không còn hiệu lực.</p>
+      <p t-if="error" role="alert" class="tc-error" t-esc="error"/>
+      <form method="post" class="tc-form"><input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/><label class="tc-check"><input type="checkbox" name="confirm" value="delete" required="required"/> Tôi đã kiểm tra đúng bản ghi và xác nhận xóa.</label><div class="tc-action-row"><button type="submit" class="tc-button tc-danger">Xác nhận xóa</button><a class="tc-button tc-outline" t-att-href="cancel_url">Quay lại</a></div></form>
+    </div></t>
+  </template>
+</odoo>

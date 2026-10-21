@@ -22,3 +22,16 @@ venv/
 *.log
 *.pem
 *.key
+
+# Local operator secrets and credential stores
+/.private/
+/.secrets/
+.ssh/
+id_rsa
+id_ed25519
+*.p12
+*.pfx
+*.ppk
+*.kdbx
+credentials.local.*
+secrets.local.*
