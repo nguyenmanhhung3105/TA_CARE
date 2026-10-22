@@ -7,7 +7,7 @@ class TacareConnection(models.Model):
     _description = 'TA.CARE Connection'
     _order = 'create_date desc, id desc'
 
-    type = fields.Selection([('application', 'Đề nghị ứng tuyển'),
+    type = fields.Selection([('application', 'Đề nghị nhận việc'),
                              ('invitation', 'Lời mời trao đổi')], required=True)
     job_id = fields.Many2one('hr.job', required=True, ondelete='restrict', index=True)
     company_id = fields.Many2one('res.company', related='job_id.company_id', store=True, index=True)

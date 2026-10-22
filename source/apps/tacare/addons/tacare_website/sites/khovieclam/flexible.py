@@ -18,7 +18,9 @@ class KhoFlexible(TacareFlexible):
     @http.route()
     def jobs(self, **kw):
         domain = self._job_domain()
-        kind = kw.get('kind', '') or ('recruitment' if kw.get('type') or kw.get('sector') else '')
+        kind = 'flexible'
+        if kw.get('kind') == 'recruitment':
+            raise NotFound()
         if kind in ('recruitment', 'flexible'):
             domain.append(('care_opportunity_kind', '=', kind))
         jobs = request.env['hr.job'].sudo().search(domain, order='create_date desc, id desc')
@@ -77,3 +79,8 @@ class KhoFlexible(TacareFlexible):
         item = self._flex_own('hr.job', record_id) if record_id else False
         return self._render('work_form', site='khovieclam', record=item, is_service=False,
                             vals=self._work_values(item), error=False)
+
+    @http.route()
+    def manage_jobs(self, **kw):
+        self._flex_user()
+        return request.redirect('/kvl/flexible/mine')

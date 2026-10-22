@@ -1,0 +1,124 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <template id="seasonal_hub_home" inherit_id="tacare_website.home_hub" priority="1000">
+    <xpath expr="//div[@data-care-home='hub']" position="replace">
+      <t t-call="tacare_website.seasonal_home" />
+    </xpath>
+  </template>
+  <template id="seasonal_matching" inherit_id="tacare_website.live_matching" priority="1000">
+    <xpath expr="//t[@t-call='tacare_website.live_layout']" position="replace">
+      <t t-call="tacare_website.live_layout">
+        <div class="sm-page">
+          <p class="sm-eyebrow">KHÔNG GIAN GHÉP NỐI TA.CARE</p>
+          <h1>Đúng đầu việc.<br />Hợp điều kiện hai bên.</h1>
+          <p>Đối chiếu theo thông tin đã được cho phép chia sẻ. Hai bên chủ động xác nhận trước khi nhận làm.</p>
+          <nav class="sm-view-tabs" aria-label="Phía tham gia">
+            <a href="/tacare/matching?view=hire" t-att-aria-current="'page' if seasonal_view == 'hire' else None">Tôi cần người làm</a>
+            <a t-if="role != 'business'" href="/tacare/matching?view=receive" t-att-aria-current="'page' if seasonal_view == 'receive' else None">Tôi muốn nhận việc</a>
+            <a href="/tacare/examples">Ba tình huống minh họa</a>
+          </nav>
+          <form t-if="kind == 'profiles' and jobs" method="get" class="sm-library-search">
+            <input type="hidden" name="view" value="hire" />
+            <label>Nhu cầu dùng để ghép nối<select name="job">
+                <option t-foreach="jobs" t-as="j" t-att-value="j.id" t-att-selected="selected and selected.id == j.id" t-esc="j.name" />
+              </select>
+            </label>
+            <button type="submit" class="tc-button tc-outline">Đối chiếu nhu cầu</button>
+            <a t-att-href="urls['khovieclam'] + 'kvl/flexible/new'">Đăng nhu cầu mới</a>
+          </form>
+          <section t-if="kind == 'profiles' and not jobs" class="hx-need-start" aria-labelledby="need-start-title"><span class="hx-door-icon"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'storefront'"/></t></span><div><p class="sx-kicker">BẮT ĐẦU TỪ NHU CẦU CỦA BẠN</p><h2 id="need-start-title">Bạn cần người làm việc gì?</h2><p>Để tìm người phù hợp, cần có nhu cầu đang hiển thị và bật đối chiếu. Nhu cầu nháp, tạm ngừng hoặc chưa được cấp quyền xử lý sẽ chưa xuất hiện ở đây.</p><div class="hx-start-actions"><a class="tc-button" t-att-href="urls['khovieclam'] + 'kvl/flexible/new'">Đăng nhu cầu mới</a><a class="sx-text-link" t-att-href="urls['khovieclam'] + 'kvl/flexible/mine'">Kiểm tra nhu cầu đã đăng</a></div></div></section>
+          <t t-if="kind == 'jobs'">
+            <form method="get" class="sm-library-search">
+              <input type="hidden" name="view" value="receive" />
+              <label>Hồ sơ nhận việc<select name="profile_id">
+                  <option t-foreach="own_profiles" t-as="p" t-att-value="p.id" t-att-selected="profile and p.id == profile.id" t-esc="p.profile_title or p.name" />
+                </select>
+              </label>
+              <button type="submit" class="tc-button tc-outline">Đối chiếu hồ sơ</button>
+            </form>
+            <p t-if="not matching_enabled" class="tc-alert">Hồ sơ chưa bật quyền đối chiếu. <a t-att-href="urls['tuhoso'] + 'tuhoso/profile/%s' % profile.id">Quản lý quyền chia sẻ</a>
+            </p>
+          </t>
+          <div class="sm-match-grid">
+            <article t-foreach="matches" t-as="pair" class="tc-card sm-match-card">
+              <t t-set="item" t-value="pair[0]" />
+              <t t-set="reason" t-value="pair[1]" />
+              <h2 t-esc="item.name if kind == 'jobs' else item.profile_title or item.name" />
+              <p class="sm-muted">Thông tin tự khai · cần hai bên xác nhận</p>
+              <t t-call="tacare_website.comparison_rows">
+                <t t-set="comparisons" t-value="reason['comparisons']" />
+              </t>
+              <form action="/tacare/request/send" method="post" class="tc-form">
+                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                <input type="hidden" name="type" t-att-value="'application' if kind == 'jobs' else 'invitation'" />
+                <input type="hidden" name="job_id" t-att-value="item.id if kind == 'jobs' else selected.id" />
+                <input type="hidden" name="profile_id" t-att-value="profile.id if kind == 'jobs' else item.id" />
+                <label>Lời nhắn<textarea name="message" rows="3" required="required" maxlength="2000" placeholder="Lịch có thể làm, phạm vi cần chốt hoặc điều muốn trao đổi…" />
+                </label>
+                <button class="tc-button" type="submit" t-esc="'Gửi đề nghị nhận việc' if kind == 'jobs' else 'Mời trao đổi công việc'" />
+              </form>
+            </article>
+          </div>
+          <div t-if="not matches and (kind != 'profiles' or jobs)" class="sm-empty">
+            <h2>Chưa có kết nối phù hợp để đề xuất.</h2>
+            <p>Kiểm tra đầu việc, lịch, khu vực và quyền chia sẻ. Hệ thống không tự xem thông tin chưa khai là đã đáp ứng.</p>
+            <a href="/tacare/examples">Xem ba ví dụ cách đối chiếu</a>
+          </div>
+        </div>
+      </t>
+    </xpath>
+  </template>
+  <template id="seasonal_journey" name="Cách hoạt động và hướng phát triển">
+    <t t-call="tacare_website.live_layout">
+      <div class="sm-page sm-journey">
+        <p class="sm-eyebrow">CÁCH TA.CARE KẾT NỐI CÔNG VIỆC</p>
+        <h1>Từ nhu cầu đến<br />một việc được hoàn thành.</h1>
+        <p class="sm-lead">Bạn đang có thể đăng nhu cầu, đối chiếu và gửi lời kết nối. Đặt lịch, định vị và thanh toán sẽ cần được tích hợp trước khi mở sử dụng.</p>
+        <t t-call="tacare_website.seasonal_flow" />
+        <div class="sm-journey-grid">
+          <section class="tc-card" id="location">
+            <p class="sm-eyebrow">VỊ TRÍ VÀ KHU VỰC</p>
+            <h2>Phù hợp cả nơi thực hiện.</h2>
+            <div class="sm-area-map" role="img" aria-label="Sơ đồ minh họa khu vực kết nối, không phải định vị thật">
+              <svg viewBox="0 0 600 280" aria-hidden="true">
+                <path d="M0 70H600M0 190H600M120 0V280M350 0V280M500 0V280" />
+                <path class="sm-map-river" d="M0 260Q200 50 600 110" />
+                <circle cx="180" cy="125" r="72" class="sm-map-radius" />
+                <circle cx="180" cy="125" r="9" />
+                <circle cx="226" cy="90" r="7" />
+                <circle cx="144" cy="172" r="7" />
+              </svg>
+              <span>Sơ đồ minh họa · chưa định vị trực tiếp</span>
+            </div>
+            <p>Hiện đối chiếu khu vực do hai bên khai. Chưa có khoảng cách đường đi hoặc người đang ở gần được xác nhận.</p>
+            <p class="sm-muted">Hướng phát triển: người dùng chủ động chia sẻ vị trí, chọn vùng nhận việc, xem thời gian di chuyển và bảo vệ địa chỉ cụ thể.</p>
+          </section>
+          <section class="tc-card">
+            <p class="sm-eyebrow">MINH BẠCH CHI PHÍ</p>
+            <h2>Thống nhất trước khi làm.</h2>
+            <p>Cùng xác nhận đơn giá, thời lượng, vật tư và đi lại. Bảng dưới chỉ giúp tính thử, chưa tạo đơn hoặc thu tiền.</p>
+            <form class="tc-form sm-cost-calculator" data-seasonal-quote="1">
+              <div class="tc-form-grid">
+                <label>Đơn giá mỗi giờ (đ)<input type="number" name="rate" min="0" max="100000000" step="1000" value="80000" />
+                </label>
+                <label>Số giờ dự kiến<input type="number" name="hours" min="0.5" max="1000" step="0.5" value="3" />
+                </label>
+                <label>Vật tư đã thống nhất (đ)<input type="number" name="materials" min="0" max="100000000" step="1000" value="0" />
+                </label>
+                <label>Đi lại đã thống nhất (đ)<input type="number" name="travel" min="0" max="100000000" step="1000" value="0" />
+                </label>
+              </div>
+              <p>Phí nền tảng: chưa áp dụng trong bản hiện tại.</p>
+              <output aria-live="polite" data-quote-output="1">Tổng dự kiến: 240.000đ</output>
+              <small>Hai bên cần xác nhận lại phạm vi và phát sinh. Chưa có thanh toán trong hệ thống.</small>
+            </form>
+          </section>
+        </div>
+        <section class="sm-next-stage tc-card">
+          <h2>Những bước tiếp theo cần thống nhất</h2>
+          <p>Xác nhận lịch và người thực hiện; quy tắc hủy/không đến; hoàn thành và phản hồi; phương thức thanh toán, đối soát và xử lý tranh chấp. Mỗi nhóm nghề cần quy tắc riêng, không áp dụng một công thức theo quãng đường cho tất cả việc.</p>
+        </section>
+      </div>
+    </t>
+  </template>
+</odoo>

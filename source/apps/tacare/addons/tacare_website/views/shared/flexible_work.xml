@@ -1,125 +1,549 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <odoo>
+  <template id="work_price_note" name="Giải thích tiền công theo công việc">
+    <p t-if="record.flex_pay_unit == 'task'" class="fw-price-note">Mức tiền cho toàn bộ phạm vi công việc đã mô tả. Hai bên cần thống nhất rõ đầu việc và các khoản chi phí phát sinh.</p>
+  </template>
   <template id="work_tabs" name="Hai hướng công việc">
     <nav class="fw-tabs" aria-label="Chọn hướng công việc">
       <a t-if="site != 'tuhoso'" href="/kvl/jobs" t-att-class="'is-active' if not kind else ''">Tất cả công việc</a>
       <a t-att-href="'/tuhoso/profiles?kind=recruitment' if site == 'tuhoso' else '/kvl/jobs?kind=recruitment'" t-att-class="'is-active' if kind == 'recruitment' else ''">Tuyển dụng</a>
-      <a t-att-href="'/tuhoso/profiles?kind=flexible' if site == 'tuhoso' else '/kvl/jobs?kind=flexible'" t-att-class="'is-active' if kind == 'flexible' else ''">Việc linh hoạt <small>Theo giờ · Theo việc · Theo chuyến</small></a>
+      <a t-att-href="'/tuhoso/profiles?kind=flexible' if site == 'tuhoso' else '/kvl/jobs?kind=flexible'" t-att-class="'is-active' if kind == 'flexible' else ''">Việc thời vụ <small>Theo giờ · Theo việc · Theo chuyến</small>
+      </a>
     </nav>
   </template>
-
   <template id="work_filters" name="Bộ lọc theo nhánh">
     <form method="get" class="fw-filters" role="search">
-      <input type="hidden" name="kind" t-att-value="kind"/>
-      <label>Từ khóa<input name="q" type="search" t-att-value="query.get('q', '')" placeholder="Tên việc, kỹ năng…"/></label>
+      <input type="hidden" name="kind" t-att-value="kind" />
+      <label>Từ khóa<input name="q" type="search" t-att-value="query.get('q', '')" placeholder="Tên việc, kỹ năng…" />
+      </label>
       <t t-if="kind == 'flexible'">
-        <label>Nghề<select name="category"><option value="">Tất cả nghề</option><option t-foreach="work_categories" t-as="c" t-att-value="c.id" t-att-selected="str(c.id) == query.get('category')" t-esc="c.name"/></select></label>
-        <label>Cách làm<select name="mode"><option value="">Tất cả cách làm</option><option t-foreach="work_modes" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == query.get('mode')" t-esc="o[1]"/></select></label>
-        <label>Tỉnh / thành<select name="region"><option value="">Tất cả khu vực</option><option t-foreach="regions" t-as="r" t-att-value="r.id" t-att-selected="str(r.id) == query.get('region')" t-esc="r.name"/></select></label>
-        <label>Đơn vị tiền công<select name="unit"><option value="">Tất cả đơn vị</option><option t-foreach="pay_units" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == query.get('unit')" t-esc="o[1]"/></select></label>
-        <label t-if="site == 'tuhoso'">Tình trạng nhận việc<select name="state"><option value="">Tất cả trạng thái</option><option value="available" t-att-selected="query.get('state') == 'available'">Đang nhận việc</option><option value="draft" t-att-selected="query.get('state') == 'draft'">Nháp</option><option value="paused" t-att-selected="query.get('state') == 'paused'">Tạm ngừng</option></select></label>
-        <label t-else="">Kiểu lịch<select name="schedule"><option value="">Tất cả lịch</option><option t-foreach="work_schedules" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == query.get('schedule')" t-esc="o[1]"/></select></label>
+        <label>Nghề<select name="category">
+            <option value="">Tất cả nghề</option>
+            <option t-foreach="work_categories" t-as="c" t-att-value="c.id" t-att-selected="str(c.id) == query.get('category')" t-esc="c.name" />
+          </select>
+        </label>
+        <label>Cách làm<select name="mode">
+            <option value="">Tất cả cách làm</option>
+            <option t-foreach="work_modes" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == query.get('mode')" t-esc="o[1]" />
+          </select>
+        </label>
+        <label>Tỉnh / thành<select name="region">
+            <option value="">Tất cả khu vực</option>
+            <option t-foreach="regions" t-as="r" t-att-value="r.id" t-att-selected="str(r.id) == query.get('region')" t-esc="r.name" />
+          </select>
+        </label>
+        <label>Đơn vị tiền công<select name="unit">
+            <option value="">Tất cả đơn vị</option>
+            <option t-foreach="pay_units" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == query.get('unit')" t-esc="o[1]" />
+          </select>
+        </label>
+        <label t-if="site == 'tuhoso'">Tình trạng nhận việc<select name="state">
+            <option value="">Tất cả trạng thái</option>
+            <option value="available" t-att-selected="query.get('state') == 'available'">Đang nhận việc</option>
+            <option value="draft" t-att-selected="query.get('state') == 'draft'">Nháp</option>
+            <option value="paused" t-att-selected="query.get('state') == 'paused'">Tạm ngừng</option>
+          </select>
+        </label>
+        <label t-else="">Kiểu lịch<select name="schedule">
+            <option value="">Tất cả lịch</option>
+            <option t-foreach="work_schedules" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == query.get('schedule')" t-esc="o[1]" />
+          </select>
+        </label>
       </t>
       <t t-elif="kind == 'recruitment'">
-        <label>Lĩnh vực<select name="sector"><option value="">Tất cả lĩnh vực</option><option t-foreach="job_sectors" t-as="s" t-att-value="s.code" t-att-selected="s.code == query.get('sector')" t-esc="s.name"/></select></label>
-        <label t-if="site != 'tuhoso'">Loại cơ hội<select name="type"><option value="">Tất cả loại</option><option t-foreach="types" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == query.get('type')" t-esc="o[1]"/></select></label>
+        <label>Lĩnh vực<select name="sector">
+            <option value="">Tất cả lĩnh vực</option>
+            <option t-foreach="job_sectors" t-as="s" t-att-value="s.code" t-att-selected="s.code == query.get('sector')" t-esc="s.name" />
+          </select>
+        </label>
+        <label t-if="site != 'tuhoso'">Loại cơ hội<select name="type">
+            <option value="">Tất cả loại</option>
+            <option t-foreach="types" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == query.get('type')" t-esc="o[1]" />
+          </select>
+        </label>
       </t>
       <button class="tc-button" type="submit">Áp dụng bộ lọc</button>
       <a t-att-href="('/tuhoso/profiles?kind=' if site == 'tuhoso' else '/kvl/jobs?kind=') + kind" class="fw-reset">Xóa lọc</a>
     </form>
   </template>
-
   <template id="work_card" name="Thẻ việc linh hoạt">
     <article class="fw-card" t-att-data-record-id="record.id">
-      <t t-set="photo" t-value="{'cleaning':'work-cleaning.jpg','cooking':'work-cooking.jpg','garden':'work-garden.jpg','farm':'work-farm.jpg','loading':'work-warehouse.jpg','repair':'work-tools.jpg','tutoring':'work-learning.jpg','digital':'work-digital.jpg','driving':'work-driving.jpg','pets':'work-cat.jpg'}.get(record.flex_category_id.code, 'work-team.jpg')"/>
-      <a class="fw-card-photo" t-att-href="'/tuhoso/work/%s' % record.id if is_service else ('/kvl/flexible/%s' if mine else '/kvl/job/%s') % record.id" tabindex="-1" aria-hidden="true"><img t-att-src="record._care_photo_url()" width="720" height="400" alt="" loading="lazy"/><span>VIỆC LINH HOẠT</span></a>
+      <t t-set="photo" t-value="{'cleaning':'work-cleaning.jpg','cooking':'work-cooking.jpg','garden':'work-garden.jpg','farm':'work-farm.jpg','loading':'work-warehouse.jpg','repair':'work-tools.jpg','tutoring':'work-learning.jpg','digital':'work-digital.jpg','driving':'work-driving.jpg','pets':'work-cat.jpg'}.get(record.flex_category_id.code, 'work-team.jpg')" />
+      <a class="fw-card-photo" t-att-href="'/tuhoso/work/%s' % record.id if is_service else ('/kvl/flexible/%s' if mine else '/kvl/job/%s') % record.id" tabindex="-1" aria-hidden="true">
+        <img t-att-src="record._care_photo_url()" width="720" height="400" alt="" loading="lazy" />
+        <span>VIỆC THỜI VỤ</span>
+      </a>
       <div class="fw-card-body">
-        <div class="fw-card-top"><span t-esc="record.flex_category_id.name"/><span t-if="record.flex_demo_key" class="fw-demo-badge">Dữ liệu demo</span></div>
-        <h3><a t-att-href="'/tuhoso/work/%s' % record.id if is_service else ('/kvl/flexible/%s' if mine else '/kvl/job/%s') % record.id" t-esc="record.title if is_service else record.name"/></h3>
-        <p t-if="is_service" class="fw-owner" t-esc="record.profile_id.name"/>
-        <p class="fw-card-description" t-esc="record.description if is_service else record.tacare_description_text"/>
-        <div class="fw-tags"><span t-esc="record._flex_label('flex_mode')"/><span t-esc="record.flex_region_id.name or 'Nhận từ xa'"/></div>
-        <p class="fw-card-schedule" t-esc="record._flex_schedule_label()"/>
-        <strong class="fw-price" t-esc="record._flex_price_label()"/>
-        <small t-if="record.flex_cost_note" t-esc="record.flex_cost_note"/>
-        <a class="tc-button tc-outline" t-att-href="'/tuhoso/work/%s' % record.id if is_service else ('/kvl/flexible/%s' if mine else '/kvl/job/%s') % record.id">Xem chi tiết</a><div class="fw-card-end"><a t-if="role == 'admin'" class="tc-delete-link" t-att-href="('/tuhoso/work/%s/remove' if is_service else '/kvl/job/%s/remove') % record.id">Xóa</a><span t-esc="record._flex_label('flex_state') if is_service else dict(record._fields['tacare_status'].selection).get(record.tacare_status)"/><a t-if="is_service or mine" t-att-href="('/tuhoso/work/%s/edit' if is_service else '/kvl/flexible/%s/edit') % record.id">Chỉnh sửa </a><span t-else="" t-esc="'%g người cần' % record.no_of_recruitment"/></div>
+        <div class="fw-card-top">
+          <span t-esc="record.flex_category_id.name" />
+          <span t-if="record.flex_demo_key" class="fw-demo-badge">Dữ liệu demo</span>
+        </div>
+        <h3>
+          <a t-att-href="'/tuhoso/work/%s' % record.id if is_service else ('/kvl/flexible/%s' if mine else '/kvl/job/%s') % record.id" t-esc="record.title if is_service else record.name" />
+        </h3>
+        <p t-if="is_service" class="fw-owner" t-esc="record.profile_id.name" />
+        <p class="fw-card-description" t-esc="record.description if is_service else record.tacare_description_text" />
+        <div class="fw-tags">
+          <span t-esc="record._flex_label('flex_mode')" />
+          <span t-esc="record.flex_region_id.name or 'Nhận từ xa'" />
+        </div>
+        <p class="fw-card-schedule" t-esc="record._flex_schedule_label()" />
+        <strong class="fw-price" t-esc="record._flex_price_label()" />
+        <small t-if="record.flex_cost_note" t-esc="record.flex_cost_note" />
+        <a class="tc-button tc-outline" t-att-href="'/tuhoso/work/%s' % record.id if is_service else ('/kvl/flexible/%s' if mine else '/kvl/job/%s') % record.id">Xem chi tiết</a>
+        <div class="fw-card-end">
+          <a t-if="role == 'admin'" class="tc-delete-link" t-att-href="('/tuhoso/work/%s/remove' if is_service else '/kvl/job/%s/remove') % record.id">Xóa</a>
+          <span t-esc="record._flex_label('flex_state') if is_service else dict(record._fields['tacare_status'].selection).get(record.tacare_status)" />
+          <a t-if="is_service or mine" t-att-href="('/tuhoso/work/%s/edit' if is_service else '/kvl/flexible/%s/edit') % record.id">Chỉnh sửa </a>
+          <span t-else="" t-esc="'%g người cần' % record.no_of_recruitment" />
+        </div>
       </div>
     </article>
   </template>
-
   <template id="work_jobs" name="Kho việc làm · Tuyển dụng và việc linh hoạt">
     <t t-call="tacare_website.live_layout">
-      <section class="fw-page-head"><div><p class="tc-eyebrow">KHO VIỆC LÀM</p><h1 t-esc="'Quản lý tin' if mine else 'Công việc, theo cách của bạn.'"/><p>Tìm một vị trí lâu dài, một ca làm thêm, hay một việc bạn có thể làm tốt.</p></div><div class="fw-head-actions"><a class="tc-button" href="/kvl/flexible/new">Đăng việc cần người</a><a href="/kvl/flexible/mine">Quản lý tin </a><a t-if="role in ('business','admin')" href="/kvl/job/new">Đăng tin tuyển dụng </a></div></section>
-      <nav t-if="mine" class="fw-tabs" aria-label="Loại tin quản lý"><a class="is-active" href="/kvl/flexible/mine">Việc linh hoạt</a><a t-if="role in ('business','admin')" href="/kvl/manage">Tin tuyển dụng</a></nav><t t-else="" t-call="tacare_website.work_tabs"/>
-      <t t-if="not mine" t-call="tacare_website.work_filters"/>
-      <div class="fw-result-line"><strong><t t-esc="len(jobs)"/> công việc</strong><span>Thông tin và mức tiền được ghi rõ trong từng bài.</span></div>
+      <section class="fw-page-head">
+        <div>
+          <p class="tc-eyebrow">KHO VIỆC LÀM</p>
+          <h1 t-esc="'Quản lý tin' if mine else 'Công việc, theo cách của bạn.'" />
+          <p>Tìm đầu việc theo giờ, ca hoặc sản phẩm, phù hợp lịch và khu vực của bạn.</p>
+        </div>
+        <div class="fw-head-actions">
+          <a class="tc-button" href="/kvl/flexible/new">Đăng việc cần người</a>
+          <a href="/kvl/flexible/mine">Quản lý tin </a>
+          <a t-if="role in ('business','admin')" href="/kvl/job/new">Đăng tin tuyển dụng </a>
+        </div>
+      </section>
+      <nav t-if="mine" class="fw-tabs" aria-label="Loại tin quản lý">
+        <a class="is-active" href="/kvl/flexible/mine">Việc thời vụ</a>
+        <a t-if="role in ('business','admin')" href="/kvl/manage">Tin tuyển dụng</a>
+      </nav>
+      <t t-else="" t-call="tacare_website.work_tabs" />
+      <t t-if="not mine" t-call="tacare_website.work_filters" />
+      <div class="fw-result-line">
+        <strong>
+          <t t-esc="len(jobs)" /> công việc</strong>
+        <span>Thông tin và mức tiền được ghi rõ trong từng bài.</span>
+      </div>
       <div class="fw-grid">
         <t t-foreach="jobs" t-as="job">
-          <t t-if="job.care_opportunity_kind == 'flexible'" t-call="tacare_website.work_card"><t t-set="record" t-value="job"/><t t-set="is_service" t-value="False"/></t>
-          <article t-else="" class="fw-card fw-recruitment-card" t-att-data-record-id="job.id"><a class="fw-card-photo" t-att-href="'/kvl/job/%s' % job.id" tabindex="-1" aria-hidden="true"><img t-att-src="job._care_photo_url()" width="720" height="400" alt="" loading="lazy"/><span>TUYỂN DỤNG</span></a><div class="fw-card-body"><div class="fw-card-top"><span>TUYỂN DỤNG</span></div><h3><a t-att-href="'/kvl/job/%s' % job.id" t-esc="job.name"/></h3><p t-esc="job.tacare_owner_partner_id.name"/><p class="fw-card-description" t-esc="job.tacare_description_text"/><div class="fw-tags"><span t-esc="job.care_sector_id.name or dict(sectors).get(job.tacare_sector, '')"/><span t-esc="job.tacare_location or 'Từ xa'"/></div><strong class="fw-price" t-esc="job._care_income_label()"/><p t-esc="job.tacare_schedule"/><a class="tc-button tc-outline" t-att-href="'/kvl/job/%s' % job.id">Xem chi tiết</a><a t-if="role == 'admin'" class="tc-delete-link" t-att-href="'/kvl/job/%s/remove' % job.id">Xóa tin</a><span class="fw-demo-badge" t-if="job.flex_demo_key">Dữ liệu demo</span></div></article>
+          <t t-if="job.care_opportunity_kind == 'flexible'" t-call="tacare_website.work_card">
+            <t t-set="record" t-value="job" />
+            <t t-set="is_service" t-value="False" />
+          </t>
+          <article t-else="" class="fw-card fw-recruitment-card" t-att-data-record-id="job.id">
+            <a class="fw-card-photo" t-att-href="'/kvl/job/%s' % job.id" tabindex="-1" aria-hidden="true">
+              <img t-att-src="job._care_photo_url()" width="720" height="400" alt="" loading="lazy" />
+              <span>TUYỂN DỤNG</span>
+            </a>
+            <div class="fw-card-body">
+              <div class="fw-card-top">
+                <span>TUYỂN DỤNG</span>
+              </div>
+              <h3>
+                <a t-att-href="'/kvl/job/%s' % job.id" t-esc="job.name" />
+              </h3>
+              <p t-esc="job.tacare_owner_partner_id.name" />
+              <p class="fw-card-description" t-esc="job.tacare_description_text" />
+              <div class="fw-tags">
+                <span t-esc="job.care_sector_id.name or dict(sectors).get(job.tacare_sector, '')" />
+                <span t-esc="job.tacare_location or 'Từ xa'" />
+              </div>
+              <strong class="fw-price" t-esc="job._care_income_label()" />
+              <p t-esc="job.tacare_schedule" />
+              <a class="tc-button tc-outline" t-att-href="'/kvl/job/%s' % job.id">Xem chi tiết</a>
+              <a t-if="role == 'admin'" class="tc-delete-link" t-att-href="'/kvl/job/%s/remove' % job.id">Xóa tin</a>
+              <span class="fw-demo-badge" t-if="job.flex_demo_key">Dữ liệu demo</span>
+            </div>
+          </article>
         </t>
       </div>
-      <div t-if="not jobs" class="tc-empty"><h2>Chưa có công việc ở lựa chọn này.</h2><p>Thử bỏ bớt bộ lọc hoặc đăng nhu cầu của bạn.</p></div>
+      <div t-if="not jobs" class="tc-empty">
+        <h2>Chưa có công việc ở lựa chọn này.</h2>
+        <p>Thử bỏ bớt bộ lọc hoặc đăng nhu cầu của bạn.</p>
+      </div>
     </t>
   </template>
-
-  <template id="work_profiles" name="Tủ Hồ Sơ · Thư viện"><t t-call="tacare_website.profile_workspace"/></template>
-
+  <template id="work_profiles" name="Tủ Hồ Sơ · Thư viện">
+    <t t-call="tacare_website.profile_workspace" />
+  </template>
   <template id="work_form" name="Nhập việc linh hoạt">
     <t t-call="tacare_website.live_layout">
-      <p class="tc-breadcrumb"><a t-att-href="'/tuhoso/profiles?kind=flexible' if is_service else '/kvl/flexible/mine'">Việc linh hoạt</a> / <span t-esc="'Chỉnh sửa' if record else 'Tạo mới'"/></p>
-      <div class="fw-page-head"><div><p class="tc-eyebrow" t-esc="'TỦ HỒ SƠ / VIỆC TÔI NHẬN' if is_service else 'KHO VIỆC LÀM / ĐĂNG NHU CẦU'"/><h1 t-esc="'Bạn nhận làm việc gì?' if is_service else 'Bạn cần người làm việc gì?'"/><p>Ghi rõ việc, lịch và tiền công. Các mục bổ sung chỉ cần điền khi liên quan.</p></div></div>
-      <div t-if="error" class="tc-error" role="alert" id="work-form-error" tabindex="-1"><strong>Chưa lưu được.</strong> <t t-esc="error"/><p>Nội dung đã nhập được giữ lại. Nếu có ảnh, vui lòng chọn lại ảnh sau khi sửa.</p></div>
-      <form class="fw-editor tc-form" t-att-action="'/tuhoso/work/save' if is_service else '/kvl/flexible/save'" method="post" enctype="multipart/form-data" data-work-form="1">
-        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/><input type="hidden" name="id" t-att-value="record.id if record else ''"/>
-        <section t-if="is_service" class="tc-card"><h2>Hồ sơ nhận việc</h2><label>Lưu công việc này vào hồ sơ<select name="profile_id" t-att-disabled="record and record.profile_id.user_id != request.env.user"><option t-if="not own_profiles" value="">Tạo hồ sơ nhận việc đầu tiên</option><option t-if="record and record.profile_id.user_id != request.env.user" t-att-value="record.profile_id.id" selected="selected" t-esc="record.profile_id.profile_title or record.profile_id.name"/><option t-foreach="own_profiles" t-as="p" t-att-value="p.id" t-att-selected="str(p.id) == vals.get('profile_id')" t-esc="p.profile_title or p.headline or p.name"/></select></label><a href="/tuhoso/profiles/new?kind=flexible">Tạo một hồ sơ khác</a></section>
-        <section class="tc-card"><p class="tc-eyebrow">01 / CÔNG VIỆC</p><h2 t-esc="'Khả năng và việc bạn nhận' if is_service else 'Nhu cầu của bạn'"/>
-          <div class="tc-form-grid"><label>Tiêu đề *<input name="name" required="required" minlength="2" maxlength="180" t-att-value="vals.get('name', '')" placeholder="Ví dụ: Nhận dọn căn hộ và vệ sinh bếp"/></label><label>Nghề *<select name="flex_category_id" required="required"><option value="">Chọn nghề</option><option t-foreach="work_categories" t-as="c" t-att-value="c.id" t-att-selected="str(c.id) == vals.get('flex_category_id')" t-esc="c.name"/></select></label></div>
-          <label>Mô tả việc và phạm vi *<textarea name="description" rows="5" required="required" maxlength="20000" placeholder="Việc cụ thể, khối lượng, phần không nhận hoặc không bao gồm…"><t t-esc="vals.get('description', '')"/></textarea></label>
-          <fieldset class="fw-skill-field"><legend t-esc="'Khả năng / đầu việc tôi làm được' if is_service else 'Kỹ năng / đầu việc cần có'"/><p>Chọn những mục liên quan. Chưa khai không có nghĩa không làm được.</p><div class="fw-skill-options"><label t-foreach="work_skills" t-as="s"><input type="checkbox" name="skill_ids" t-att-value="s.id" t-att-checked="s.id in vals.get('skill_ids', [])"/><span t-esc="s.name"/></label></div></fieldset>
-          <details t-if="not is_service"><summary>Kỹ năng ưu tiên thêm</summary><div class="fw-skill-options"><label t-foreach="work_skills" t-as="s"><input type="checkbox" name="preferred_skill_ids" t-att-value="s.id" t-att-checked="s.id in vals.get('preferred_skill_ids', [])"/><span t-esc="s.name"/></label></div></details>
-          <label t-if="not is_service">Số người cần *<input type="number" name="quantity" min="1" max="100" t-att-value="vals.get('quantity', '1')"/></label>
-        </section>
-        <section class="tc-card"><p class="tc-eyebrow">02 / CÁCH LÀM VÀ ĐỊA ĐIỂM</p><h2>Hai thông tin, hai lựa chọn rõ ràng.</h2>
-          <div class="tc-form-grid"><label>Cách thực hiện *<select name="flex_mode" required="required"><option t-foreach="work_modes" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == vals.get('flex_mode')" t-esc="o[1]"/></select></label><label data-work-location="1">Tỉnh / thành<select name="flex_region_id"><option value="">Chọn tỉnh / thành</option><option t-foreach="regions" t-as="r" t-att-value="r.id" t-att-selected="str(r.id) == vals.get('flex_region_id')" t-esc="r.name"/></select></label></div>
-          <label data-work-location="1" t-att-class="'fw-wide'">Khu vực làm / nhận việc<input name="flex_location" maxlength="250" t-att-value="vals.get('flex_location', '')" placeholder="Phường/xã, khu vực hoặc những nơi bạn nhận làm"/><small>Địa chỉ tĩnh. Không cần công khai địa chỉ nhà riêng trên hồ sơ.</small></label>
-        </section>
-        <section class="tc-card"><p class="tc-eyebrow">03 / THỜI GIAN</p><h2>Làm khi nào và trong bao lâu?</h2><div class="tc-form-grid">
-          <label>Kiểu lịch *<select name="flex_schedule"><option t-foreach="work_schedules" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == vals.get('flex_schedule')" t-esc="o[1]"/></select></label>
-          <label>Ngày bắt đầu / có thể nhận<input type="date" name="flex_date_from" t-att-value="vals.get('flex_date_from', '')"/></label><label>Ngày kết thúc / hạn bàn giao<input type="date" name="flex_date_to" t-att-value="vals.get('flex_date_to', '')"/></label>
-          <label>Giờ bắt đầu<input type="time" name="flex_time_from" t-att-value="vals.get('flex_time_from', '')"/></label><label>Giờ kết thúc<input type="time" name="flex_time_to" t-att-value="vals.get('flex_time_to', '')"/></label>
-          <label>Thời lượng mỗi ca / buổi / ngày (giờ)<input type="number" name="flex_duration" min="0" max="24" step="0.25" t-att-value="vals.get('flex_duration', '')"/><small>Cần khai khi giá theo ca, buổi hoặc ngày.</small></label>
-        </div><fieldset data-work-recurring="1"><legend>Lặp vào các ngày</legend><div class="fw-weekdays"><label t-foreach="weekdays" t-as="o"><input type="checkbox" name="weekdays" t-att-value="o[0]" t-att-checked="o[0] in (vals.get('flex_weekdays') or '').split(',')"/><span t-esc="o[1]"/></label></div><small>Một khung giờ áp dụng cho những ngày chọn. Lịch ngoại lệ ghi thêm bên dưới.</small></fieldset>
-          <label>Ghi chú lịch<input name="flex_schedule_note" maxlength="300" t-att-value="vals.get('flex_schedule_note', '')" placeholder="Ví dụ: Hẹn trước một ngày; không nhận ngày lễ"/></label>
-        </section>
-        <section class="tc-card"><p class="tc-eyebrow">04 / TIỀN CÔNG</p><h2 t-esc="'Mức bạn muốn nhận' if is_service else 'Ngân sách bạn dự kiến'"/><div class="tc-form-grid">
-          <label>Mức tiền / từ mức (VND) *<input type="number" name="flex_rate_min" min="0" step="1000" t-att-value="vals.get('flex_rate_min', '')" required="required"/></label><label>Đến mức (VND, nếu là khoảng)<input type="number" name="flex_rate_max" min="0" step="1000" t-att-value="vals.get('flex_rate_max', '')"/></label>
-          <label>Đơn vị tính *<select name="flex_pay_unit"><option t-foreach="pay_units" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == vals.get('flex_pay_unit')" t-esc="o[1]"/></select></label><label>Giá cho *<select name="flex_pay_basis"><option t-foreach="pay_bases" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == vals.get('flex_pay_basis')" t-esc="o[1]"/></select></label>
-          <label t-if="is_service">Số giờ nhận tối thiểu mỗi lần<input type="number" name="flex_min_hours" min="0" step="0.25" t-att-value="vals.get('flex_min_hours', '')"/></label></div>
-          <label>Giá đã gồm / chưa gồm<input name="flex_cost_note" maxlength="500" t-att-value="vals.get('flex_cost_note', '')" placeholder="Ví dụ: Chỉ tiền công, chủ có dụng cụ; nguyên liệu tính riêng"/></label><label class="tc-check"><input type="checkbox" name="flex_negotiable" t-att-checked="vals.get('flex_negotiable') == 'on'"/> Có thể thương lượng</label>
-        </section>
-        <label t-if="not is_service" class="tc-check"><input type="checkbox" name="matching_enabled" t-att-checked="vals.get('matching_enabled') == 'on'"/> Cho phép đối chiếu tin này tại TA.CARE</label><section class="tc-card"><p class="tc-eyebrow">05 / BỔ SUNG KHI CẦN</p><h2>Chuẩn bị và minh họa</h2><div class="tc-form-grid"><label>Dụng cụ / vật tư<select name="flex_tools"><option t-foreach="work_tools" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == vals.get('flex_tools')" t-esc="o[1]"/></select></label><label>Dụng cụ cụ thể<input name="flex_tools_note" maxlength="500" t-att-value="vals.get('flex_tools_note', '')"/></label></div>
-          <label>Kinh nghiệm / điều kiện liên quan (tùy chọn)<textarea name="flex_experience" rows="3"><t t-esc="vals.get('flex_experience', '')"/></textarea></label>
-          <details data-work-trip="1"><summary>Thông tin chuyến / tài xế</summary><div class="tc-form-grid"><label>Loại dịch vụ<select name="flex_trip_service"><option value="">Chưa chọn</option><option value="driver" t-att-selected="vals.get('flex_trip_service') == 'driver'">Chỉ tài xế, xe của khách</option><option value="vehicle" t-att-selected="vals.get('flex_trip_service') == 'vehicle'">Xe kèm tài xế</option></select></label><label>Chiều chuyến<select name="flex_trip_direction"><option value="">Chưa chọn</option><option value="oneway" t-att-selected="vals.get('flex_trip_direction') == 'oneway'">Một chiều</option><option value="return" t-att-selected="vals.get('flex_trip_direction') == 'return'">Khứ hồi</option></select></label><label>Điểm đến / tuyến nhận<input name="flex_destination" maxlength="250" t-att-value="vals.get('flex_destination', '')"/></label><label>Số hành khách<input type="number" name="flex_passengers" min="0" max="100" t-att-value="vals.get('flex_passengers', '')"/></label><label>Xe / hành lý / thời gian chờ<input name="flex_vehicle_note" maxlength="300" t-att-value="vals.get('flex_vehicle_note', '')"/></label></div><p>Dữ liệu chuyến trong demo phục vụ thử biểu mẫu; thông tin giấy tờ là nội dung tự khai.</p></details>
-          <label>Ảnh hiện trạng / việc đã làm (tùy chọn)<input type="file" name="flex_image" accept="image/jpeg,image/png,image/webp"/><small>Tối đa 5 MB. Chỉ tải ảnh được phép dùng; ảnh không tự chứng minh tay nghề.</small></label><label t-if="record and record.flex_image" class="tc-check"><input type="checkbox" name="remove_image"/> Gỡ ảnh hiện tại</label>
-          <label>Liên kết sản phẩm (tùy chọn)<input type="url" name="flex_portfolio_url" maxlength="1000" t-att-value="vals.get('flex_portfolio_url', '')" placeholder="https://…"/></label>
-        </section>
-        <div class="fw-form-actions"><button type="submit" class="tc-button tc-outline" name="intent" value="draft" formnovalidate="formnovalidate">Lưu nháp</button><button type="submit" class="tc-button" name="intent" value="publish" t-esc="'Lưu và bật nhận việc' if is_service else 'Đăng việc'"/><a t-att-href="'/tuhoso/profiles?kind=flexible' if is_service else '/kvl/flexible/mine'">Quay lại</a></div>
+      <p class="tc-breadcrumb">
+        <a t-att-href="'/tuhoso/profiles?kind=flexible' if is_service else '/kvl/flexible/mine'">Việc thời vụ</a> / <span t-esc="'Chỉnh sửa' if record else 'Tạo mới'" />
+      </p>
+      <div class="fw-page-head">
+        <div>
+          <p class="tc-eyebrow" t-esc="'TỦ HỒ SƠ / VIỆC TÔI NHẬN' if is_service else 'KHO VIỆC LÀM / ĐĂNG NHU CẦU'" />
+          <h1 t-esc="'Bạn nhận làm việc gì?' if is_service else 'Bạn cần người làm việc gì?'" />
+          <p>Ghi rõ việc, lịch và tiền công. Các mục bổ sung chỉ cần điền khi liên quan.</p>
+        </div>
+      </div>
+      <div t-if="error" class="tc-error" role="alert" id="work-form-error" tabindex="-1">
+        <strong>Chưa lưu được.</strong>
+        <t t-esc="error" />
+        <p>Nội dung đã nhập được giữ lại. Nếu có ảnh, vui lòng chọn lại ảnh sau khi sửa.</p>
+      </div>
+      <form class="fw-editor tc-form ix-editor" t-att-action="'/tuhoso/work/save' if is_service else '/kvl/flexible/save'" method="post" enctype="multipart/form-data" data-work-form="1">
+        <input type="hidden" name="id" t-att-value="record.id if record else ''" />
+        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+        <aside class="ix-editor-guide">
+          <p class="sx-kicker">NỘI DUNG CẦN ĐIỀN</p>
+          <nav aria-label="Các phần thông tin công việc">
+            <a href="#work-scope">01 <span>Công việc và phạm vi</span>
+            </a>
+            <a href="#work-place">02 <span>Cách làm và khu vực</span>
+            </a>
+            <a href="#work-schedule">03 <span>Lịch thực hiện</span>
+            </a>
+            <a href="#work-price">04 <span>Tiền công và chi phí</span>
+            </a>
+            <a href="#work-extra">05 <span>Chuẩn bị và hình ảnh</span>
+            </a>
+          </nav>
+          <div class="ix-guide-note">
+            <t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'pencil-simple'" />
+            </t>
+            <h3>Rõ từ đầu, dễ trao đổi.</h3>
+            <p>Ghi cụ thể khối lượng, kết quả mong đợi và phần không bao gồm. Bạn có thể lưu nháp rồi bổ sung sau.</p>
+            <small>Dấu * là thông tin cần có để đăng.</small>
+          </div>
+        </aside>
+        <div class="ix-editor-content">
+          <section t-if="is_service" class="tc-card">
+            <h2>Hồ sơ nhận việc</h2>
+            <label>Lưu công việc này vào hồ sơ<select name="profile_id" t-att-disabled="record and record.profile_id.user_id != request.env.user">
+                <option t-if="not own_profiles" value="">Tạo hồ sơ nhận việc đầu tiên</option>
+                <option t-if="record and record.profile_id.user_id != request.env.user" t-att-value="record.profile_id.id" selected="selected" t-esc="record.profile_id.profile_title or record.profile_id.name" />
+                <option t-foreach="own_profiles" t-as="p" t-att-value="p.id" t-att-selected="str(p.id) == vals.get('profile_id')" t-esc="p.profile_title or p.headline or p.name" />
+              </select>
+            </label>
+            <a href="/tuhoso/profiles/new?kind=flexible">Tạo một hồ sơ khác</a>
+          </section>
+          <section class="tc-card ix-form-section" id="work-scope">
+            <p class="tc-eyebrow">01 / CÔNG VIỆC</p>
+            <h2 t-esc="'Khả năng và việc bạn nhận' if is_service else 'Nhu cầu của bạn'" />
+            <p class="ix-section-help">Mô tả đủ để người còn lại hiểu chính xác việc cần làm.</p>
+            <div class="tc-form-grid">
+              <label>Tiêu đề *<input name="name" required="required" minlength="2" maxlength="180" t-att-value="vals.get('name', '')" t-att-placeholder="'Ví dụ: Nhận dọn căn hộ và vệ sinh bếp' if is_service else 'Ví dụ: Cần người dọn căn hộ trong 3 giờ'" />
+              </label>
+              <label>Nghề *<select name="flex_category_id" required="required">
+                  <option value="">Chọn nghề</option>
+                  <option t-foreach="work_categories" t-as="c" t-att-value="c.id" t-att-selected="str(c.id) == vals.get('flex_category_id')" t-esc="c.name" />
+                </select>
+              </label>
+            </div>
+            <label>Mô tả việc và phạm vi *<textarea name="description" rows="5" required="required" maxlength="20000" placeholder="Việc cụ thể, khối lượng, phần không nhận hoặc không bao gồm…">
+                <t t-esc="vals.get('description', '')" />
+              </textarea>
+            </label>
+            <fieldset class="fw-skill-field">
+              <legend t-esc="'Khả năng / đầu việc tôi làm được' if is_service else 'Kỹ năng / đầu việc cần có'" />
+              <p>Chọn những mục liên quan. Chưa khai không có nghĩa không làm được.</p>
+              <div class="fw-skill-options">
+                <label t-foreach="work_skills" t-as="s">
+                  <input type="checkbox" name="skill_ids" t-att-value="s.id" t-att-checked="s.id in vals.get('skill_ids', [])" />
+                  <span t-esc="s.name" />
+                </label>
+              </div>
+            </fieldset>
+            <details t-if="not is_service">
+              <summary>Kỹ năng ưu tiên thêm</summary>
+              <div class="fw-skill-options">
+                <label t-foreach="work_skills" t-as="s">
+                  <input type="checkbox" name="preferred_skill_ids" t-att-value="s.id" t-att-checked="s.id in vals.get('preferred_skill_ids', [])" />
+                  <span t-esc="s.name" />
+                </label>
+              </div>
+            </details>
+            <label t-if="not is_service">Số người cần *<input type="number" name="quantity" min="1" max="100" t-att-value="vals.get('quantity', '1')" />
+            </label>
+          </section>
+          <section class="tc-card ix-form-section" id="work-place">
+            <p class="tc-eyebrow">02 / CÁCH LÀM VÀ ĐỊA ĐIỂM</p>
+            <h2>Cách làm và khu vực thực hiện</h2>
+            <p class="ix-section-help">Chọn thực hiện tại chỗ hay từ xa, rồi nêu khu vực phù hợp.</p>
+            <div class="tc-form-grid">
+              <label>Cách thực hiện *<select name="flex_mode" required="required">
+                  <option t-foreach="work_modes" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == vals.get('flex_mode')" t-esc="o[1]" />
+                </select>
+              </label>
+              <label data-work-location="1">Tỉnh / thành<select name="flex_region_id">
+                  <option value="">Chọn tỉnh / thành</option>
+                  <option t-foreach="regions" t-as="r" t-att-value="r.id" t-att-selected="str(r.id) == vals.get('flex_region_id')" t-esc="r.name" />
+                </select>
+              </label>
+            </div>
+            <label data-work-location="1" t-att-class="'fw-wide'">Khu vực làm / nhận việc<input name="flex_location" maxlength="250" t-att-value="vals.get('flex_location', '')" placeholder="Phường/xã, khu vực hoặc những nơi bạn nhận làm" />
+              <small>Địa chỉ tĩnh. Không cần công khai địa chỉ nhà riêng trên hồ sơ.</small>
+            </label>
+          </section>
+          <section class="tc-card ix-form-section" id="work-schedule">
+            <p class="tc-eyebrow">03 / THỜI GIAN</p>
+            <h2>Làm khi nào và trong bao lâu?</h2>
+            <p class="ix-section-help">Ghi thời gian có thể làm và những điều cần xác nhận về lịch.</p>
+            <div class="tc-form-grid">
+              <label>Kiểu lịch *<select name="flex_schedule">
+                  <option t-foreach="work_schedules" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == vals.get('flex_schedule')" t-esc="o[1]" />
+                </select>
+              </label>
+              <label>Ngày bắt đầu / có thể nhận<input type="date" name="flex_date_from" t-att-value="vals.get('flex_date_from', '')" />
+              </label>
+              <label>Ngày kết thúc / hạn bàn giao<input type="date" name="flex_date_to" t-att-value="vals.get('flex_date_to', '')" />
+              </label>
+              <label>Giờ bắt đầu<input type="time" name="flex_time_from" t-att-value="vals.get('flex_time_from', '')" />
+              </label>
+              <label>Giờ kết thúc<input type="time" name="flex_time_to" t-att-value="vals.get('flex_time_to', '')" />
+              </label>
+              <label>Thời lượng mỗi ca / buổi / ngày (giờ)<input type="number" name="flex_duration" min="0" max="24" step="0.25" t-att-value="vals.get('flex_duration', '')" />
+                <small>Cần khai khi giá theo ca, buổi hoặc ngày.</small>
+              </label>
+            </div>
+            <fieldset data-work-recurring="1">
+              <legend>Lặp vào các ngày</legend>
+              <div class="fw-weekdays">
+                <label t-foreach="weekdays" t-as="o">
+                  <input type="checkbox" name="weekdays" t-att-value="o[0]" t-att-checked="o[0] in (vals.get('flex_weekdays') or '').split(',')" />
+                  <span t-esc="o[1]" />
+                </label>
+              </div>
+              <small>Một khung giờ áp dụng cho những ngày chọn. Lịch ngoại lệ ghi thêm bên dưới.</small>
+            </fieldset>
+            <label>Ghi chú lịch<input name="flex_schedule_note" maxlength="300" t-att-value="vals.get('flex_schedule_note', '')" placeholder="Ví dụ: Hẹn trước một ngày; không nhận ngày lễ" />
+            </label>
+          </section>
+          <section class="tc-card ix-form-section" id="work-price">
+            <p class="tc-eyebrow">04 / TIỀN CÔNG</p>
+            <h2 t-esc="'Mức bạn muốn nhận' if is_service else 'Ngân sách bạn dự kiến'" />
+            <p class="ix-section-help">Tách rõ tiền công với vật tư, đi lại và các khoản phát sinh.</p>
+            <div class="tc-form-grid">
+              <label>Mức tiền / từ mức (VND) *<input type="number" name="flex_rate_min" min="0" step="1000" t-att-value="vals.get('flex_rate_min', '')" required="required" />
+              </label>
+              <label>Đến mức (VND, nếu là khoảng)<input type="number" name="flex_rate_max" min="0" step="1000" t-att-value="vals.get('flex_rate_max', '')" />
+              </label>
+              <label>Đơn vị tính tiền công *<select name="flex_pay_unit" aria-describedby="work-price-unit-help">
+                  <option t-foreach="pay_units" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == vals.get('flex_pay_unit')" t-esc="o[1]" />
+                </select>
+              </label>
+              <label>Giá cho *<select name="flex_pay_basis">
+                  <option t-foreach="pay_bases" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == vals.get('flex_pay_basis')" t-esc="o[1]" />
+                </select>
+              </label>
+              <label t-if="is_service">Số giờ nhận tối thiểu mỗi lần<input type="number" name="flex_min_hours" min="0" step="0.25" t-att-value="vals.get('flex_min_hours', '')" />
+              </label>
+            </div>
+            <p id="work-price-unit-help" class="ix-section-help">Chọn đơn vị đúng với cách hai bên tính tiền. “Công việc” là mức tiền cho toàn bộ phạm vi đã mô tả; hãy ghi rõ số lượng, kết quả cần hoàn thành và chi phí đã bao gồm.</p>
+            <label>Giá đã gồm / chưa gồm<input name="flex_cost_note" maxlength="500" t-att-value="vals.get('flex_cost_note', '')" placeholder="Ví dụ: Chỉ tiền công, chủ có dụng cụ; nguyên liệu tính riêng" />
+            </label>
+            <label class="tc-check">
+              <input type="checkbox" name="flex_negotiable" t-att-checked="vals.get('flex_negotiable') == 'on'" /> Có thể thương lượng</label>
+          </section>
+          <label t-if="not is_service" class="tc-check">
+            <input type="checkbox" name="matching_enabled" t-att-checked="vals.get('matching_enabled') == 'on'" /> Cho phép đối chiếu tin này tại TA.CARE</label>
+          <section class="tc-card ix-form-section" id="work-extra">
+            <p class="tc-eyebrow">05 / BỔ SUNG KHI CẦN</p>
+            <h2>Chuẩn bị trước khi bắt đầu</h2>
+            <p class="ix-section-help">Bổ sung dụng cụ, kinh nghiệm và ảnh liên quan nếu có.</p>
+            <div class="tc-form-grid">
+              <label>Dụng cụ / vật tư<select name="flex_tools">
+                  <option t-foreach="work_tools" t-as="o" t-att-value="o[0]" t-att-selected="o[0] == vals.get('flex_tools')" t-esc="o[1]" />
+                </select>
+              </label>
+              <label>Dụng cụ cụ thể<input name="flex_tools_note" maxlength="500" t-att-value="vals.get('flex_tools_note', '')" />
+              </label>
+            </div>
+            <label>Kinh nghiệm / điều kiện liên quan (tùy chọn)<textarea name="flex_experience" rows="3">
+                <t t-esc="vals.get('flex_experience', '')" />
+              </textarea>
+            </label>
+            <details data-work-trip="1">
+              <summary>Thông tin chuyến / tài xế</summary>
+              <div class="tc-form-grid">
+                <label>Loại dịch vụ<select name="flex_trip_service">
+                    <option value="">Chưa chọn</option>
+                    <option value="driver" t-att-selected="vals.get('flex_trip_service') == 'driver'">Chỉ tài xế, xe của khách</option>
+                    <option value="vehicle" t-att-selected="vals.get('flex_trip_service') == 'vehicle'">Xe kèm tài xế</option>
+                  </select>
+                </label>
+                <label>Chiều chuyến<select name="flex_trip_direction">
+                    <option value="">Chưa chọn</option>
+                    <option value="oneway" t-att-selected="vals.get('flex_trip_direction') == 'oneway'">Một chiều</option>
+                    <option value="return" t-att-selected="vals.get('flex_trip_direction') == 'return'">Khứ hồi</option>
+                  </select>
+                </label>
+                <label>Điểm đến / tuyến nhận<input name="flex_destination" maxlength="250" t-att-value="vals.get('flex_destination', '')" />
+                </label>
+                <label>Số hành khách<input type="number" name="flex_passengers" min="0" max="100" t-att-value="vals.get('flex_passengers', '')" />
+                </label>
+                <label>Xe / hành lý / thời gian chờ<input name="flex_vehicle_note" maxlength="300" t-att-value="vals.get('flex_vehicle_note', '')" />
+                </label>
+              </div>
+              <p>Dữ liệu chuyến trong demo phục vụ thử biểu mẫu; thông tin giấy tờ là nội dung tự khai.</p>
+            </details>
+            <label>Ảnh hiện trạng / việc đã làm (tùy chọn)<input type="file" name="flex_image" accept="image/jpeg,image/png,image/webp" />
+              <small>Tối đa 5 MB. Chỉ tải ảnh được phép dùng; ảnh không tự chứng minh tay nghề.</small>
+            </label>
+            <label t-if="record and record.flex_image" class="tc-check">
+              <input type="checkbox" name="remove_image" /> Gỡ ảnh hiện tại</label>
+            <label>Liên kết sản phẩm (tùy chọn)<input type="url" name="flex_portfolio_url" maxlength="1000" t-att-value="vals.get('flex_portfolio_url', '')" placeholder="https://…" />
+            </label>
+          </section>
+          <div class="fw-form-actions">
+            <button type="submit" class="tc-button tc-outline" name="intent" value="draft" formnovalidate="formnovalidate">Lưu nháp</button>
+            <button type="submit" class="tc-button" name="intent" value="publish" t-esc="'Lưu và bật nhận việc' if is_service else 'Đăng việc'" />
+            <a t-att-href="'/tuhoso/profiles?kind=flexible' if is_service else '/kvl/flexible/mine'">Quay lại</a>
+          </div>
+        </div>
       </form>
     </t>
   </template>
-
   <template id="work_detail" name="Chi tiết việc linh hoạt">
     <t t-call="tacare_website.live_layout">
-      <p class="tc-breadcrumb"><a t-att-href="'/tuhoso/profiles?kind=flexible' if is_service else '/kvl/jobs?kind=flexible'">Việc linh hoạt</a> / Chi tiết</p>
-      <div class="fw-page-head"><div><p class="tc-eyebrow" t-esc="record.flex_category_id.name"/><h1 t-esc="record.title if is_service else record.name"/><p t-if="is_service" t-esc="record.profile_id.name"/><span t-if="record.flex_demo_key" class="fw-demo-badge">Dữ liệu giả lập để trải nghiệm demo</span></div><a t-if="owner" class="tc-button" t-att-href="('/tuhoso/work/%s/edit' if is_service else '/kvl/flexible/%s/edit') % record.id">Chỉnh sửa</a></div>
-      <figure class="fw-detail-photo"><img t-att-src="record._care_photo_url()" width="1200" height="600" t-att-alt="'Ảnh minh họa: ' + (record.flex_category_id.name or 'Công việc')"/><figcaption>Ảnh minh họa lĩnh vực công việc.</figcaption></figure><div t-if="role == 'admin'" class="tc-admin-actions"><a class="tc-delete-link" t-att-href="('/tuhoso/work/%s/remove' if is_service else '/kvl/job/%s/remove') % record.id" t-esc="'Xóa công việc nhận làm' if is_service else 'Xóa tin'"/></div><div class="tc-detail-grid"><div class="tc-stack"><section class="tc-card"><h2 t-esc="'Việc tôi nhận' if is_service else 'Việc cần làm'"/><p class="tc-prose" t-esc="record.description if is_service else record.tacare_description_text"/><h3>Đầu việc / kỹ năng <t t-esc="'đã khai' if is_service else 'cần có'"/></h3><div class="fw-tags"><span t-foreach="record.flex_skill_ids" t-as="s" t-esc="s.name"/></div><p t-if="not record.flex_skill_ids">Chưa khai kỹ năng riêng; cần trao đổi thêm.</p><t t-if="record.flex_preferred_skill_ids"><h3>Ưu tiên thêm</h3><div class="fw-tags"><span t-foreach="record.flex_preferred_skill_ids" t-as="s" t-esc="s.name"/></div></t></section>
-        <section class="tc-card"><h2>Cách làm và địa điểm</h2><dl class="fw-facts"><dt>Cách thực hiện</dt><dd t-esc="record._flex_label('flex_mode')"/><dt>Khu vực</dt><dd t-esc="record.flex_location or 'Từ xa, không yêu cầu nơi ở'"/><dt>Tỉnh / thành</dt><dd t-esc="record.flex_region_id.name or 'Không áp dụng'"/><t t-if="record.flex_destination"><dt>Điểm đến / tuyến</dt><dd t-esc="record.flex_destination"/></t><t t-if="record.flex_trip_service"><dt>Dịch vụ</dt><dd><t t-esc="record._flex_label('flex_trip_service')"/> · <t t-esc="record._flex_label('flex_trip_direction')"/></dd><dt>Xe / hành lý</dt><dd><t t-esc="record.flex_vehicle_note"/> · <t t-esc="record.flex_passengers"/> hành khách</dd></t></dl></section>
-        <section class="tc-card"><h2>Chuẩn bị và kinh nghiệm</h2><p t-esc="record._flex_label('flex_tools')"/><p class="tc-prose" t-esc="record.flex_tools_note"/><p class="tc-prose" t-esc="record.flex_experience or 'Chưa có thông tin kinh nghiệm / điều kiện bổ sung.'"/><a t-if="record.flex_portfolio_url" t-att-href="record.flex_portfolio_url" target="_blank" rel="noopener noreferrer">Xem liên kết sản phẩm </a><img t-if="record.flex_image" class="fw-evidence-image" t-att-src="('/tuhoso/work/%s/image' if is_service else '/kvl/flexible/%s/image') % record.id" alt="Ảnh do người đăng cung cấp, chưa xác minh"/></section></div>
-        <aside class="tc-stack"><section class="tc-card fw-detail-price"><p class="tc-eyebrow">TIỀN CÔNG THAM KHẢO</p><h2 t-esc="record._flex_price_label()"/><p t-esc="record.flex_cost_note or 'Các khoản bao gồm cần trao đổi thêm.'"/><p t-esc="'Có thể thương lượng' if record.flex_negotiable else 'Mức giá cố định theo phạm vi đã khai'"/><p t-if="record.flex_min_hours">Tối thiểu <t t-esc="'%g' % record.flex_min_hours"/> giờ/lần.</p></section><section class="tc-card"><h2>Thời gian</h2><p t-esc="record._flex_schedule_label()"/><p t-esc="record.flex_schedule_note"/><p t-if="not is_service">Cần <strong t-esc="'%g' % record.no_of_recruitment"/> người.</p></section>
-          <section t-if="owner and not is_service" class="tc-card"><h2>Tìm người phù hợp</h2><p>Đối chiếu tin này với những hồ sơ đã đồng ý chia sẻ tại TA.CARE.</p><a class="tc-button" t-att-href="urls['tacare'] + 'tacare/matching?job=%s' % record.id">Yêu cầu kết nối</a></section><section t-if="owner and is_service" class="tc-card"><h2>Tìm việc phù hợp</h2><a class="tc-button" t-att-href="urls['tacare'] + 'tacare/matching?profile_id=%s' % record.profile_id.id">Yêu cầu kết nối</a></section><section t-if="owner" class="tc-card"><h2>Quản lý trạng thái</h2><p t-esc="record._flex_label('flex_state') if is_service else dict(record._fields['tacare_status'].selection).get(record.tacare_status)"/><form class="fw-status-actions" method="post" t-att-action="('/tuhoso/work/%s/status' if is_service else '/kvl/flexible/%s/status') % record.id"><input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/><button t-if="(record.flex_state == 'available') if is_service else (record.tacare_status == 'published')" class="tc-button tc-outline" name="state" value="paused">Tạm ngừng</button><button t-if="(record.flex_state != 'available') if is_service else (record.tacare_status != 'published')" class="tc-button" name="state" t-att-value="'available' if is_service else 'published'">Mở lại</button><button t-if="not is_service and record.tacare_status in ('published', 'paused')" class="tc-button tc-plain" name="state" value="closed">Đóng tin</button></form></section>
-          <section t-elif="site == 'tacare'" class="tc-card"><h2>Mong muốn nhận việc</h2><p t-if="not reason or not reason.get('eligible')">Chọn hồ sơ có công việc nhận làm phù hợp và bật quyền đối chiếu trước khi gửi.</p><form t-else="" action="/tacare/request/send" method="post" class="tc-form"><input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/><input type="hidden" name="type" value="application"/><input type="hidden" name="job_id" t-att-value="record.id"/><input type="hidden" name="profile_id" t-att-value="profile.id"/><label>Lời nhắn<textarea name="message" rows="3" required="required" maxlength="2000"/></label><button class="tc-button" type="submit">Gửi mong muốn nhận việc</button></form><a href="/tacare/matching">Chọn hồ sơ khác</a></section><section t-else="" class="tc-card"><h2>Bạn có thể làm việc này?</h2><p>Ghi công việc bạn nhận vào hồ sơ để chuẩn bị cho bước kết nối tiếp theo.</p><a class="tc-button" t-att-href="urls['tuhoso'] + 'tuhoso/work/new'">Thêm vào việc tôi nhận</a></section>
-        </aside></div>
+      <p class="tc-breadcrumb">
+        <a t-att-href="'/tuhoso/profiles?kind=flexible' if is_service else '/kvl/jobs?kind=flexible'">Việc thời vụ</a> / Chi tiết</p>
+      <div class="fw-page-head ix-detail-heading">
+        <div>
+          <p class="tc-eyebrow" t-esc="record.flex_category_id.name" />
+          <h1 t-esc="record.title if is_service else record.name" />
+          <p t-if="is_service" t-esc="record.profile_id.name" />
+          <span t-if="record.flex_demo_key" class="fw-demo-badge">Dữ liệu giả lập để trải nghiệm demo</span>
+        </div>
+        <a t-if="owner" class="tc-button" t-att-href="('/tuhoso/work/%s/edit' if is_service else '/kvl/flexible/%s/edit') % record.id">Chỉnh sửa</a>
+      </div>
+      <div t-if="role == 'admin'" class="tc-admin-actions">
+        <a class="tc-delete-link" t-att-href="('/tuhoso/work/%s/remove' if is_service else '/kvl/job/%s/remove') % record.id" t-esc="'Xóa công việc nhận làm' if is_service else 'Xóa tin'" />
+      </div>
+      <div class="ix-detail-facts">
+        <span>
+          <t t-call="tacare_website.service_icon">
+            <t t-set="icon" t-value="'map-pin'" />
+          </t>
+          <t t-esc="record.flex_region_id.name or record._flex_label('flex_mode') or 'Cần trao đổi khu vực'" />
+        </span>
+        <span>
+          <t t-call="tacare_website.service_icon">
+            <t t-set="icon" t-value="'clock'" />
+          </t>
+          <t t-esc="record._flex_schedule_label()" />
+        </span>
+        <span>
+          <t t-call="tacare_website.service_icon">
+            <t t-set="icon" t-value="'stack'" />
+          </t>
+          <t t-esc="'Việc nhận làm' if is_service else 'Nhu cầu tìm người làm'" />
+        </span>
+      </div>
+      <div class="tc-detail-grid ix-detail-grid">
+        <div class="tc-stack ix-detail-content">
+          <figure class="fw-detail-photo">
+            <img t-att-src="record._care_photo_url()" width="1200" height="600" t-att-alt="'Ảnh minh họa: ' + (record.flex_category_id.name or 'Công việc')" />
+            <figcaption>Ảnh minh họa lĩnh vực công việc.</figcaption>
+          </figure>
+          <section class="tc-card">
+            <h2 t-esc="'Việc tôi nhận' if is_service else 'Việc cần làm'" />
+            <p class="tc-prose" t-esc="record.description if is_service else record.tacare_description_text" />
+            <h3>Đầu việc / kỹ năng <t t-esc="'đã khai' if is_service else 'cần có'" />
+            </h3>
+            <div class="fw-tags">
+              <span t-foreach="record.flex_skill_ids" t-as="s" t-esc="s.name" />
+            </div>
+            <p t-if="not record.flex_skill_ids">Chưa khai kỹ năng riêng; cần trao đổi thêm.</p>
+            <t t-if="record.flex_preferred_skill_ids">
+              <h3>Ưu tiên thêm</h3>
+              <div class="fw-tags">
+                <span t-foreach="record.flex_preferred_skill_ids" t-as="s" t-esc="s.name" />
+              </div>
+            </t>
+          </section>
+          <section class="tc-card">
+            <h2>Cách làm và địa điểm</h2>
+            <dl class="fw-facts">
+              <dt>Cách thực hiện</dt>
+              <dd t-esc="record._flex_label('flex_mode')" />
+              <dt>Khu vực</dt>
+              <dd t-esc="record.flex_location or ('Từ xa, không yêu cầu nơi ở' if record.flex_mode == 'remote' else 'Chưa khai khu vực cụ thể')" />
+              <dt>Tỉnh / thành</dt>
+              <dd t-esc="record.flex_region_id.name or ('Không áp dụng' if record.flex_mode == 'remote' else 'Chưa khai tỉnh / thành')" />
+              <t t-if="record.flex_destination">
+                <dt>Điểm đến / tuyến</dt>
+                <dd t-esc="record.flex_destination" />
+              </t>
+              <t t-if="record.flex_trip_service">
+                <dt>Dịch vụ</dt>
+                <dd>
+                  <t t-esc="record._flex_label('flex_trip_service')" /> · <t t-esc="record._flex_label('flex_trip_direction')" />
+                </dd>
+                <dt>Xe / hành lý</dt>
+                <dd>
+                  <t t-esc="record.flex_vehicle_note" /> · <t t-esc="record.flex_passengers" /> hành khách</dd>
+              </t>
+            </dl>
+          </section>
+          <section class="tc-card">
+            <h2>Chuẩn bị và kinh nghiệm</h2>
+            <p t-esc="record._flex_label('flex_tools')" />
+            <p class="tc-prose" t-esc="record.flex_tools_note" />
+            <p class="tc-prose" t-esc="record.flex_experience or 'Chưa có thông tin kinh nghiệm / điều kiện bổ sung.'" />
+            <a t-if="record.flex_portfolio_url" t-att-href="record.flex_portfolio_url" target="_blank" rel="noopener noreferrer">Xem liên kết sản phẩm </a>
+            <img t-if="record.flex_image" class="fw-evidence-image" t-att-src="('/tuhoso/work/%s/image' if is_service else '/kvl/flexible/%s/image') % record.id" alt="Ảnh do người đăng cung cấp, chưa xác minh" />
+          </section>
+        </div>
+        <aside class="tc-stack">
+          <section class="tc-card fw-detail-price">
+            <p class="tc-eyebrow">TIỀN CÔNG THAM KHẢO</p>
+            <h2 t-esc="record._flex_price_label()" />
+            <t t-call="tacare_website.work_price_note" />
+            <p t-esc="record.flex_cost_note or 'Các khoản bao gồm cần trao đổi thêm.'" />
+            <p t-esc="'Có thể thương lượng' if record.flex_negotiable else 'Mức giá cố định theo phạm vi đã khai'" />
+            <p t-if="record.flex_min_hours">Tối thiểu <t t-esc="'%g' % record.flex_min_hours" /> giờ/lần.</p>
+          </section>
+          <section class="tc-card">
+            <h2>Thời gian</h2>
+            <p t-esc="record._flex_schedule_label()" />
+            <p t-esc="record.flex_schedule_note" />
+            <p t-if="not is_service">Cần <strong t-esc="'%g' % record.no_of_recruitment" /> người.</p>
+          </section>
+          <section t-if="owner and not is_service" class="tc-card">
+            <h2>Tìm người phù hợp</h2>
+            <p>Đối chiếu tin này với những hồ sơ đã đồng ý chia sẻ tại TA.CARE.</p>
+            <a class="tc-button" t-att-href="urls['tacare'] + 'tacare/matching?view=hire&amp;job=%s' % record.id">Xem gợi ý phù hợp</a>
+          </section>
+          <section t-if="owner and is_service" class="tc-card">
+            <h2>Tìm việc phù hợp</h2>
+            <a class="tc-button" t-att-href="urls['tacare'] + 'tacare/matching?view=receive&amp;profile_id=%s' % record.profile_id.id">Xem gợi ý phù hợp</a>
+          </section>
+          <section t-if="owner" class="tc-card">
+            <h2>Quản lý trạng thái</h2>
+            <p t-esc="record._flex_label('flex_state') if is_service else dict(record._fields['tacare_status'].selection).get(record.tacare_status)" />
+            <form class="fw-status-actions" method="post" t-att-action="('/tuhoso/work/%s/status' if is_service else '/kvl/flexible/%s/status') % record.id">
+              <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+              <button t-if="(record.flex_state == 'available') if is_service else (record.tacare_status == 'published')" class="tc-button tc-outline" name="state" value="paused">Tạm ngừng</button>
+              <button t-if="(record.flex_state != 'available') if is_service else (record.tacare_status != 'published')" class="tc-button" name="state" t-att-value="'available' if is_service else 'published'">Mở lại</button>
+              <button t-if="not is_service and record.tacare_status in ('published', 'paused')" class="tc-button tc-plain" name="state" value="closed">Đóng tin</button>
+            </form>
+          </section>
+          <section t-elif="site == 'tacare'" class="tc-card">
+            <h2>Mong muốn nhận việc</h2>
+            <p t-if="not reason or not reason.get('eligible')">Chọn hồ sơ có công việc nhận làm phù hợp và bật quyền đối chiếu trước khi gửi.</p>
+            <form t-else="" action="/tacare/request/send" method="post" class="tc-form">
+              <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+              <input type="hidden" name="type" value="application" />
+              <input type="hidden" name="job_id" t-att-value="record.id" />
+              <input type="hidden" name="profile_id" t-att-value="profile.id" />
+              <label>Lời nhắn<textarea name="message" rows="3" required="required" maxlength="2000" />
+              </label>
+              <button class="tc-button" type="submit">Gửi mong muốn nhận việc</button>
+            </form>
+            <a href="/tacare/matching">Chọn hồ sơ khác</a>
+          </section>
+          <section t-else="" class="tc-card">
+            <h2>Bạn có thể làm việc này?</h2>
+            <p>Chọn hồ sơ nhận việc để đối chiếu điều kiện và gửi lời kết nối tại TA.CARE.</p>
+            <a class="tc-button" t-att-href="urls['tacare'] + 'tacare/job/%s' % record.id">Xem ghép nối công việc</a>
+          </section>
+        </aside>
+      </div>
     </t>
   </template>
 </odoo>

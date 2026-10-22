@@ -1,3 +1,7 @@
+> **Thiết kế hiện tại 22/10/2026:** Kho/Tủ đã chuyển sang Everyday services sau nghiên cứu các marketplace. Xem [thiết kế và kiểm tra local](research/implementation_service_design_2026-10-22.md). Addon website 19.0.11.0.0; dữ liệu nghiệp vụ không đổi trong lần sửa giao diện này.
+
+> **Phạm vi mới 22/10/2026, sau trao đổi mentor:** chỉ việc thời vụ/đầu việc, bỏ tuyển dụng. Cá nhân được dùng cả ba site và đăng nhu cầu; doanh nghiệp dùng Kho + TA.CARE. Đã backup local, xóa 5 tin + 3 hồ sơ tuyển dụng; còn 15 tin thời vụ, 3 hồ sơ, 12 mục nhận làm. Không còn tạo `hr.applicant` từ kết nối. Các mô tả tuyển dụng và con số 20/6 bên dưới là lịch sử, không dùng làm hướng dẫn phát hành hiện tại. Gói dữ liệu cũ chứa tuyển dụng bị từ chối; chưa chuẩn bị hoặc triển khai gói mới. Xem [phạm vi hiện tại](project_scope.md), [triển khai local](research/implementation_seasonal_only_2026-10-22.md).
+
 # Odoo backend local for three websites
 
 > **Phát hành 20/10/2026:** [hai chế độ code / kèm dữ liệu demo](deploy_modes.md) đã được chuẩn bị và kiểm tra local. Chưa cài trên server, chưa commit/push đợt này. Người vận hành tự cài script bằng bộ lệnh trong hướng dẫn; mặc định không nhập dữ liệu local.
@@ -132,3 +136,94 @@ Addon `tacare_website` 19.0.9.0.0 adds structured work and education entries to 
 Kiểm chứng bổ sung hồ sơ tuyển dụng: Chrome PASS admin/owner/cross-profile/consent và form tạo/sửa, 1440/375/320 px; ORM recruitment + schema rollback PASS; HTTP ba trang chủ/login PASS. Đã dọn QA, đối chiếu 20 việc làm / 6 hồ sơ gắn account / 12 offer và 3 kinh nghiệm + 3 học tập mẫu. Xem `docs/research/implementation_recruitment_profile_2026-10-21.md`.
 
 22/10/2026: đã chuẩn bị bundle `tacare.demo.v2`, kiểm thử Odoo rollback và công cụ deploy offline/container; 4 portal + 58 bản ghi nghiệp vụ gồm các mục hồ sơ mới. Gói JSON riêng ở ignored runtime, không commit hash mật khẩu. Hướng dẫn vận hành hiện tại: `docs/deploy_current_data_2026-10-22.md`. Chưa push/cài gate hoặc nhập server.
+
+
+### Điều hướng và trang bên trong — 22/10/2026, addon 19.0.12.0.0
+
+Giữ nguyên nội dung/bố cục trang chủ Kho và Tủ theo phê duyệt; navbar ba sản phẩm có Trang chủ, tên mục rõ và nền màu cho tab hiện tại. TA.CARE dùng trang chủ mới giới thiệu hai phía và căn cứ ghép nối. Chi tiết việc, form nhu cầu/dịch vụ, giới thiệu hồ sơ, trang ghép nối/kết nối dùng bố cục thống nhất.
+
+Trang hồ sơ mở từ gợi ý dùng `/tacare/matching/<job_id>/profile/<profile_id>` với chủ tin/quyền tổ chức và consent hiện hành; các route tuyển dụng cũ vẫn khóa. Xem [ghi chú triển khai, nguồn tham khảo và kiểm tra](research/navigation_interiors_2026-10-22.md), ảnh trong `docs/screenshots/navigation-interiors-20261022/`. Chỉ cập nhật local, không push/deploy.
+
+
+### Rà soát tối 22/10/2026 — addon 19.0.13.0.0
+
+Header ba website hiển thị tên người đăng nhập. Khung nội dung dùng chung max 1280px; danh sách chủ tin chiếm toàn hàng khi không có sidebar; nhãn bộ lọc 16px. TA.CARE chuyển sang plum/lavender, đưa gợi ý theo tài khoản và ba thẻ ví dụ có ảnh ngay sau hero. Trang ví dụ trình bày riêng hai phía và các căn cứ. Matching khi chưa có nhu cầu đủ điều kiện có hướng dẫn và CTA đăng mới trên đúng Kho host. [Chi tiết, nguồn ảnh và kiểm tra](research/hub_review_2026-10-22.md). Không đổi schema hoặc deploy production.
+
+
+### Chiều ngang màn hình rộng — 23/10/2026
+
+Theo yêu cầu làm rõ, bỏ trần 1280px tại `hub_review.scss`; khung ba sản phẩm co theo màn hình với lề 48/24/20px. Trước sửa, viewport 1920px chỉ có khung 1280px và lề 320px mỗi bên. Chỉ đổi CSS và restart local; không cập nhật database, commit hoặc deploy.
+
+Đã đo bằng Chrome headless trên `/vi` của cả ba home tại 320/375/768/1100/1440/1920/2560px: khung header bằng khung nội dung, đúng lề và không tràn ngang/lỗi JS. Ở 1920px, nội dung rộng 1824px, lề 48px mỗi bên. Ảnh trong `docs/screenshots/fluid-width-20261023/`. Security scan 282 tệp và `git diff --check` PASS.
+
+
+### Header hai hàng — 23/10/2026
+
+Theo yêu cầu mới, `service_navigation` có `.sx-brand-row` chứa logo và tên tài khoản, `.sx-navigation-row` chứa navbar và `.sx-header-actions` (Cách hoạt động, đăng nhập/đăng xuất, Đăng nhu cầu/Tạo hồ sơ). Giữ active tab, liên kết và native auth. Đã backup ignored `backups/header_rows_20261023/tacare_local.dump`, kiểm tra pg_restore list, update addon và restart local. Chrome kiểm tra guest và một tài khoản QA có tên dài trên cả ba website, 320/375/768/1100/1280/1440/1920px: tên ở trên, desktop menu/nút chung hàng, không tràn, tab đúng và logout thật PASS. XML, security scan 282 tệp và diff whitespace PASS. Ảnh tại `docs/screenshots/header-rows-20261023/`; tài khoản QA và file credentials riêng được dọn. Không commit/push/deploy.
+
+
+### Header theo trạng thái đăng nhập — 23/10/2026
+
+Yêu cầu mới thay phần phân hàng ở trên: khách có Cách hoạt động / Đăng nhập / Đăng nhu cầu hoặc Tạo hồ sơ căn giữa theo chiều dọc giữa hàng thương hiệu và navbar trên desktop. Người đăng nhập có tên tài khoản và Đăng xuất ở hàng trên; Cách hoạt động và CTA ngang hàng navbar bên dưới. Shared QWeb thêm trạng thái guest/authenticated và nhóm account/logout; CSS cuối dùng grid cho guest, responsive wrap cho màn hình nhỏ. Native URL đăng nhập, SSO, logout và trạng thái tab giữ nguyên.
+
+- Backup local mới: `backups/header_states_20261023/tacare_local.dump`, quyền thư mục 700 / tệp 600; `pg_restore --list` thành công.
+- Cập nhật `tacare_website` bằng Odoo `--stop-after-init` trên `tacare_local`, exit 0; restart local. Không đổi schema.
+- XML parser chuẩn Python PASS (máy host không có lxml); security scanner PASS 282 tệp; `git diff --check` PASS.
+- Chrome/Playwright `/tmp/tacare-header-states-check.cjs`: cả 3 homepage guest và đăng nhập, viewport 320/375/768/1100/1280/1440/1920 PASS; kiểm tra nhóm nút guest căn giữa, tên dài + logout hàng trên, help/create cùng navbar desktop, không chồng lấn/tràn ngang, active Trang chủ, native login + SSO + logout, không lỗi JavaScript. Ảnh ở `docs/screenshots/header-states-20261023/`; đã xem ảnh desktop cả hai trạng thái và mobile đăng nhập.
+- Một tài khoản QA hư cấu tạm thời được tạo và xoá sau kiểm tra; tệp credentials private đã xoá. Không sửa jobs/profiles hoặc dữ liệu demo hiện có.
+- Chỉ áp dụng local; chưa commit, push hay deploy production.
+
+
+### Thử tông màu ba website — 23/10/2026
+
+Chủ dự án yêu cầu đổi thử màu độc lập với logo. Bản thử: Kho cobalt/apricot, Tủ terracotta/cream, TA.CARE petrol/ice. `service_palette.scss` đăng ký cuối asset bundle; CSS service/interior/hub review chuyển màu cố định của giao diện sang token. Giữ nguyên layout, ảnh, logo, routes, quyền và dữ liệu hiện có. Chi tiết token trong `docs/design-system/everyday-services.md`.
+
+- Backup local `backups/palette_trial_20261023/tacare_local.dump`, quyền thư mục 700/tệp 600, `pg_restore --list` PASS. Update `tacare_website --stop-after-init` exit 0, restart local; không đổi schema.
+- Chrome/Playwright `/tmp/tacare-palette-check.cjs` PASS: cả ba home guest + đăng nhập, logo/nav không đổi cấu trúc, native login và SSO, tab hiện tại, dialog/hover, Kho danh sách + chi tiết + form, Tủ form mới, hub ví dụ + matching. Kiểm tra viewport 320/375/768/1440 không tràn ngang, không lỗi JS, cả ba homepage marker đúng. Đo contrast token chữ/nền chính/soft/panel/footer >=4.5:1; nút trắng/brand và hover >=4.5:1; control border/trắng >=3:1; focus form hiện rõ. Đây là kiểm tra các cặp màu và trang nêu trên, không phải audit WCAG toàn hệ thống.
+- Đã xem ảnh ba homepage desktop, chi tiết Kho desktop và form Tủ mobile. Ảnh ở `docs/screenshots/palette-trial-20261023/`; báo cáo màu riêng không chứa tài khoản ở `/tmp/tacare-palette-report.json`.
+- Manifest parse + kiểm tra không có vòng token PASS; security scan 283 tệp PASS; diff whitespace PASS. Một account QA hư cấu tạm đã xoá, file credentials private đã dọn. Không thêm/sửa jobs/profiles.
+- Chỉ cập nhật local để chủ dự án đánh giá màu; chưa commit/push/deploy.
+
+### Điều chỉnh tiếp màu Kho/Tủ — 23/10/2026
+
+Chủ dự án giữ palette TA.CARE, yêu cầu đổi lại Kho/Tủ. Chỉ hai block `tc-jobs`/`tc-profiles` trong `service_palette.scss` đổi về xanh đậm – kem trước bản thử; toàn bộ token hub giữ nguyên. Restart local, không upgrade database, không đổi schema/dữ liệu. Chrome `/tmp/tacare-palette-refinement-check.cjs` PASS ba homepage HTTP/marker, màu thực render, contrast chữ/nút >=4.5:1, viewport 320/375/768/1440 không tràn/lỗi JS; đã xem ảnh Kho/Tủ desktop. Evidence `docs/screenshots/palette-refinement-20261023/`. Security scan 283 tệp + diff whitespace PASS. Không tạo account QA, commit, push hay deploy.
+
+### Kho/Tủ xanh sâu hơn — 23/10/2026
+
+Theo yêu cầu tiếp theo, chỉ token Kho/Tủ trong `service_palette.scss` đổi sang forest green `#0b2e24`, hover `#061f18`, ink `#162b21`, accent `#24513b`, control border `#70846f`. Block TA.CARE đã đối chiếu giữ nguyên. Restart Odoo local, không upgrade database. Chrome `/tmp/tacare-deeper-green-check.cjs` PASS cả ba homepage HTTP/marker, palette thực tế, contrast, không tràn tại 320/375/768/1440 và không lỗi JavaScript. Chữ chính Kho/Tủ trên nền kem đạt 14.35:1; nút/hover chữ trắng đạt >=4.5:1. Đã xem ảnh Kho desktop; ảnh cả ba tại `docs/screenshots/palette-deeper-green-20261023/`. Security scan 283 tệp và diff whitespace PASS. Không đổi dữ liệu hoặc commit/push/deploy.
+
+
+### Bỏ nhãn “trọn việc”, làm rõ đơn vị tiền công — 23/10/2026
+
+Owner chỉ ra nhãn cũ vẫn còn. `PAY_UNITS` đổi nhãn `task` thành “Công việc”; shared formatter dùng “900.000đ / công việc”. Không sửa key, số tiền, phạm vi giá hoặc đơn vị lưu trong jobs/offers. Shared detail template giải thích mức cho toàn bộ phạm vi mô tả; shared-profile offer trong hub gọi cùng note. Form Kho/Tủ có hướng dẫn được select liên kết bằng `aria-describedby`. Nhãn mới tự áp dụng cho bộ lọc, thẻ tin và gợi ý dùng formatter.
+
+Backup ignored `backups/work_price_labels_20261023/tacare_local.dump`, quyền 700/600 và pg_restore list PASS. Python/XML parse PASS; update addon exit 0 và restart local. `/tmp/tacare-work-price-check.py` Odoo shell PASS formatter trên job/offer bản ghi không lưu, giá khoảng/cả nhóm/mỗi người/giờ/chưa khai, template note có cho task và không có cho hour; transaction rollback. Chọn đọc tin task demo 900.000đ để kiểm tra HTTP, không đổi tin.
+
+Chrome `/tmp/tacare-work-price-browser-check.cjs` PASS: bộ lọc task/thẻ, chi tiết Kho và hub hiển thị nhãn + giải thích, form Kho/Tủ option mới + hướng dẫn + default hour giữ nguyên, native login/SSO, 3 home marker; 320/375/1440 không tràn và không lỗi JS. Không submit form. Ảnh `docs/screenshots/work-price-20261023/`, đã xem chi tiết Kho desktop đúng 900.000đ / công việc. Một tài khoản QA hư cấu được tạo rồi xoá; tệp private credentials đã xoá. Security scan 283 tệp và git diff whitespace PASS. Không commit/push/deploy production.
+
+
+### Tủ Hồ Sơ: trang tổng quan và thư viện riêng — 23/10/2026
+
+Theo yêu cầu chủ dự án về cấu trúc khác và bỏ banner ảnh trong Hồ sơ của tôi, homepage Tủ hiện là nội dung tổng quan chung; root không tự gọi private library sau đăng nhập nữa. `/tuhoso/profiles` giữ sidebar, ngăn hồ sơ ngang, tìm kiếm, phạm vi mine/all và thao tác; đã bỏ carousel workspace. Gallery minh họa chỉ nằm trên homepage, mặc định dừng. Không sửa domain/ACL/consent/profile ownership. `sites/tuhoso/views/service_design.xml`, CSS riêng `static/src/tuhoso/scss/portfolio.scss` và nhánh index trong `controllers/main.py` là phần triển khai; Kho và hub giữ cấu trúc/màu.
+
+[Quyết định, tham chiếu và kiểm chứng bản cuối](research/tuhoso_portfolio_refresh_2026-10-23.md): backup `backups/tuhoso_portfolio_20261023/tacare_local.dump` đã kiểm tra, addon upgrade exit 0 + restart local. Python/XML/asset checks, Chrome guest/owner/admin, native login/SSO, trang chủ tổng quan sau login, scope/ownership và profile_id, search/empty, gallery keyboard/reduced motion/focus/images, 320–1920 responsive và ba homepage marker PASS. Đã xem ảnh homepage tổng quan và thư viện không banner trong `docs/screenshots/tuhoso-overview-20261023/`. Security scanner 285 tệp + diff whitespace PASS. Dọn đúng 2 account/2 profile/3 offer QA hư cấu, không consent grants, tệp credentials private đã xóa. Không đổi schema hoặc dữ liệu hồ sơ gốc; không commit/push/deploy.
+
+
+### Nhóm nghề Tủ Hồ Sơ chung một hàng — 23/10/2026
+
+Sửa flex wrap làm Nông nghiệp đứng lẻ trên home Tủ: CSS riêng dùng 9 cột đều trên desktop và một hàng cuộn ngang dưới 1100px; các ô bằng chiều cao. Kho/TA.CARE không đổi. `navigation.js` giữ ô đang focus hiện đủ trong scroller Tủ; chừa đệm để viền focus không bị cắt. Không đổi template/database. Restart Odoo local. Chrome `/tmp/tuhoso-category-row-check.cjs` PASS tại 320/375/768/1100/1110/1280/1440/1600/1920: 9 ô cùng hàng, rộng/cao bằng nhau, desktop vừa đủ cả 9, màn hình nhỏ cuộn/Tab đến Nông nghiệp hiện đủ, không tràn trang hoặc lỗi JS; hai marker home còn lại giữ nguyên. Ảnh `docs/screenshots/tuhoso-category-row-20261023/`, đã xem hàng desktop. Node syntax, security scan 285 tệp và git diff whitespace PASS. Không dữ liệu QA, commit/push/deploy.
+
+### Phân biệt màu Kho/Tủ — 23/10/2026
+
+Theo nhận xét hai sản phẩm dùng cùng xanh lá dễ nhầm, chỉ block Tủ trong `service_palette.scss` đổi sang navy `#24385a`, nền blue-gray `#f5f7fc`, soft surfaces xanh nhạt. Đã đối chiếu phần source còn lại của palette không đổi: Kho forest `#0b2e24`, hub petrol `#116879`. Chỉ CSS token + restart local, không update database/fixtures. Chrome `/tmp/tacare-distinct-palettes-check.cjs` PASS ba homepage, palette thực render, nền tab active, các cặp chữ/body/soft/footer/nút/hover >=4.5:1 và viền control/trắng >=3:1, bố cục 320/375/768/1440 không tràn, 9 nhóm nghề Tủ vẫn chung hàng desktop, các marker đúng và không lỗi JS. Tủ chữ chính/nền 13.07:1, chữ trắng/nút 11.74:1. Ảnh `docs/screenshots/distinct-palettes-20261023/`, đã xem homepage Tủ desktop. Security scan 285 text files và diff whitespace PASS. Không đổi bố cục/quyền/dữ liệu hoặc tạo QA; không commit/push/deploy.
+
+
+### Chuẩn bị commit nhánh seasonal-platform-ui — 23/10/2026
+
+Theo yêu cầu chủ dự án, tạo nhánh local `update/seasonal-platform-ui` từ `main` để commit đợt chuyển phạm vi thời vụ và giao diện. Không push hoặc merge bởi agent; người vận hành làm theo `docs/git_release_workflow.md`. Workflow deploy đối chiếu trong repository: push main/manual dispatch, mặc định code-only; không có data trailer hoặc bundle mới trong lần commit này. Không tự xoá dữ liệu tuyển dụng production.
+
+Kiểm tra trước stage: Python AST 80 file, XML parse 39 file và Node syntax 20 file PASS; scanner source 286 text files PASS, git whitespace PASS. `dev_seasonal_scope_check.py` Odoo shell rollback PASS: chặn tạo/đổi sang tuyển dụng kể cả context default, vai trò cá nhân ba site, owner isolation, portal write denial và membership capability/suspension. Cập nhật selector logout của các kiểm tra theo vị trí header hiện tại và màu hub petrol.
+
+Đã chạy lại `seasonal_browser_check.cjs` PASS các homepage/responsive, đăng nhu cầu cá nhân/doanh nghiệp, giữ input khi lỗi, lời mời C2C, người gửi không tự nhận, receiver accept, quyền liên hệ đúng bên thuê được cấp/thu hồi, outsider và route tuyển dụng bị từ chối, admin chỉnh metadata và tạo hồ sơ chỉ thời vụ. `service_design_browser_check.cjs` PASS taxonomy, gallery keyboard/paused/reduced-motion, bộ lọc/ảnh chi tiết, thư viện owner/admin, tạo hồ sơ có tên gợi ý và responsive 320/375/768/1440, không lỗi JS/asset. QA hư cấu chỉ local, credentials không stage; cleanup theo script sau kiểm tra. Không đọc hoặc kiểm tra server production trong đợt chuẩn bị commit.
+
+`cleanup_seasonal_qa.py` hoàn tất exit 0: xóa đúng dữ liệu và tài khoản QA của đợt kiểm tra, giữ nguyên 15 việc, 3 hồ sơ, 12 dịch vụ mẫu gốc và audit. Tệp credentials QA trong runtime đã được xóa.

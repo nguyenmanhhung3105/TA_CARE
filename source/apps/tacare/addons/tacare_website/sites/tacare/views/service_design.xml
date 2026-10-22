@@ -1,0 +1,468 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <template id="hub_everyday_home" name="TA.CARE · Nơi những khả năng gặp nhau">
+    <div class="hx-home sx-page">
+      <section class="hx-hero sx-shell">
+        <div class="hx-hero-copy">
+          <p class="sx-kicker">TA.CARE / KẾT NỐI CÔNG VIỆC THỜI VỤ</p>
+          <h1>Việc bạn cần.<br />Khả năng <span>quanh bạn.</span>
+          </h1>
+          <p>Một người cần việc được hoàn thành. Một người có thể làm. TA.CARE giúp hai phía tìm điều phù hợp để bắt đầu.</p>
+          <div class="hx-hero-actions">
+            <a class="sx-button" href="/tacare/matching?view=hire">Tôi cần người làm<t t-call="tacare_website.service_icon">
+                <t t-set="icon" t-value="'arrow-right'" />
+              </t>
+            </a>
+            <a t-if="'tuhoso' in switch_sites" class="sx-button sx-button-light" href="/tacare/matching?view=receive">Tôi muốn nhận việc</a>
+          </div>
+          <a class="sx-text-link" href="/how-it-works">Hiểu cách TA.CARE kết nối<t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'arrow-right'" />
+            </t>
+          </a>
+        </div>
+        <div class="hx-connection-scene" aria-label="Minh họa đối chiếu giữa nhu cầu dọn nhà và khả năng nhận làm">
+          <p class="hx-scene-label">MỘT KẾT NỐI CÓ THỂ BẮT ĐẦU TỪ…</p>
+          <div class="hx-scene-pair">
+            <article class="hx-scene-need">
+              <span class="hx-scene-icon">
+                <t t-call="tacare_website.service_icon">
+                  <t t-set="icon" t-value="'house'" />
+                </t>
+              </span>
+              <small>BÊN CẦN NGƯỜI</small>
+              <h2>Nhà cần dọn.<br />Chiều thứ Bảy.</h2>
+              <p>Dọn bếp và phòng khách<br />Khoảng 3 giờ thực hiện</p>
+            </article>
+            <div class="hx-scene-bridge">
+              <span />
+              <t t-call="tacare_website.service_icon">
+                <t t-set="icon" t-value="'handshake'" />
+              </t>
+              <span />
+            </div>
+            <article class="hx-scene-offer">
+              <span class="hx-scene-icon">
+                <t t-call="tacare_website.service_icon">
+                  <t t-set="icon" t-value="'broom'" />
+                </t>
+              </span>
+              <small>BÊN NHẬN LÀM</small>
+              <h2>Khéo việc nhà.<br />Rảnh cuối tuần.</h2>
+              <p>Nhận vệ sinh căn hộ<br />Lịch và khu vực đã khai</p>
+            </article>
+          </div>
+          <div class="hx-scene-result">
+            <span>
+              <t t-call="tacare_website.service_icon">
+                <t t-set="icon" t-value="'check'" />
+              </t>Đầu việc</span>
+            <span>
+              <t t-call="tacare_website.service_icon">
+                <t t-set="icon" t-value="'check'" />
+              </t>Lịch nhận làm</span>
+            <span>Cần chốt chi phí</span>
+          </div>
+          <small class="hx-scene-caption">Tình huống minh họa · hai bên cần trao đổi để xác nhận</small>
+        </div>
+      </section>
+      <section t-if="home_suggestions and role != 'admin'" class="sx-shell hz-personal" id="home-suggestions">
+        <div class="hz-section-title">
+          <div>
+            <p class="sx-kicker">GỢI Ý DÀNH CHO BẠN</p>
+            <h2>Bắt đầu từ điều phù hợp.</h2>
+            <p>Từ nhu cầu và hồ sơ được phép đối chiếu của tài khoản đang đăng nhập.</p>
+          </div>
+          <a class="sx-text-link" href="/tacare/matching">Mở không gian ghép nối<t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'arrow-right'" />
+            </t>
+          </a>
+        </div>
+        <div class="hz-personal-group">
+          <div class="hz-group-heading">
+            <span class="hz-role-tag">TÔI CẦN NGƯỜI</span>
+            <h3 t-esc="home_suggestions['selected'].name if home_suggestions['selected'] else 'Bạn đang có việc cần người làm?'" />
+          </div>
+          <div t-if="home_suggestions['hire']" class="hz-suggestion-grid">
+            <article t-foreach="home_suggestions['hire']" t-as="pair" class="hz-suggestion-card" t-att-data-suggested-profile="pair[0].id">
+              <img t-att-src="home_suggestions['selected']._care_photo_url()" width="400" height="240" alt="Ảnh minh họa nhóm công việc, không phải ảnh người nhận làm" loading="lazy" />
+              <div>
+                <small>HỒ SƠ ĐÃ CHO PHÉP ĐỐI CHIẾU</small>
+                <h3 t-esc="pair[0].profile_title or pair[0].name" />
+                <p t-esc="pair[0].headline or 'Xem thông tin nhận làm và điều kiện hai bên.'" />
+                <a class="sx-text-link" t-att-href="'/tacare/matching/%s/profile/%s' % (home_suggestions['selected'].id, pair[0].id)">Xem căn cứ phù hợp<t t-call="tacare_website.service_icon">
+                    <t t-set="icon" t-value="'arrow-right'" />
+                  </t>
+                </a>
+              </div>
+            </article>
+          </div>
+          <div t-else="" class="hz-home-empty">
+            <p t-esc="'Chưa có hồ sơ được phép đề xuất cho nhu cầu này. Bạn có thể xem và điều chỉnh thông tin đối chiếu.' if home_suggestions['selected'] else 'Đăng một nhu cầu, bật đối chiếu để tìm người nhận làm theo điều kiện của bạn.'" />
+            <a class="sx-button sx-button-light" t-att-href="'/tacare/matching?view=hire&amp;job=%s' % home_suggestions['selected'].id if home_suggestions['selected'] else urls['khovieclam'] + 'kvl/flexible/new'" t-esc="'Xem nhu cầu đối chiếu' if home_suggestions['selected'] else 'Đăng nhu cầu'" />
+          </div>
+        </div>
+        <div t-if="home_suggestions['can_receive']" class="hz-personal-group">
+          <div class="hz-group-heading">
+            <span class="hz-role-tag">TÔI MUỐN NHẬN VIỆC</span>
+            <h3 t-esc="home_suggestions['profile'].profile_title or home_suggestions['profile'].name if home_suggestions['profile'] else 'Giới thiệu một việc bạn làm tốt.'" />
+          </div>
+          <div t-if="home_suggestions['receive']" class="hz-suggestion-grid">
+            <article t-foreach="home_suggestions['receive']" t-as="pair" class="hz-suggestion-card" t-att-data-suggested-job="pair[0].id">
+              <img t-att-src="pair[0]._care_photo_url()" width="400" height="240" alt="Ảnh minh họa nhóm công việc" loading="lazy" />
+              <div>
+                <small t-esc="pair[0].flex_category_id.name" />
+                <h3 t-esc="pair[0].name" />
+                <p t-esc="pair[0]._flex_price_label()" />
+                <a class="sx-text-link" t-att-href="'/tacare/job/%s?profile_id=%s' % (pair[0].id, home_suggestions['profile'].id)">Xem việc và căn cứ<t t-call="tacare_website.service_icon">
+                    <t t-set="icon" t-value="'arrow-right'" />
+                  </t>
+                </a>
+              </div>
+            </article>
+          </div>
+          <div t-else="" class="hz-home-empty">
+            <p t-esc="'Chưa có việc phù hợp để gợi ý. Kiểm tra việc nhận làm, lịch, khu vực và quyền đối chiếu của hồ sơ.' if home_suggestions['profile'] else 'Tạo hồ sơ nhận việc để giới thiệu khả năng, lịch và khu vực bạn có thể làm.'" />
+            <a class="sx-button sx-button-light" t-att-href="urls['tuhoso'] + 'tuhoso/profile/%s' % home_suggestions['profile'].id if home_suggestions['profile'] else urls['tuhoso'] + 'tuhoso/profiles/new?kind=flexible'" t-esc="'Mở hồ sơ nhận việc' if home_suggestions['profile'] else 'Tạo hồ sơ nhận việc'" />
+          </div>
+        </div>
+      </section>
+      <section t-if="admin_overview" class="sx-shell sm-admin-overview hx-admin" id="admin-matching">
+        <div class="sx-section-heading">
+          <div>
+            <p class="sx-kicker">KHÔNG GIAN QUẢN TRỊ</p>
+            <h2>Những gợi ý đang có căn cứ.</h2>
+            <p>Chỉ sử dụng hồ sơ có quyền chia sẻ hiện hành.</p>
+          </div>
+          <a class="sx-text-link" href="/tacare/matching?view=hire">Mở trang ghép nối</a>
+        </div>
+        <form method="get" action="/#admin-matching" class="sm-library-search">
+          <label>Nhu cầu cần đối chiếu<select name="home_job">
+              <option value="">Các nhu cầu gần nhất</option>
+              <option t-foreach="admin_overview['jobs']" t-as="j" t-att-value="j.id" t-att-selected="str(j.id) == admin_overview['selected_id']" t-esc="j.name" />
+            </select>
+          </label>
+          <button type="submit" class="tc-button tc-outline">Xem gợi ý</button>
+        </form>
+        <div class="sm-profile-grid">
+          <article t-foreach="admin_overview['pairs']" t-as="pair" class="tc-card">
+            <p class="sx-kicker">NHU CẦU VÀ HỒ SƠ</p>
+            <h3 t-esc="pair['job'].name" />
+            <p t-esc="pair['profile'].profile_title or pair['profile'].name" />
+            <a t-att-href="'/tacare/matching?view=hire&amp;job=%s' % pair['job'].id">Xem căn cứ ghép nối</a>
+          </article>
+        </div>
+        <p t-if="not admin_overview['pairs']">Chưa có hồ sơ được phép đề xuất cho các nhu cầu đang kiểm tra.</p>
+      </section>
+      <section class="hz-examples sx-shell" id="examples">
+        <div class="hz-section-title">
+          <div>
+            <p class="sx-kicker">BA TÌNH HUỐNG, BA CÁCH NHÌN</p>
+            <h2>Một kết nối bắt đầu thế nào?</h2>
+            <p>Ví dụ hư cấu giúp bạn hiểu điều đã phù hợp và điều còn cần trao đổi.</p>
+          </div>
+          <a class="sx-text-link" href="/tacare/examples">Xem toàn bộ ví dụ<t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'arrow-right'" />
+            </t>
+          </a>
+        </div>
+        <div class="hz-example-grid">
+          <t t-foreach="home_examples" t-as="sample" t-call="tacare_website.hub_example_card" />
+        </div>
+      </section>
+      <section class="hx-doorways sx-shell" aria-label="Ba không gian cùng kết nối">
+        <a t-att-href="urls['khovieclam']">
+          <span class="hx-door-icon" data-tone="mint">
+            <t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'storefront'" />
+            </t>
+          </span>
+          <div>
+            <small>KHO VIỆC LÀM</small>
+            <h2>Có việc cần người?</h2>
+            <p>Đăng nhu cầu theo giờ, theo ca hoặc theo đầu việc.</p>
+          </div>
+          <t t-call="tacare_website.service_icon">
+            <t t-set="icon" t-value="'arrow-right'" />
+          </t>
+        </a>
+        <a t-if="'tuhoso' in switch_sites" t-att-href="urls['tuhoso']">
+          <span class="hx-door-icon" data-tone="butter">
+            <t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'stack'" />
+            </t>
+          </span>
+          <div>
+            <small>TỦ HỒ SƠ</small>
+            <h2>Có việc bạn làm giỏi?</h2>
+            <p>Giới thiệu đầu việc, khu vực và lịch bạn nhận làm.</p>
+          </div>
+          <t t-call="tacare_website.service_icon">
+            <t t-set="icon" t-value="'arrow-right'" />
+          </t>
+        </a>
+        <a href="/tacare/connections">
+          <span class="hx-door-icon" data-tone="lilac">
+            <t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'handshake'" />
+            </t>
+          </span>
+          <div>
+            <small>TA.CARE</small>
+            <h2>Cùng trao đổi cho rõ.</h2>
+            <p>Xem lời mời, phản hồi và quyết định chia sẻ liên hệ.</p>
+          </div>
+          <t t-call="tacare_website.service_icon">
+            <t t-set="icon" t-value="'arrow-right'" />
+          </t>
+        </a>
+      </section>
+      <section class="hx-basis sx-shell">
+        <div class="hx-basis-intro">
+          <p class="sx-kicker">PHÙ HỢP PHẢI CÓ LÝ DO</p>
+          <h2>Cùng một nghề.<br />Cần thêm nhiều điều<br />để hợp nhau.</h2>
+          <p>TA.CARE đối chiếu thông tin hai phía đã cho phép chia sẻ. Điều chưa khai sẽ được ghi nhận là cần làm rõ.</p>
+          <a class="sx-text-link" href="/tacare/examples">Xem 3 tình huống minh họa<t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'arrow-right'" />
+            </t>
+          </a>
+        </div>
+        <div class="hx-basis-grid">
+          <article>
+            <t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'hammer'" />
+            </t>
+            <h3>Đúng việc có thể làm</h3>
+            <p>Phạm vi, đầu việc và kỹ năng liên quan.</p>
+          </article>
+          <article>
+            <t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'calendar-blank'" />
+            </t>
+            <h3>Hợp lịch, hợp khu vực</h3>
+            <p>Cách thực hiện, thời gian và nơi nhận làm.</p>
+          </article>
+          <article>
+            <t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'sliders-horizontal'" />
+            </t>
+            <h3>Rõ điều kiện hai phía</h3>
+            <p>Tiền công, dụng cụ và những gì cần trao đổi thêm.</p>
+          </article>
+          <article>
+            <t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'lock-simple'" />
+            </t>
+            <h3>Chủ động quyền chia sẻ</h3>
+            <p>Chủ hồ sơ quyết định tham gia và cấp quyền liên hệ.</p>
+          </article>
+        </div>
+      </section>
+      <t t-call="tacare_website.service_steps" />
+    </div>
+  </template>
+  <template id="hub_everyday_rollout" inherit_id="tacare_website.seasonal_hub_home" priority="1400">
+    <xpath expr="//t[@t-call='tacare_website.seasonal_home']" position="attributes">
+      <attribute name="t-call">tacare_website.hub_everyday_home</attribute>
+    </xpath>
+  </template>
+  <template id="hub_matching_workspace" inherit_id="tacare_website.seasonal_matching" priority="1400">
+    <xpath expr="//div[hasclass('sm-page')]" position="attributes">
+      <attribute name="class">sm-page hx-matching</attribute>
+    </xpath>
+    <xpath expr="//h1" position="replace">
+      <h1 t-esc="'Tìm người phù hợp với việc của bạn.' if seasonal_view == 'hire' else 'Tìm việc phù hợp với khả năng của bạn.'" />
+    </xpath>
+    <xpath expr="//div[hasclass('sm-match-grid')]" position="before">
+      <div t-if="kind != 'profiles' or jobs" class="hx-results-heading">
+        <h2>Gợi ý để bạn cân nhắc</h2>
+        <p>
+          <strong t-esc="len(matches)" /> kết quả · xem căn cứ trước khi gửi lời kết nối</p>
+      </div>
+    </xpath>
+    <xpath expr="//article" position="replace">
+      <article t-foreach="matches" t-as="pair" class="tc-card sm-match-card hx-match-card">
+        <t t-set="item" t-value="pair[0]" />
+        <t t-set="reason" t-value="pair[1]" />
+        <div class="hx-match-summary">
+          <p class="sx-kicker" t-esc="'VIỆC CẦN NGƯỜI' if kind == 'jobs' else 'HỒ SƠ NHẬN VIỆC'" />
+          <h2 t-esc="item.name if kind == 'jobs' else item.profile_title or item.name" />
+          <p class="sm-muted">Thông tin tự khai · cần hai bên xác nhận</p>
+          <a class="sx-text-link" t-att-href="'/tacare/job/%s?profile_id=%s' % (item.id, profile.id) if kind == 'jobs' else '/tacare/matching/%s/profile/%s' % (selected.id, item.id)">Xem thông tin chi tiết<t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'arrow-right'" />
+            </t>
+          </a>
+        </div>
+        <div class="hx-match-basis">
+          <h3>Căn cứ đối chiếu hai phía</h3>
+          <t t-call="tacare_website.comparison_rows">
+            <t t-set="comparisons" t-value="reason['comparisons']" />
+          </t>
+        </div>
+        <div class="hx-match-contact">
+          <h3 class="hx-message-heading">Bắt đầu bằng một lời trao đổi</h3>
+          <p class="ix-section-help">Nêu lịch có thể làm, phạm vi cần chốt hoặc điều bạn muốn hỏi thêm.</p>
+          <form action="/tacare/request/send" method="post" class="tc-form">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+            <input type="hidden" name="type" t-att-value="'application' if kind == 'jobs' else 'invitation'" />
+            <input type="hidden" name="job_id" t-att-value="item.id if kind == 'jobs' else selected.id" />
+            <input type="hidden" name="profile_id" t-att-value="profile.id if kind == 'jobs' else item.id" />
+            <label>Lời nhắn<textarea name="message" rows="4" required="required" maxlength="2000" placeholder="Chào bạn, mình muốn trao đổi thêm về…" />
+            </label>
+            <button class="tc-button" type="submit" t-esc="'Gửi đề nghị nhận việc' if kind == 'jobs' else 'Mời trao đổi công việc'" />
+          </form>
+          <p class="tc-help">Thông tin liên hệ chỉ được chia sẻ khi có sự đồng ý riêng của chủ hồ sơ sau khi hai bên chấp nhận trao đổi.</p>
+        </div>
+      </article>
+    </xpath>
+  </template>
+  <template id="hub_connections_workspace" inherit_id="tacare_website.live_connections" priority="1400">
+    <xpath expr="//h1" position="replace">
+      <h1>Kết nối của tôi</h1>
+    </xpath>
+    <xpath expr="//div[hasclass('tc-page-head')]/p[last()]" position="replace">
+      <p>Theo dõi lời mời và đề nghị nhận việc. Mở từng kết nối để xem phản hồi và bước tiếp theo.</p>
+    </xpath>
+    <xpath expr="//div[hasclass('tc-list')]" position="attributes">
+      <attribute name="class">tc-list hx-connections</attribute>
+    </xpath>
+    <xpath expr="//article/a[last()]" position="attributes">
+      <attribute name="class">sx-text-link</attribute>
+    </xpath>
+    <xpath expr="//p[hasclass('tc-empty')]" position="replace">
+      <div t-if="not items" class="sm-empty">
+        <t t-call="tacare_website.service_icon">
+          <t t-set="icon" t-value="'handshake'" />
+        </t>
+        <h2>Kết nối đầu tiên bắt đầu từ bạn.</h2>
+        <p>Khi gửi hoặc nhận lời mời, bạn có thể xem và phản hồi tại đây.</p>
+        <a class="tc-button" href="/tacare/matching">Tìm gợi ý phù hợp</a>
+      </div>
+    </xpath>
+  </template>
+  <template id="hub_connection_workspace" inherit_id="tacare_website.live_connection_detail" priority="1400">
+    <xpath expr="//div[hasclass('tc-detail-grid')]" position="attributes">
+      <attribute name="class">tc-detail-grid ix-detail-grid hx-connection-detail</attribute>
+    </xpath>
+    <xpath expr="//section/h2" position="replace">
+      <h2>Lời nhắn và thông tin đã chia sẻ</h2>
+    </xpath>
+    <xpath expr="//aside/h2" position="replace">
+      <h2>Bước tiếp theo</h2>
+      <p class="ix-section-help">Phản hồi phù hợp với trạng thái hiện tại của kết nối.</p>
+    </xpath>
+    <xpath expr="//option[@value='joined']" position="replace">
+      <option value="joined">Đã thống nhất nhận việc</option>
+    </xpath>
+    <xpath expr="//p[@t-if='item.result']/span" position="attributes">
+      <attribute name="t-esc">'Đã thống nhất nhận việc' if item.result == 'joined' else dict(item._fields['result'].selection).get(item.result)</attribute>
+    </xpath>
+  </template>
+  <template id="hub_shared_profile_everyday" inherit_id="tacare_website.kvl_candidate_detail" priority="1500">
+    <xpath expr="//t[@t-call='tacare_website.live_layout']" position="replace">
+      <t t-call="tacare_website.live_layout">
+        <p class="tc-breadcrumb">
+          <a t-att-href="urls['tacare'] + 'tacare/matching?view=hire&amp;job=%s' % job.id">Tìm người phù hợp</a> / Hồ sơ đã chia sẻ</p>
+        <div class="tc-page-head">
+          <p class="sx-kicker">HỒ SƠ NHẬN VIỆC / ĐÃ CHO PHÉP CHIA SẺ</p>
+          <h1 t-esc="profile.profile_title or profile.name" />
+          <p t-esc="profile.headline or 'Chủ hồ sơ chưa bổ sung giới thiệu ngắn.'" />
+        </div>
+        <div class="tc-detail-grid ix-detail-grid hx-shared-profile">
+          <div class="tc-stack">
+            <section class="tc-card">
+              <h2>Giới thiệu và việc nhận làm</h2>
+              <p>
+                <strong t-esc="profile.name" />
+              </p>
+              <p class="tc-prose" t-esc="profile.bio or 'Chưa bổ sung giới thiệu.'" />
+              <p t-if="profile.goal" class="tc-prose" t-esc="profile.goal" />
+              <p class="tc-help">Thông tin tự khai, cần xác nhận khi trao đổi. Liên hệ được cấp quyền riêng sau khi hai bên đồng ý.</p>
+            </section>
+            <section class="tc-card">
+              <h2>Các việc đang nhận làm</h2>
+              <article t-foreach="profile.capability_ids.filtered(lambda s: s.active and s.flex_state == 'available')" t-as="service" class="hx-shared-offer">
+                <img t-att-src="service._care_photo_url()" width="180" height="130" alt="Ảnh minh họa nhóm công việc" loading="lazy" />
+                <div>
+                  <p class="sx-kicker" t-esc="service.flex_category_id.name" />
+                  <h3 t-esc="service.title" />
+                  <p class="tc-prose" t-esc="service.description" />
+                  <strong t-esc="service._flex_price_label()" />
+                  <t t-call="tacare_website.work_price_note"><t t-set="record" t-value="service" /></t>
+                  <p>
+                    <t t-esc="service.flex_region_id.name or service._flex_label('flex_mode')" /> · <t t-esc="service._flex_schedule_label()" />
+                  </p>
+                  <small t-esc="service.flex_cost_note or 'Các khoản bao gồm cần trao đổi thêm.'" />
+                </div>
+              </article>
+              <p t-if="not profile.capability_ids.filtered(lambda s: s.active and s.flex_state == 'available')">Chưa có việc đang nhận làm được chia sẻ.</p>
+            </section>
+            <section class="tc-card hx-match-basis">
+              <p class="sx-kicker">ĐỐI CHIẾU VỚI NHU CẦU CỦA BẠN</p>
+              <h2 t-esc="job.name" />
+              <t t-call="tacare_website.comparison_rows" />
+            </section>
+            <section class="tc-card">
+              <h2>Minh chứng đã cho phép chia sẻ</h2>
+              <article t-foreach="evidence" t-as="item" class="hx-evidence">
+                <h3 t-esc="item.title" />
+                <p t-esc="item.description or ''" />
+                <small t-esc="dict(item._fields['status'].selection).get(item.status)" />
+                <a t-if="item.url" class="sx-text-link" t-att-href="item.url" target="_blank" rel="noopener noreferrer">Xem liên kết minh chứng</a>
+              </article>
+              <p t-if="not evidence">Chưa có minh chứng được chia sẻ.</p>
+            </section>
+          </div>
+          <aside class="tc-card">
+            <p class="sx-kicker">BẮT ĐẦU TRAO ĐỔI</p>
+            <h2>Gửi lời mời nhận việc</h2>
+            <p>Chủ hồ sơ nhận lời mời trong tài khoản và chủ động phản hồi.</p>
+            <form action="/tacare/request/send" method="post" class="tc-form">
+              <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+              <input type="hidden" name="type" value="invitation" />
+              <input type="hidden" name="job_id" t-att-value="job.id" />
+              <input type="hidden" name="profile_id" t-att-value="profile.id" />
+              <label>Nội dung lời mời<textarea name="message" rows="5" required="required" maxlength="2000" placeholder="Nêu đầu việc, lịch dự kiến và điều bạn muốn trao đổi thêm…" />
+              </label>
+              <button t-if="can_invite" class="tc-button" type="submit">Mời trao đổi công việc</button>
+              <p t-else="" class="tc-error">Chưa có căn cứ phù hợp để gửi lời mời. Xem các điều kiện cần làm rõ.</p>
+            </form>
+          </aside>
+        </div>
+      </t>
+    </xpath>
+  </template>
+  <template id="hub_example_card" name="TA.CARE · Thẻ tình huống minh họa">
+    <article class="hz-example-card" t-att-data-example="sample['key']">
+      <a class="hz-example-photo" t-att-href="'/tacare/examples#' + sample['key']" tabindex="-1" aria-hidden="true">
+        <img t-att-src="'/tacare_website/static/src/img/services/%s.webp' % sample['photo']" width="720" height="480" alt="" loading="lazy" />
+        <span>Ví dụ hư cấu</span>
+      </a>
+      <div class="hz-example-body">
+        <div class="hz-example-meta">
+          <small t-esc="sample['category']" />
+          <span class="hz-outcome" t-att-data-state="sample['state']" t-esc="sample['badge']" />
+        </div>
+        <h3>
+          <a t-att-href="'/tacare/examples#' + sample['key']" t-esc="sample['job']" />
+        </h3>
+        <p class="hz-example-profile">
+          <t t-call="tacare_website.service_icon">
+            <t t-set="icon" t-value="'handshake'" />
+          </t>
+          <span t-esc="sample['profile']" />
+        </p>
+        <p class="hz-example-fact">
+          <t t-call="tacare_website.service_icon">
+            <t t-set="icon" t-value="'clock'" />
+          </t>
+          <span t-esc="sample['schedule']" />
+        </p>
+        <strong class="hz-example-price" t-esc="sample['price']" />
+        <a class="sx-text-link" t-att-href="'/tacare/examples#' + sample['key']">Xem cách đối chiếu<t t-call="tacare_website.service_icon">
+            <t t-set="icon" t-value="'arrow-right'" />
+          </t>
+        </a>
+      </div>
+    </article>
+  </template>
+</odoo>

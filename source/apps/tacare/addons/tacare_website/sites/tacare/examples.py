@@ -6,6 +6,10 @@ from ...controllers.profiles import TacareProfiles
 
 
 class TacareExamples(TacareProfiles):
+    @http.route('/how-it-works', auth='public', website=True, methods=['GET'])
+    def seasonal_journey(self, **kw):
+        return self._render('seasonal_journey', site='tacare')
+
     def _example_cards(self):
         scenarios = [
             ('Dọn căn hộ sáng thứ Bảy', 'Người nhận dọn nhà theo giờ', 'Có căn cứ để trao đổi', [
@@ -14,11 +18,11 @@ class TacareExamples(TacareProfiles):
                 ('Lịch', 'met', 'Bên thuê cần 08:00–11:00 thứ Bảy; bên nhận khai 08:00–12:00.'),
                 ('Tiền công', 'met', 'Ngân sách 80.000đ/giờ, mức nhận từ 65.000đ/giờ, cùng cách tính mỗi người.'),
                 ('Dụng cụ', 'unknown', 'Cần chốt danh sách hóa chất và dụng cụ trước khi làm.')]),
-            ('Frontend cho sản phẩm giáo dục', 'Hồ sơ Frontend Junior', 'Cần bổ sung thông tin', [
-                ('JavaScript và CSS', 'met', 'Có trong kỹ năng tự khai của hồ sơ mẫu.'),
-                ('Cách làm', 'met', 'Cả hai chọn kết hợp.'),
-                ('Kinh nghiệm', 'unknown', 'Hồ sơ chưa nêu số tháng cho đúng nhóm nghề.'),
-                ('Thu nhập', 'unknown', 'Chưa đủ thông tin gross/net để đối chiếu.')]),
+            ('Thiết kế ấn phẩm cho quán cà phê', 'Người nhận thiết kế theo sản phẩm', 'Cần bổ sung thông tin', [
+                ('Đầu ra', 'met', 'Cùng mô tả một poster và các kích thước bàn giao.'),
+                ('Cách làm', 'met', 'Cả hai nhận trao đổi từ xa.'),
+                ('Lịch', 'unknown', 'Cần xác nhận hạn gửi bản nháp và số vòng chỉnh sửa.'),
+                ('Chi phí', 'unknown', 'Chưa chốt phí tài nguyên có bản quyền và phần phát sinh.')]),
             ('Chăm vườn vào thứ Hai', 'Người nhận chăm cây cuối tuần', 'Không đưa vào gợi ý hiện tại', [
                 ('Đầu việc', 'met', 'Cùng nhóm chăm cây và thay chậu.'),
                 ('Ngày trong tuần', 'unmet', 'Tin cần thứ Hai; hồ sơ chỉ nhận thứ Bảy và Chủ nhật.'),
@@ -27,7 +31,30 @@ class TacareExamples(TacareProfiles):
         examples = [dict(job=j, profile=p, outcome=o, comparisons=[dict(name=n, result=r,
             basis=b, mandatory=True, category='Ví dụ hư cấu') for n, r, b in rows])
             for j, p, o, rows in scenarios]
+        visual = [
+            ('cleaning', 'cleaning', 'Dọn nhà theo giờ', '80.000đ / giờ / người', 'Sáng thứ Bảy · TP.HCM', 'Có thể trao đổi', 'met'),
+            ('digital', 'digital', 'Thiết kế theo đầu việc', 'Cần thống nhất chi phí', 'Làm từ xa · Theo sản phẩm', 'Cần làm rõ', 'unknown'),
+            ('garden', 'garden', 'Chăm cây theo buổi', 'Chưa chốt tiền công', 'Tin cần thứ Hai · Hồ sơ rảnh cuối tuần', 'Lịch chưa phù hợp', 'unmet'),
+        ]
+        for example, (key, photo, category, price, schedule, badge, state) in zip(examples, visual):
+            example.update(key=key, photo=photo, category=category, price=price, schedule=schedule,
+                           badge=badge, state=state)
+        amounts = [('80.000đ / giờ / người', 'Từ 65.000đ / giờ / người', 'Thứ Bảy, 08:00–11:00', 'Thứ Bảy, 08:00–12:00'),
+                   ('Cần thống nhất chi phí', 'Chưa báo giá đầy đủ', 'Làm từ xa, cần chốt hạn bàn giao', 'Nhận thiết kế theo sản phẩm'),
+                   ('Chưa chốt tiền công', 'Chưa chốt tiền công', 'Cần làm vào thứ Hai', 'Chỉ nhận thứ Bảy và Chủ nhật')]
+        for example, (need_price, offer_price, need_schedule, offer_schedule) in zip(examples, amounts):
+            example.update(need_price=need_price, offer_price=offer_price, need_schedule=need_schedule, offer_schedule=offer_schedule)
         return examples
+
+    def _home_suggestions(self):
+        self._flex_user()
+        jobs, selected, hire = self._hire_matching_data()
+        data = {'jobs': jobs, 'selected': selected, 'hire': hire[:3], 'profile': False, 'receive': [],
+                'can_receive': self._role() != 'business'}
+        if data['can_receive']:
+            profile = self._my_profile()
+            data.update(profile=profile, receive=self._receive_matching_data(profile)[:3] if profile else [])
+        return data
 
     @http.route('/tacare/examples', auth='user', website=True, methods=['GET'])
     def examples(self, **kw):

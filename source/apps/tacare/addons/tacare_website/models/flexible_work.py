@@ -10,7 +10,7 @@ WORK_MODES = [('onsite', 'Trực tiếp'), ('remote', 'Từ xa'), ('hybrid', 'K�
 SCHEDULES = [('once', 'Một lần'), ('recurring', 'Định kỳ'),
              ('deadline', 'Theo hạn bàn giao'), ('flexible', 'Linh hoạt, cần hẹn')]
 PAY_UNITS = [('hour', 'Giờ'), ('shift', 'Ca'), ('session', 'Buổi'), ('day', 'Ngày'),
-             ('month', 'Tháng'), ('task', 'Trọn việc / gói'), ('product', 'Sản phẩm'), ('trip', 'Chuyến')]
+             ('month', 'Tháng'), ('task', 'Công việc'), ('product', 'Sản phẩm'), ('trip', 'Chuyến')]
 PAY_BASES = [('person', 'Mỗi người'), ('team', 'Cả nhóm'), ('package', 'Cả việc / gói / chuyến')]
 WEEKDAYS = [(str(i), label) for i, label in enumerate(
     ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ nhật'])]
@@ -91,10 +91,14 @@ class FlexibleWorkMixin(models.AbstractModel):
                   'farm': 'farm', 'loading': 'warehouse', 'repair': 'tools',
                   'tutoring': 'learning', 'digital': 'digital', 'driving': 'driving', 'pets': 'cat'}
         category = self.flex_category_id.code
+        if category in ('cleaning', 'cooking', 'garden', 'farm', 'loading', 'repair', 'tutoring', 'digital', 'pets'):
+            return '/tacare_website/static/src/img/services/%s.webp' % category
         if self._name == 'hr.job' and self.care_opportunity_kind == 'recruitment':
             category = {'it': 'digital', 'marketing': 'digital', 'health': 'health',
                         'education': 'tutoring', 'logistics': 'loading'}.get(self.tacare_sector, '')
-        return '/tacare_website/static/src/img/work-%s.jpg' % photos.get(category, 'team')
+        if category not in photos:
+            return '/tacare_website/static/src/img/services/placeholder.svg'
+        return '/tacare_website/static/src/img/work-%s.jpg' % photos[category]
 
     def _flex_label(self, field):
         self.ensure_one()
@@ -108,7 +112,7 @@ class FlexibleWorkMixin(models.AbstractModel):
         value = money(self.flex_rate_min)
         if self.flex_rate_max and self.flex_rate_max != self.flex_rate_min:
             value += '–' + money(self.flex_rate_max)
-        unit = 'trọn việc' if self.flex_pay_unit == 'task' else self._flex_label('flex_pay_unit').lower()
+        unit = 'công việc' if self.flex_pay_unit == 'task' else self._flex_label('flex_pay_unit').lower()
         basis = '' if self.flex_pay_basis == 'package' else ' · ' + self._flex_label('flex_pay_basis').lower()
         return '%sđ / %s%s' % (value, unit, basis)
 
@@ -159,8 +163,8 @@ class FlexibleJob(models.Model):
     _inherit = ['hr.job', 'care.flex.mixin']
 
     care_opportunity_kind = fields.Selection([('recruitment', 'Tuyển dụng'),
-                                               ('flexible', 'Việc linh hoạt')],
-                                              default='recruitment', required=True, index=True)
+                                               ('flexible', 'Việc thời vụ')],
+                                              default='flexible', required=True, index=True)
     flex_skill_ids = fields.Many2many('hr.skill', 'care_flex_job_skill_rel')
     flex_preferred_skill_ids = fields.Many2many('hr.skill', 'care_flex_job_preferred_rel')
 
@@ -222,5 +226,5 @@ class FlexibleCapability(models.Model):
 class FlexibleProfile(models.Model):
     _inherit = 'tacare.profile'
 
-    care_recruitment_enabled = fields.Boolean(default=True)
+    care_recruitment_enabled = fields.Boolean(default=False)
     flex_demo_key = fields.Char(index=True, copy=False)

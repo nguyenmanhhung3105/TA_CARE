@@ -5,3 +5,5 @@ from . import profile_comparison
 from . import flexible_work
 
 from . import recruitment_profile
+
+from . import seasonal_scope

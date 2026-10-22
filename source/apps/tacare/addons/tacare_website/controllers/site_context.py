@@ -5,7 +5,7 @@ from odoo.http import request
 
 
 SITE_LABELS = {'khovieclam': 'Kho Việc Làm', 'tuhoso': 'Tủ Hồ Sơ', 'tacare': 'TA.CARE'}
-ROLE_SITES = {'business': ('khovieclam', 'tacare'), 'candidate': ('tuhoso', 'tacare'),
+ROLE_SITES = {'business': ('khovieclam', 'tacare'), 'candidate': ('khovieclam', 'tuhoso', 'tacare'),
               'admin': tuple(SITE_LABELS), 'pending': ()}
 
 

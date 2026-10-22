@@ -1,3 +1,5 @@
+> **Phạm vi mới 22/10/2026, sau trao đổi mentor:** chỉ việc thời vụ/đầu việc, bỏ tuyển dụng. Cá nhân được dùng cả ba site và đăng nhu cầu; doanh nghiệp dùng Kho + TA.CARE. Đã backup local, xóa 5 tin + 3 hồ sơ tuyển dụng; còn 15 tin thời vụ, 3 hồ sơ, 12 mục nhận làm. Không còn tạo `hr.applicant` từ kết nối. Các mô tả tuyển dụng và con số 20/6 bên dưới là lịch sử, không dùng làm hướng dẫn phát hành hiện tại. Gói dữ liệu cũ chứa tuyển dụng bị từ chối; chưa chuẩn bị hoặc triển khai gói mới. Xem [phạm vi hiện tại](project_scope.md), [triển khai local](research/implementation_seasonal_only_2026-10-22.md).
+
 # Chọn phát hành có hoặc không kèm dữ liệu
 
 **Cập nhật 22/10/2026:** bộ hiện tại là bundle v2 (20 tin, 6 hồ sơ, 12 offer và các mục hồ sơ chi tiết). Dùng [hướng dẫn phát hành hiện tại](deploy_current_data_2026-10-22.md). Các con số v1 bên dưới là phạm vi lịch sử ngày 20/10; không dùng lại gói cũ cho dữ liệu mới.

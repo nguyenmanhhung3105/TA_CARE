@@ -74,7 +74,7 @@ class ProfileControllers(http.Controller):
     def my_profile(self, **kw):
         profile = self._editable_profile(kw['profile_id']) if kw.get('profile_id') else self._my_profile()
         if not profile:
-            return request.redirect('/tuhoso/profiles/new?kind=recruitment')
+            return request.redirect('/tuhoso/profiles/new?kind=flexible')
         if not profile.care_recruitment_enabled:
             return self._render('profile_metadata_editor', site='tuhoso', profile=profile, vals=self._profile_values(profile), error=False)
         return self._render('live_profile', site='tuhoso', profile=profile, edit=True,

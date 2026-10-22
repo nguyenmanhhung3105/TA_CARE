@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="profile_metadata_everyday" inherit_id="tacare_website.profile_metadata_editor" priority="1400">
+    <xpath expr="//t[@t-call='tacare_website.live_layout']" position="replace">
+      <t t-call="tacare_website.live_layout">
+        <p class="tc-breadcrumb"><a t-att-href="'/tuhoso/profile/%s' % profile.id">Hồ sơ nhận việc</a> / Chỉnh sửa giới thiệu</p>
+        <div class="tc-page-head"><p class="sx-kicker">TỦ HỒ SƠ / GIỚI THIỆU CỦA BẠN</p><h1>Cho mọi người biết<br/>bạn làm tốt điều gì.</h1><p>Giới thiệu chung cho hồ sơ này. Lịch, khu vực và tiền công được điền riêng trong từng việc nhận làm.</p></div>
+        <div class="ix-metadata-layout">
+          <div><p t-if="profile.user_id != request.env.user" class="rp-admin-notice">Bạn đang chỉnh sửa hồ sơ của <t t-esc="profile.user_id.name"/>. Quyền chia sẻ thuộc chủ hồ sơ.</p><p t-if="error" role="alert" class="tc-error" t-esc="error" id="profile-editor-error" tabindex="-1"/>
+            <form action="/tuhoso/profile/save" method="post" class="tc-form ix-metadata-form">
+              <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/><input type="hidden" name="profile_id" t-att-value="profile.id"/><input type="hidden" name="profile_version" t-att-value="profile.version"/>
+              <section class="tc-card"><p class="sx-kicker">01 / TÊN VÀ LỜI GIỚI THIỆU</p><h2>Một hồ sơ, một hướng nhận việc.</h2><div class="tc-form-grid"><label>Tên hồ sơ *<input name="profile_title" required="required" minlength="2" maxlength="160" t-att-value="vals.get('profile_title','')" placeholder="Ví dụ: Chăm vườn và cây cảnh cuối tuần"/></label><label>Họ tên hiển thị *<input name="name" required="required" minlength="2" maxlength="160" t-att-value="vals.get('name','')"/></label></div><label>Giới thiệu trong một câu<input name="headline" maxlength="180" t-att-value="vals.get('headline','')" placeholder="Ví dụ: Khéo chăm cây, nhận việc theo buổi tại nhà"/><small>Nêu khả năng nổi bật và loại việc bạn nhận làm.</small></label></section>
+              <section class="tc-card"><p class="sx-kicker">02 / KHẢ NĂNG VÀ MONG MUỐN</p><h2>Kể rõ hơn về cách bạn làm việc.</h2><label>Giới thiệu về bạn<textarea name="bio" rows="6" placeholder="Bạn làm được những việc gì? Kể một việc đã làm, dụng cụ quen dùng hoặc cách bạn phối hợp."><t t-esc="vals.get('bio','')"/></textarea></label><label>Bạn muốn nhận những việc nào?<textarea name="goal" rows="4" placeholder="Những nhóm việc, phạm vi nhận làm hoặc điều bạn muốn trao đổi trước."><t t-esc="vals.get('goal','')"/></textarea></label></section>
+              <div class="fw-form-actions"><button class="tc-button" type="submit">Lưu hồ sơ</button><a t-att-href="'/tuhoso/profile/%s' % profile.id">Trở về hồ sơ</a></div>
+            </form>
+          </div>
+          <aside class="ix-profile-tip"><span class="hx-door-icon" data-tone="butter"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'stack'"/></t></span><h2>Việc nhỏ, kể cụ thể.</h2><p>“Nhận chăm cây ban công, thay đất và tỉa cành nhẹ” giúp người cần hiểu hơn một lời giới thiệu chung.</p><hr/><h3>Tiếp theo là gì?</h3><p>Lưu giới thiệu rồi thêm từng việc nhận làm: phạm vi, lịch, khu vực và mức tiền công.</p><a class="sx-text-link" t-att-href="'/tuhoso/profile/%s' % profile.id">Xem các việc trong hồ sơ</a><small>Quyền tìm thấy và đối chiếu được quản lý riêng tại trang hồ sơ.</small></aside>
+        </div>
+      </t>
+    </xpath>
+  </template>
+  <template id="profile_overview_everyday" inherit_id="tacare_website.seasonal_profile_detail" priority="1400">
+    <xpath expr="//div[hasclass('sm-page')]" position="attributes"><attribute name="class">sm-page ix-profile-overview</attribute></xpath>
+    <xpath expr="//section[hasclass('sm-sharing')]" position="attributes"><attribute name="class">tc-card sm-sharing ix-sharing</attribute></xpath>
+    <xpath expr="//section[hasclass('sm-sharing')]/h2" position="before"><p class="sx-kicker">BẠN QUYẾT ĐỊNH AI ĐƯỢC BIẾT</p></xpath>
+  </template>
+</odoo>

@@ -1,0 +1,97 @@
+/* Palette trial, 23 October 2026. Keep geometry, photography and logo assets intact. */
+.tc-live {
+  --sx-surface:#fff;
+  --sx-focus:var(--sx-brand);
+  --sx-shadow:rgba(27,42,67,.07);
+  --sx-peach:#ffeadb;
+  --sx-butter:#ffedcc;
+  --sx-sky:#e1edf9;
+  --sx-lilac:#ece7f6;
+  --sx-rose:#f8e3e5;
+
+  &.tc-jobs {
+    --sx-paper:#fbfaf6;
+    --sx-ink:#162b21;
+    --sx-muted:#526257;
+    --sx-brand:#0b2e24;
+    --sx-brand-hover:#061f18;
+    --sx-accent:#24513b;
+    --sx-mint:#e4eee4;
+    --sx-lime:#d8edaa;
+    --sx-panel:#f4f3ed;
+    --sx-footer:#f0f1e9;
+    --sx-line:#e3e7dd;
+    --sx-control-border:#70846f;
+    --sx-peach:#f3ded2;
+    --sx-butter:#f8e6ac;
+    --sx-sky:#dcebf3;
+    --sx-lilac:#e8dff3;
+    --sx-rose:#f4dedf;
+  }
+  &.tc-profiles {
+    --sx-paper:#f5f7fc;
+    --sx-ink:#1f2c43;
+    --sx-muted:#56647a;
+    --sx-brand:#24385a;
+    --sx-brand-hover:#18283f;
+    --sx-accent:#445d86;
+    --sx-mint:#e7edf7;
+    --sx-lime:#d6e1f4;
+    --sx-panel:#edf1f8;
+    --sx-footer:#e8edf5;
+    --sx-line:#d8e0ec;
+    --sx-control-border:#7f8da4;
+    --sx-peach:#f1e0d7;
+    --sx-butter:#f3e8c9;
+    --sx-sky:#e0ebf5;
+    --sx-lilac:#e8e3f3;
+    --sx-rose:#f3e2e7;
+  }
+  &.tc-hub {
+    --sx-paper:#f4fafb;
+    --sx-ink:#18373e;
+    --sx-muted:#506a70;
+    --sx-brand:#116879;
+    --sx-brand-hover:#0c5260;
+    --sx-accent:#964323;
+    --sx-mint:#e0f0f2;
+    --sx-lime:#cde7eb;
+    --sx-panel:#eaf4f5;
+    --sx-footer:#dfedf0;
+    --sx-line:#cddfe3;
+    --sx-control-border:#7c999e;
+    --sx-butter:#fce7d6;
+  }
+
+  &.tc-jobs,&.tc-profiles,&.tc-hub {
+    /* Bridge the older form/workspace tokens to the active product palette. */
+    --tc-green:var(--sx-brand);
+    --tc-green-dark:var(--sx-brand-hover);
+    --tc-ink:var(--sx-ink);
+    --tc-muted:var(--sx-muted);
+    --tc-bg:var(--sx-paper);
+    --tc-soft:var(--sx-mint);
+    --tc-line:var(--sx-line);
+    color:var(--sx-ink);
+    background:var(--sx-paper);
+
+    .tc-demo-note { color:var(--sx-brand); background:var(--sx-mint); }
+    .sx-footer { background:var(--sx-footer); }
+    .sx-footer-bottom { border-color:var(--sx-line); }
+    .sx-button:hover { background:var(--sx-brand-hover); }
+    .sx-button-light:hover { background:var(--sx-mint); }
+    .tc-button:not(.tc-outline):not(.tc-plain):not(.tc-danger):hover { background:var(--sx-brand-hover); }
+    .tc-button.tc-outline:hover,.tc-button.tc-plain:hover { background:var(--sx-mint); }
+    .sx-provider-intro h1>span { color:var(--sx-accent); }
+    :is(.sx-page,.sx-header,.sx-footer) :focus-visible { outline:3px solid var(--sx-focus); outline-offset:4px; }
+    :is(.ix-main,.tc-login-dialog) :is(input:not([type=checkbox]):not([type=radio]),select,textarea) { border-color:var(--sx-control-border); background-color:var(--sx-surface); }
+    :is(.ix-main,.tc-login-dialog) :is(input,select,textarea):focus-visible { border-color:var(--sx-brand); outline:3px solid var(--sx-focus); outline-offset:3px; }
+    input[type=checkbox],input[type=radio] { accent-color:var(--sx-brand); }
+    .tc-empty,.sm-empty { background:var(--sx-panel); color:var(--sx-muted); }
+    .tc-login-dialog { border-color:var(--sx-line); }
+    .tc-login-story { background:var(--sx-brand-hover); }
+    .tc-login-story::after { background:linear-gradient(180deg,transparent,rgba(20,29,42,.9)); }
+    .tc-login-story p { color:white; }
+  }
+  &.tc-hub .hz-outcome:not([data-state]) { background:var(--sx-mint); color:var(--sx-brand); }
+}

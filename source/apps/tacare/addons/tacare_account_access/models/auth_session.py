@@ -28,7 +28,7 @@ class CareAuthSession(models.Model):
 
     user_id = fields.Many2one('res.users', required=True, ondelete='cascade', index=True)
     role = fields.Selection([('admin', 'Quản trị'), ('business', 'Doanh nghiệp'),
-                             ('candidate', 'Ứng viên')], required=True)
+                             ('candidate', 'Cá nhân')], required=True)
     nonce = fields.Char(required=True, copy=False)
     credential_stamp = fields.Char(required=True, copy=False)
     expires_at = fields.Datetime(required=True, index=True)

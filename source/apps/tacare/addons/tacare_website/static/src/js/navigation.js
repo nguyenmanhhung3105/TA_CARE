@@ -9,7 +9,15 @@ function initCareNavigation() {
     return languages.includes(first) ? url.pathname.slice(first.length + 1) || '/' : url.pathname;
   };
   const currentPath = pathOf(current);
-  const groups = [...root.querySelectorAll('header nav, .tc-editor-sidebar nav')];
+  const groups = [...root.querySelectorAll('header nav, .tc-editor-sidebar nav, .ix-editor-guide nav')].filter(nav => !nav.closest('.sx-ecosystem'));
+  const currentParam = key => {
+    if (current.searchParams.has(key)) return current.searchParams.get(key);
+    if (key === 'view' && currentPath === '/tacare/matching') return ['business','admin'].includes(root.dataset.accountRole) ? 'hire' : 'receive';
+    if (key === 'view' && /^\/tacare\/matching\/\d+\/profile\/\d+$/.test(currentPath)) return 'hire';
+    if (key === 'view' && /^\/tacare\/job\/\d+/.test(currentPath)) return /\/profile\//.test(currentPath) ? 'hire' : 'receive';
+    if (key === 'scope' && /^\/tuhoso\//.test(currentPath)) return currentPath === '/tuhoso/profiles' && root.dataset.accountRole === 'admin' ? 'all' : 'mine';
+    return null;
+  };
   const relatedRoute = (url) => {
     const path = currentPath;
     url = {pathname:pathOf(url)};
@@ -18,9 +26,9 @@ function initCareNavigation() {
     if (url.pathname === '/kvl/flexible/mine') return path === '/kvl/manage' ||
       /^\/kvl\/flexible\/\d+(\/edit)?$/.test(path) || /^\/kvl\/job\/\d+\/(edit|preview|history)$/.test(path);
     if (url.pathname === '/tuhoso/profiles') return path === '/tuhoso/me' ||
-      /^\/tuhoso\/(profile|work)\/\d+(\/edit)?$/.test(path) || path === '/tuhoso/work/new';
+      /^\/tuhoso\/(profile|work)\/\d+(\/(edit|remove))?$/.test(path) || ['/tuhoso/work/new','/tuhoso/profiles/new'].includes(path);
     if (url.pathname === '/tacare/connections') return /^\/tacare\/connection\/\d+/.test(path);
-    if (url.pathname === '/tacare/matching') return path === '/tacare/examples' || /^\/tacare\/job\/\d+(\/profile\/\d+)?$/.test(path);
+    if (url.pathname === '/tacare/matching') return /^\/tacare\/job\/\d+(\/profile\/\d+)?$/.test(path);
     return false;
   };
   const updateRoutes = () => {
@@ -34,8 +42,7 @@ function initCareNavigation() {
         const match = link.classList.contains('is-current') || relatedRoute(url) || linkPath === currentPath ||
           (linkPath !== '/' && currentPath.startsWith(linkPath + '/'));
         if (!match) return;
-        if ([...url.searchParams].some(([key,value]) => current.searchParams.get(key) !== value &&
-          !(key === 'scope' && !current.searchParams.has(key) && value === (root.dataset.accountRole === 'admin' ? 'all' : 'mine')))) return;
+        if ([...url.searchParams].some(([key,value]) => currentParam(key) !== value)) return;
         const score = linkPath.length + [...url.searchParams].length * 100;
         if (score > best) { selected = link; best = score; }
       });
@@ -66,6 +73,19 @@ function initCareNavigation() {
     addEventListener('scroll',() => { if (!queued) { queued = true; requestAnimationFrame(update); } },{passive:true});
     addEventListener('hashchange',update);
     update();
+  });
+  // Keep a focused category fully in view in the single-row mobile scroller.
+  root.querySelectorAll('.to-categories .sx-category-grid').forEach(row => {
+    row.addEventListener('focusin', event => {
+      const card = event.target.closest('.sx-category');
+      if (!card || row.scrollWidth <= row.clientWidth + 1) return;
+      requestAnimationFrame(() => {
+        const item = card.getBoundingClientRect(), bounds = row.getBoundingClientRect();
+        const delta = item.left < bounds.left + 8 ? item.left - bounds.left - 8 :
+          item.right > bounds.right - 8 ? item.right - bounds.right + 8 : 0;
+        row.scrollLeft += delta;
+      });
+    });
   });
   root.querySelectorAll('.fw-tabs a.is-active').forEach(a => a.setAttribute('aria-current','page'));
 }

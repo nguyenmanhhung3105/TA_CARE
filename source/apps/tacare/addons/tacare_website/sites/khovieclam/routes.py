@@ -14,13 +14,16 @@ from ...controllers.site_context import site_context
 
 class KhoControllers(http.Controller):
     def _own_job(self, job_id, capability='manage'):
-        self._require_business()
-        job = request.env['hr.job'].sudo().browse(job_id).exists()
-        if not job or not job.active or not job.tacare_owner_partner_id:
+        self._flex_user()
+        company_ids = self._user().company_ids.ids if self._role() == 'admin' else [request.env.company.id]
+        job = request.env['hr.job'].sudo().search([('id','=',job_id),
+            ('care_opportunity_kind','=','flexible'), ('company_id','in',company_ids)], limit=1)
+        if not job:
             raise NotFound()
-        if self._role() != 'admin' and (job.company_id != request.env.company or
-                                       job.tacare_owner_partner_id not in self._authorized_organizations(capability)):
-            raise Forbidden('Tin thuộc tổ chức khác.')
+        organization_access = self._role() == 'business' and job.tacare_owner_partner_id in self._authorized_organizations(capability)
+        personal_access = self._role() == 'candidate' and job.tacare_owner_user_id == self._user()
+        if self._role() != 'admin' and not personal_access and not organization_access:
+            raise Forbidden('Bạn không có quyền quản lý việc này.')
         return job
 
     def _requirement_inputs(self):

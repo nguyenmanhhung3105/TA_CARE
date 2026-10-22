@@ -64,12 +64,12 @@ class CareOrgMember(models.Model):
     company_id = fields.Many2one('res.company', required=True, default=lambda self: self.env.company, index=True)
     organization_id = fields.Many2one('res.partner', required=True, index=True, ondelete='restrict')
     user_id = fields.Many2one('res.users', required=True, index=True, ondelete='cascade')
-    role = fields.Selection([('owner', 'Chủ tổ chức'), ('recruiter', 'Người tuyển dụng'),
+    role = fields.Selection([('owner', 'Chủ tổ chức'), ('recruiter', 'Điều phối kết nối'),
                              ('viewer', 'Người xem')], required=True, default='recruiter')
     state = fields.Selection([('invited', 'Đã mời'), ('active', 'Đang hoạt động'),
                               ('suspended', 'Tạm ngừng')], required=True, default='invited')
-    can_manage_jobs = fields.Boolean(string='Quản lý tin tuyển dụng')
-    can_handle_candidates = fields.Boolean(string='Xử lý ứng viên')
+    can_manage_jobs = fields.Boolean(string='Quản lý nhu cầu thời vụ')
+    can_handle_candidates = fields.Boolean(string='Xử lý kết nối')
 
     _unique_member = models.Constraint(
         'unique(company_id, organization_id, user_id)',
