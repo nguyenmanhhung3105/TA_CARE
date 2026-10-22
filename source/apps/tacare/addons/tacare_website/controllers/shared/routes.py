@@ -32,7 +32,7 @@ class SharedControllers(http.Controller):
 
     def _require_candidate(self):
         if not self._is_candidate():
-            raise Forbidden('Chỉ tài khoản ứng viên được thực hiện.')
+            raise Forbidden('Chỉ tài khoản cá nhân được thực hiện.')
 
     def _organizations(self):
         user = self._user().sudo()
@@ -96,6 +96,9 @@ class SharedControllers(http.Controller):
         if template in ('live_connections', 'live_connection_detail', 'live_notifications') and \
                 (urlsplit('//' + request.httprequest.host).hostname or '').startswith('khovieclam.'):
             site = 'khovieclam'
+        from ..seasonal import marketplace_context
+        if site in ('khovieclam', 'tuhoso') or template in ('profile_workspace', 'live_matching', 'matching_examples'):
+            values.update(marketplace_context(request.env))
         sector_records = request.env['care.job.sector'].sudo().search([])
         values.setdefault('child_form', '')
         values.setdefault('child_id', 0)
@@ -114,13 +117,17 @@ class SharedControllers(http.Controller):
 
     def _job_domain(self):
         website = self._website('khovieclam')
-        return [('tacare_status', '=', 'published'), ('is_published', '=', True),
-                ('website_id', '=', website.id), '|', ('tacare_deadline', '=', False),
+        return [('care_opportunity_kind', '=', 'flexible'), ('tacare_status', '=', 'published'), ('is_published', '=', True),
+                ('website_id', '=', website.id), ('company_id', '=', website.company_id.id), '|', ('tacare_deadline', '=', False),
                 ('tacare_deadline', '>=', fields.Date.today())]
 
     def _visible_profiles(self, recipient=None):
+        # Kho owns needs, Tu owns provider profiles. Crossing that product
+        # boundary is discovery only: current purpose/recipient consent still
+        # gates every returned profile; this grants no private-library access.
+        company_ids = self._user().company_ids.ids if self._role() == 'admin' else self._website('tuhoso').company_id.ids
         profiles = request.env['tacare.profile'].sudo().search([
-            ('visible', '=', True), ('status', '=', 'active'), ('scope', '!=', 'private')])
+            ('company_id', 'in', company_ids), ('care_recruitment_enabled', '=', False), ('visible', '=', True), ('status', '=', 'active'), ('scope', '!=', 'private')])
         if self._user()._is_public():
             profiles = profiles.filtered(lambda item: item.scope == 'public')
         return profiles.filtered(lambda item: bool(self._current_consent(item, 'discovery', recipient, 'profile')))

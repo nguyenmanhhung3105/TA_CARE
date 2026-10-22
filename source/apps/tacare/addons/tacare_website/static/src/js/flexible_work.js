@@ -6,7 +6,7 @@ function initFlexibleWork() {
     const pause = root.querySelector('[data-work-pause]');
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     let index = 0;
-    let stopped = reduced.matches;
+    let stopped = reduced.matches || root.dataset.workAutoplay === '0';
     let timer;
     let hovering = false;
     const updateTimer = () => {

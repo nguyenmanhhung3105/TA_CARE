@@ -1,0 +1,179 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <template id="kvl_everyday_home" name="Kho · Việc quanh cuộc sống">
+    <div class="sx-page sx-kho-home">
+      <section class="sx-kho-intro sx-shell">
+        <p class="sx-kicker">
+          <span class="sx-tiny-spark" />VIỆC THỜI VỤ, MUÔN CÁCH KẾT NỐI</p>
+        <h1>Bạn cần thêm<br />
+          <span>một đôi tay?</span>
+        </h1>
+        <p class="sx-intro-copy">Từ việc trong nhà đến việc ở cửa hàng.<br /> Kết nối người có thể làm, theo cách phù hợp với bạn.</p>
+        <form class="sx-search" method="get" t-att-action="urls['khovieclam'] + 'kvl/jobs'" role="search">
+          <label class="visually-hidden" for="sx-home-search">Việc bạn muốn tìm</label>
+          <t t-call="tacare_website.service_icon">
+            <t t-set="icon" t-value="'magnifying-glass'" />
+          </t>
+          <input id="sx-home-search" type="search" name="q" placeholder="Dọn nhà, sửa đồ, chăm cây, thiết kế…" />
+          <button class="sx-button" type="submit">Khám phá<t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'arrow-right'" />
+            </t>
+          </button>
+        </form>
+        <div class="sx-intro-actions">
+          <a t-att-href="urls['khovieclam'] + 'kvl/flexible/new'">Đăng việc bạn cần người làm</a>
+          <span>·</span>
+          <a t-if="'tuhoso' in switch_sites" t-att-href="urls['tuhoso']">Tôi muốn nhận việc</a>
+        </div>
+        <div class="sx-photo-ribbon" aria-label="Nhiều khả năng tạo nên cuộc sống">
+          <figure t-foreach="['repair','garden','cooking','digital','pets']" t-as="code" t-att-class="'sx-ribbon-tile sx-ribbon-%s' % code">
+            <img t-att-src="service_by_code[code]['photo']" width="450" height="600" t-att-alt="'Ảnh minh họa ' + service_by_code[code]['label'].lower()" />
+            <figcaption>
+              <t t-call="tacare_website.service_icon">
+                <t t-set="icon" t-value="service_by_code[code]['icon']" />
+              </t>
+              <span t-esc="service_by_code[code]['label']" />
+            </figcaption>
+          </figure>
+          <span class="sx-ribbon-sticker" aria-hidden="true">Khả năng của bạn.<br /> Việc ai đó đang cần.</span>
+        </div>
+      </section>
+      <section class="sx-shell sx-category-section" id="service-categories">
+        <div class="sx-section-heading">
+          <div>
+            <p class="sx-kicker">TỪ NHỮNG VIỆC RẤT QUEN</p>
+            <h2>Hôm nay, bạn cần làm gì?</h2>
+          </div>
+          <a class="sx-text-link" href="/kvl/jobs">Tất cả công việc<t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'arrow-right'" />
+            </t>
+          </a>
+        </div>
+        <t t-call="tacare_website.service_categories">
+          <t t-set="service_intent" t-value="'hire'" />
+        </t>
+      </section>
+      <t t-call="tacare_website.service_scenarios" />
+      <section class="sx-shell sx-section sx-open-work" id="sx-open-work">
+        <div class="sx-section-heading">
+          <div>
+            <p class="sx-kicker">CÓ NGƯỜI ĐANG CẦN BẠN</p>
+            <h2>Một việc hợp với<br /> điều bạn làm được.</h2>
+          </div>
+          <div>
+            <p>
+              <strong t-esc="seasonal_job_count" /> nhu cầu đang mở</p>
+            <a class="sx-text-link" href="/kvl/jobs">Khám phá các đầu việc<t t-call="tacare_website.service_icon">
+                <t t-set="icon" t-value="'arrow-right'" />
+              </t>
+            </a>
+          </div>
+        </div>
+        <p class="sx-demo-label">Các nhu cầu hiện tại là dữ liệu minh họa, chưa xác minh.</p>
+        <div class="sx-task-list">
+          <article t-foreach="service_featured_jobs" t-as="j" class="sx-task-row">
+            <img class="sx-task-thumb" t-att-src="j._care_photo_url()" width="120" height="120" alt="" loading="lazy" />
+            <div class="sx-task-title">
+              <small t-esc="j.flex_category_id.name" />
+              <h3>
+                <a t-att-href="'/kvl/job/%s' % j.id" t-esc="j.name" />
+              </h3>
+              <p>
+                <t t-esc="j.flex_region_id.name or j._flex_label('flex_mode')" /> · <t t-esc="j._flex_label('flex_schedule')" />
+              </p>
+            </div>
+            <div class="sx-task-budget">
+              <small>Ngân sách công việc</small>
+              <strong t-esc="j._flex_price_label()" />
+            </div>
+            <a class="sx-round-link" t-att-href="'/kvl/job/%s' % j.id" t-att-aria-label="'Xem chi tiết ' + j.name">
+              <t t-call="tacare_website.service_icon">
+                <t t-set="icon" t-value="'arrow-right'" />
+              </t>
+            </a>
+          </article>
+        </div>
+      </section>
+      <t t-call="tacare_website.service_steps" />
+      <section class="sx-shell sx-dual-invitation">
+        <div>
+          <p class="sx-kicker">VIỆC CỦA BẠN, CÁCH CỦA BẠN</p>
+          <h2>Cần người cùng làm?<br /> Cứ bắt đầu từ đây.</h2>
+          <a class="sx-button" href="/kvl/flexible/new">Đăng nhu cầu<t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'plus'" />
+            </t>
+          </a>
+        </div>
+        <div t-if="'tuhoso' in switch_sites">
+          <p class="sx-kicker">DÀNH CHO NGƯỜI NHẬN LÀM</p>
+          <h2>Bạn có đôi tay khéo,<br /> hay một ý tưởng hay?</h2>
+          <a class="sx-text-link" t-att-href="urls['tuhoso']">Tạo góc nhận việc của bạn<t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'arrow-right'" />
+            </t>
+          </a>
+        </div>
+      </section>
+    </div>
+  </template>
+  <template id="kvl_everyday_home_rollout" inherit_id="tacare_website.seasonal_jobs_home" priority="1300">
+    <xpath expr="//t[@t-call='tacare_website.seasonal_home']" position="attributes">
+      <attribute name="t-call">tacare_website.kvl_everyday_home</attribute>
+    </xpath>
+  </template>
+  <template id="kvl_everyday_listing" inherit_id="tacare_website.seasonal_job_list" priority="1300">
+    <xpath expr="//t[@t-call='tacare_website.live_layout']" position="replace">
+      <t t-call="tacare_website.live_layout">
+        <div class="sx-page sx-discover">
+          <div class="sx-discover-heading">
+            <div>
+              <p class="sx-kicker" t-esc="'GÓC VIỆC BẠN CẦN NGƯỜI LÀM' if mine else 'TÌM VIỆC THEO ĐIỀU BẠN LÀM ĐƯỢC'" />
+              <h1 t-esc="'Nhu cầu của bạn.' if mine else 'Có việc đang cần bạn.'" />
+              <p>Rõ đầu việc, lịch, khu vực và tiền công để hai bên cùng trao đổi.</p>
+            </div>
+            <a class="sx-button" href="/kvl/flexible/new">Đăng nhu cầu<t t-call="tacare_website.service_icon">
+                <t t-set="icon" t-value="'plus'" />
+              </t>
+            </a>
+          </div>
+          <nav class="sx-view-tabs" aria-label="Phạm vi công việc">
+            <a href="/kvl/jobs" t-att-aria-current="'page' if not mine else None">Khám phá việc</a>
+            <a href="/kvl/flexible/mine" t-att-aria-current="'page' if mine else None">Việc tôi đăng</a>
+          </nav>
+          <t t-if="not mine" t-call="tacare_website.service_categories">
+            <t t-set="service_intent" t-value="'hire'" />
+          </t>
+          <div t-att-class="'sx-discover-layout sx-discover-layout-mine' if mine else 'sx-discover-layout'">
+            <aside t-if="not mine" class="sx-filter-panel">
+              <h2>
+                <t t-call="tacare_website.service_icon">
+                  <t t-set="icon" t-value="'sliders-horizontal'" />
+                </t>Chọn điều kiện</h2>
+              <t t-call="tacare_website.work_filters" />
+            </aside>
+            <section class="sx-discover-results" aria-label="Kết quả công việc">
+              <div class="sx-result-heading">
+                <p>
+                  <strong t-esc="len(jobs)" /> nhu cầu <t t-if="not mine">đang mở</t>
+                </p>
+                <span>Thông tin do người đăng cung cấp</span>
+              </div>
+              <div class="sx-work-grid">
+                <t t-foreach="jobs" t-as="record" t-call="tacare_website.work_card">
+                  <t t-set="is_service" t-value="False" />
+                </t>
+              </div>
+              <div t-if="not jobs" class="sx-empty">
+                <t t-call="tacare_website.service_icon">
+                  <t t-set="icon" t-value="'magnifying-glass'" />
+                </t>
+                <h2>Chưa tìm thấy việc ở lựa chọn này.</h2>
+                <p>Thử đổi nghề hoặc khu vực để xem thêm nhu cầu.</p>
+                <a class="sx-button" href="/kvl/jobs">Xem tất cả việc</a>
+              </div>
+            </section>
+          </div>
+        </div>
+      </t>
+    </xpath>
+  </template>
+</odoo>

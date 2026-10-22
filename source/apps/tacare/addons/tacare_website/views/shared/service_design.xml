@@ -1,0 +1,271 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <template id="service_icon" name="Biểu tượng dịch vụ Phosphor">
+    <img class="sx-icon" t-att-src="'/tacare_website/static/src/icons/phosphor/%s.svg' % icon" width="24" height="24" alt="" aria-hidden="true" />
+  </template>
+  <template id="service_navigation" name="Điều hướng ba không gian TA.CARE">
+    <header class="sx-header">
+      <div class="sx-ecosystem sx-shell">
+        <a t-att-href="urls['tacare']">Một kết nối từ TA.CARE</a>
+        <nav aria-label="Chuyển không gian">
+          <a t-att-href="urls['khovieclam']" t-att-aria-current="'page' if site == 'khovieclam' else None">Kho Việc Làm</a>
+          <a t-if="'tuhoso' in switch_sites" t-att-href="urls['tuhoso']" t-att-aria-current="'page' if site == 'tuhoso' else None">Tủ Hồ Sơ</a>
+          <a t-att-href="urls['tacare']" t-att-aria-current="'page' if site == 'tacare' else None">TA.CARE</a>
+        </nav>
+      </div>
+      <div t-att-class="'sx-header-main sx-shell sx-header-guest' if is_guest else 'sx-header-main sx-shell sx-header-authenticated'">
+        <div class="sx-brand-row">
+          <a class="sx-brand" t-att-href="urls[site]">
+            <img t-att-src="'/tacare_website/static/src/img/%s.png' % site" width="54" height="54" t-att-alt="site_labels[site]" />
+            <span>
+              <strong t-esc="site_labels[site]" />
+              <small t-esc="{'khovieclam':'Việc cần làm, có người cùng làm.', 'tuhoso':'Điều bạn biết làm, thêm người biết đến.', 'tacare':'Rõ nhu cầu. Hợp khả năng. Cùng kết nối.'}[site]" />
+            </span>
+          </a>
+          <div t-if="not is_guest" class="sx-account-actions">
+          <span class="sx-account" aria-label="Tài khoản đang đăng nhập">
+            <t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'user-circle'" />
+            </t>
+            <span>
+              <small>Xin chào,</small>
+              <strong t-esc="account_name" />
+            </span>
+          </span>
+            <a class="sx-login" href="/web/session/logout?redirect=/">Đăng xuất</a>
+          </div>
+        </div>
+        <div class="sx-navigation-row">
+          <nav class="sx-main-nav" aria-label="Điều hướng chính">
+            <a t-att-href="urls[site]" data-nav-link="1">Trang chủ</a>
+            <t t-if="site == 'khovieclam'">
+              <a href="/kvl/jobs" data-nav-link="1">Tìm việc thời vụ</a>
+              <a href="/kvl/flexible/mine" data-nav-link="1">Việc tôi đã đăng</a>
+              <a t-att-href="urls['tacare'] + 'tacare/matching?view=hire'">Tìm người phù hợp</a>
+            </t>
+            <t t-elif="site == 'tuhoso'">
+              <a href="/tuhoso/profiles?scope=mine" data-nav-link="1">Hồ sơ của tôi</a>
+              <a t-if="role == 'admin'" href="/tuhoso/profiles?scope=all" data-nav-link="1">Tất cả hồ sơ</a>
+              <a t-att-href="urls['tacare'] + 'tacare/matching?view=receive'">Tìm việc phù hợp</a>
+            </t>
+            <t t-else="">
+              <a href="/tacare/matching?view=hire" data-nav-link="1">Tìm người làm</a>
+              <a t-if="'tuhoso' in switch_sites" href="/tacare/matching?view=receive" data-nav-link="1">Tìm việc phù hợp</a>
+            </t>
+            <a t-att-href="urls['tacare'] + 'tacare/connections'" data-nav-link="1">Kết nối của tôi</a>
+            <a t-if="site == 'tacare'" href="/tacare/notifications" data-nav-link="1">Thông báo</a>
+          </nav>
+          <div class="sx-header-actions">
+            <a class="sx-help" t-att-href="urls['tacare'] + 'how-it-works'" data-nav-link="1">Cách hoạt động</a>
+            <a t-if="is_guest" class="sx-login" t-att-href="'/web/login?redirect=%s' % request.httprequest.path">Đăng nhập</a>
+            <a class="sx-button" t-att-href="urls['tuhoso'] + 'tuhoso/profiles/new?kind=flexible' if site == 'tuhoso' else urls['khovieclam'] + 'kvl/flexible/new'">
+              <t t-esc="'Tạo hồ sơ' if site == 'tuhoso' else 'Đăng nhu cầu'" />
+              <t t-call="tacare_website.service_icon">
+                <t t-set="icon" t-value="'plus'" />
+              </t>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+  </template>
+  <template id="service_navigation_rollout" inherit_id="tacare_website.seasonal_navigation" priority="1300">
+    <xpath expr="//header" position="replace">
+      <t t-call="tacare_website.service_navigation" />
+    </xpath>
+  </template>
+  <template id="service_layout" inherit_id="tacare_website.live_layout" priority="1300">
+    <xpath expr="//t[@t-call='tacare_website.site_switcher']" position="attributes">
+      <attribute name="t-if">False</attribute>
+    </xpath>
+    <xpath expr="//main" position="attributes">
+      <attribute name="t-att-class">'tc-home-main' if home_page else 'tc-container sx-container ix-main'</attribute>
+    </xpath>
+    <xpath expr="//main" position="after">
+      <t t-call="tacare_website.service_footer" />
+    </xpath>
+    <xpath expr="//footer" position="attributes">
+      <attribute name="t-if">False</attribute>
+    </xpath>
+    <xpath expr="//div[@id='wrap']" position="attributes">
+      <attribute name="t-att-data-account-role">role</attribute>
+    </xpath>
+    <xpath expr="//main/t[@t-out='0']" position="before">
+      <nav t-if="not home_page" class="ix-back-home" aria-label="Trở về trang chủ">
+        <a t-att-href="urls[site]">
+          <t t-call="tacare_website.service_icon">
+            <t t-set="icon" t-value="'house'" />
+          </t>Trang chủ <t t-esc="site_labels[site]" />
+        </a>
+      </nav>
+    </xpath>
+  </template>
+  <template id="service_footer" name="Chân trang dịch vụ">
+    <footer class="sx-footer">
+      <div class="sx-shell">
+        <div class="sx-footer-top">
+          <a class="sx-brand" t-att-href="urls[site]">
+            <img t-att-src="'/tacare_website/static/src/img/%s.png' % site" width="46" height="46" alt="" />
+            <strong t-esc="site_labels[site]" />
+          </a>
+          <p>Việc đời thường.<br />
+            <strong>Kết nối những khả năng phi thường.</strong>
+          </p>
+          <a class="sx-text-link" t-att-href="urls['tacare'] + 'how-it-works'">Cách TA.CARE kết nối<t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'arrow-right'" />
+            </t>
+          </a>
+        </div>
+        <div class="sx-footer-bottom">
+          <span>Kho Việc Làm · Tủ Hồ Sơ · TA.CARE</span>
+          <span>Ảnh minh họa nhóm công việc, không đại diện hồ sơ người dùng.</span>
+        </div>
+      </div>
+    </footer>
+  </template>
+  <template id="service_categories" name="Danh mục icon thống nhất">
+    <div class="sx-category-grid">
+      <a t-foreach="service_catalog" t-as="c" t-att-href="urls['tuhoso'] + 'tuhoso/profiles/new?' + c['profile_query'] if service_intent == 'offer' else urls['khovieclam'] + 'kvl/jobs?category=%s' % c['id']" class="sx-category" t-att-data-category-code="c['code']">
+        <span class="sx-category-icon" t-att-data-tone="c['tone']">
+          <t t-call="tacare_website.service_icon">
+            <t t-set="icon" t-value="c['icon']" />
+          </t>
+        </span>
+        <strong t-esc="c['label']" />
+      </a>
+    </div>
+  </template>
+  <template id="service_gallery_controls" name="Điều khiển thư viện ảnh">
+    <div class="sx-gallery-controls">
+      <button type="button" data-work-prev="1" aria-label="Ảnh trước">
+        <t t-call="tacare_website.service_icon">
+          <t t-set="icon" t-value="'arrow-left'" />
+        </t>
+      </button>
+      <button type="button" data-work-pause="1" aria-pressed="true">Tiếp tục</button>
+      <button type="button" data-work-next="1" aria-label="Ảnh tiếp theo">
+        <t t-call="tacare_website.service_icon">
+          <t t-set="icon" t-value="'arrow-right'" />
+        </t>
+      </button>
+    </div>
+    <span class="fw-carousel-status visually-hidden" aria-live="polite" aria-atomic="true" />
+  </template>
+  <template id="service_scenarios" name="Khám phá theo tình huống">
+    <section class="sx-section sx-shell" id="service-scenarios">
+      <div class="sx-section-heading">
+        <div>
+          <p class="sx-kicker">MUÔN VIỆC QUANH TA</p>
+          <h2>Mỗi ngày một việc.<br /> Mỗi việc một kết nối.</h2>
+        </div>
+        <p>Từ góc nhà đến cửa hàng,<br /> từ đôi tay khéo đến ý tưởng hay.</p>
+      </div>
+      <div class="sx-scenarios" data-work-carousel="1" data-work-autoplay="0" aria-roledescription="carousel" aria-label="Khám phá các tình huống công việc" tabindex="0">
+        <div class="sx-scenario-tabs">
+          <button t-foreach="service_scenarios" t-as="s" type="button" data-work-dot="1" t-att-aria-pressed="'true' if s_index == 0 else 'false'">
+            <t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="s['icon']" />
+            </t>
+            <t t-esc="s['label']" />
+          </button>
+        </div>
+        <div class="sx-scenario-stage">
+          <article t-foreach="service_scenarios" t-as="s" data-work-slide="1" t-att-class="'sx-scenario is-active' if s_index == 0 else 'sx-scenario'" t-att-data-tone="s['tone']" t-att-aria-hidden="'false' if s_index == 0 else 'true'" t-att-inert="None if s_index == 0 else 'inert'">
+            <div class="sx-scenario-photo">
+              <img t-att-src="'/tacare_website/static/src/img/services/%s.webp' % s['photo']" width="900" height="620" alt="Ảnh minh họa công việc đang thực hiện" loading="lazy" />
+              <span>Khả năng nhỏ. Giá trị lớn.</span>
+            </div>
+            <div class="sx-scenario-copy">
+              <p class="sx-kicker" t-esc="s['label']" />
+              <h3 t-esc="s['title']" />
+              <p t-esc="s['text']" />
+              <div class="sx-scenario-links">
+                <a t-foreach="s['codes']" t-as="code" t-att-href="urls['khovieclam'] + 'kvl/jobs?category=%s' % service_by_code[code]['id']">
+                  <t t-esc="service_by_code[code]['label']" />
+                  <t t-call="tacare_website.service_icon">
+                    <t t-set="icon" t-value="'arrow-right'" />
+                  </t>
+                </a>
+              </div>
+            </div>
+          </article>
+        </div>
+        <t t-call="tacare_website.service_gallery_controls" />
+      </div>
+    </section>
+  </template>
+  <template id="service_steps" name="Bắt đầu ghép nối">
+    <section class="sx-steps-section">
+      <div class="sx-shell">
+        <p class="sx-kicker">CÙNG LÀM CHO XONG VIỆC</p>
+        <h2>Bắt đầu từ một lời kết nối.</h2>
+        <div class="sx-steps">
+          <article>
+            <span>01</span>
+            <h3>Kể việc cần làm</h3>
+            <p>Nêu rõ đầu việc, khu vực, thời gian và ngân sách của bạn.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Tìm điều kiện phù hợp</h3>
+            <p>Đối chiếu với việc người nhận làm được, lịch và mức tiền công.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Hai bên cùng trao đổi</h3>
+            <p>Gửi lời mời hoặc đề nghị. Chủ hồ sơ quyết định chia sẻ liên hệ sau khi đồng ý.</p>
+          </article>
+        </div>
+        <a class="sx-text-link" t-att-href="urls['tacare'] + 'how-it-works'">Tìm hiểu cách hoạt động<t t-call="tacare_website.service_icon">
+            <t t-set="icon" t-value="'arrow-right'" />
+          </t>
+        </a>
+      </div>
+    </section>
+  </template>
+  <template id="service_work_card" inherit_id="tacare_website.work_card" priority="1300">
+    <xpath expr="//article" position="replace">
+      <article class="fw-card sx-work-card" t-att-data-record-id="record.id">
+        <t t-set="detail_url" t-value="'/tuhoso/work/%s' % record.id if is_service else ('/kvl/flexible/%s' if mine else '/kvl/job/%s') % record.id" />
+        <a class="sx-work-photo" t-att-href="detail_url" tabindex="-1" aria-hidden="true">
+          <img t-att-src="record._care_photo_url()" width="720" height="480" alt="" loading="lazy" />
+          <span class="sx-work-type" t-esc="'Việc nhận làm' if is_service else 'Cần người làm'" />
+        </a>
+        <div class="sx-work-body">
+          <div class="sx-work-meta">
+            <span t-esc="record.flex_category_id.name" />
+            <small t-if="record.flex_demo_key">Minh họa</small>
+          </div>
+          <h3>
+            <a t-att-href="detail_url" t-esc="record.title if is_service else record.name" />
+          </h3>
+          <p class="sx-work-description" t-esc="record.description if is_service else record.tacare_description_text" />
+          <p class="sx-work-fact">
+            <t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'map-pin'" />
+            </t>
+            <span t-esc="record.flex_region_id.name or record._flex_label('flex_mode') or 'Cần trao đổi khu vực'" />
+          </p>
+          <p class="sx-work-fact">
+            <t t-call="tacare_website.service_icon">
+              <t t-set="icon" t-value="'clock'" />
+            </t>
+            <span t-esc="record._flex_schedule_label()" />
+          </p>
+          <div class="sx-work-bottom">
+            <strong class="sx-price" t-esc="record._flex_price_label()" />
+            <a class="sx-text-link" t-att-href="detail_url">Xem chi tiết<t t-call="tacare_website.service_icon">
+                <t t-set="icon" t-value="'arrow-right'" />
+              </t>
+            </a>
+          </div>
+          <div class="sx-work-actions">
+            <span t-esc="record._flex_label('flex_state') if is_service else dict(record._fields['tacare_status'].selection).get(record.tacare_status)" />
+            <a t-if="is_service or mine" t-att-href="('/tuhoso/work/%s/edit' if is_service else '/kvl/flexible/%s/edit') % record.id">Chỉnh sửa</a>
+            <a t-if="role == 'admin'" class="tc-delete-link" t-att-href="('/tuhoso/work/%s/remove' if is_service else '/kvl/job/%s/remove') % record.id">Xóa</a>
+          </div>
+        </div>
+      </article>
+    </xpath>
+  </template>
+</odoo>

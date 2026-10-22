@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <template id="seasonal_jobs_home" inherit_id="tacare_website.home_jobs" priority="1000">
+    <xpath expr="//div[@data-care-home='jobs']" position="replace">
+      <t t-call="tacare_website.seasonal_home" />
+    </xpath>
+  </template>
+  <template id="seasonal_job_list" inherit_id="tacare_website.work_jobs" priority="1000">
+    <xpath expr="//t[@t-call='tacare_website.live_layout']" position="replace">
+      <t t-call="tacare_website.live_layout">
+        <div class="sm-page sm-list-page">
+          <div class="sm-section-head">
+            <div>
+              <p class="sm-eyebrow">VIỆC THỜI VỤ ĐA NGÀNH</p>
+              <h1 t-esc="'Nhu cầu tôi đã đăng' if mine else 'Chọn việc hợp lịch của bạn.'" />
+              <p>Đầu việc, thời gian, khu vực và tiền công được trình bày cùng nhau.</p>
+            </div>
+            <a class="tc-button" href="/kvl/flexible/new">Đăng nhu cầu</a>
+          </div>
+          <nav class="sm-view-tabs" aria-label="Danh sách công việc">
+            <a href="/kvl/jobs" t-att-aria-current="'page' if not mine else None">Khám phá việc</a>
+            <a href="/kvl/flexible/mine" t-att-aria-current="'page' if mine else None">Việc tôi đăng</a>
+          </nav>
+          <t t-if="not mine" t-call="tacare_website.work_filters" />
+          <p class="sm-result">
+            <strong t-esc="len(jobs)" /> nhu cầu <t t-if="not mine">đang mở</t>
+          </p>
+          <div class="fw-grid sm-work-grid">
+            <t t-foreach="jobs" t-as="record" t-call="tacare_website.work_card">
+              <t t-set="is_service" t-value="False" />
+            </t>
+          </div>
+          <div t-if="not jobs" class="sm-empty">
+            <h2>Chưa có việc ở bộ lọc này.</h2>
+            <p>Thử nghề hoặc khu vực khác, hoặc giới thiệu khả năng nhận việc của bạn.</p>
+            <a href="/kvl/jobs">Xem tất cả việc</a>
+          </div>
+        </div>
+      </t>
+    </xpath>
+  </template>
+</odoo>

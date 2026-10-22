@@ -7,7 +7,8 @@ ROLE_HOSTS = {
     'business': {'khovieclam.vn', 'www.khovieclam.vn', 'tacare.vn', 'www.tacare.vn',
                  'khovieclam.localhost', 'tacare.localhost'},
     'candidate': {'tuhoso.com', 'www.tuhoso.com', 'tacare.vn', 'www.tacare.vn',
-                  'tuhoso.localhost', 'tacare.localhost'},
+                  'tuhoso.localhost', 'tacare.localhost', 'khovieclam.localhost',
+                  'khovieclam.vn', 'www.khovieclam.vn'},
     'pending': set(),
 }
 
@@ -25,7 +26,7 @@ class ResUsers(models.Model):
     tacare_account_role = fields.Selection(
         [('pending', 'Chưa cấp vai trò'),
          ('business', 'Doanh nghiệp'),
-         ('candidate', 'Sinh viên / Ứng viên')],
+         ('candidate', 'Cá nhân')],
         default='pending', required=True, copy=False,
         string='Vai trò TA.CARE', groups='base.group_system',
     )
@@ -82,7 +83,7 @@ class ResUsers(models.Model):
     def _tacare_can_access_host(self, host):
         self.ensure_one()
         user = self.sudo()
-        # Only system administrators can use all three product websites.
+        # Individuals can both post seasonal needs and offer their own work.
         if user.has_group('base.group_system') or user._is_public():
             return True
         host = hostname(host)

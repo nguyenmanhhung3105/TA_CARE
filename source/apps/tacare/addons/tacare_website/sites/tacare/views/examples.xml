@@ -2,8 +2,14 @@
 <odoo>
   <template id="matching_examples" name="TA.CARE · Ví dụ đối chiếu">
     <t t-call="tacare_website.live_layout">
-      <div class="tc-page-head"><p class="tc-eyebrow">TA.CARE / VÍ DỤ HƯ CẤU</p><h1>Từ nhu cầu đến một lời trao đổi</h1><p>Ba tình huống minh họa cách đọc căn cứ phù hợp. Đây là dữ liệu giả lập để xem giao diện, không phải kết quả đối chiếu tài khoản của bạn.</p><a class="tc-button" href="/tacare/matching">Đối chiếu dữ liệu của tôi</a></div>
-      <div class="tc-match-list"><article t-foreach="examples" t-as="sample" class="tc-match-card"><div class="tc-match-main"><p class="tc-eyebrow">TÌNH HUỐNG MẪU</p><h2 t-esc="sample['job']"/><p t-esc="sample['profile']"/><strong t-esc="sample['outcome']"/><p>Chỉ gửi đề nghị khi hồ sơ đã cho phép đối chiếu. Thông tin liên hệ cần sự đồng ý riêng sau khi hai bên chấp nhận trao đổi.</p></div><div class="tc-match-basis"><t t-call="tacare_website.comparison_rows"><t t-set="comparisons" t-value="sample['comparisons']"/></t></div></article></div>
+      <div class="hz-examples-page">
+        <div class="tc-page-head"><p class="sx-kicker">HIỂU CÁCH TA.CARE ĐỐI CHIẾU</p><h1>Từ một nhu cầu,<br/>đến một lời trao đổi.</h1><p>Ba ví dụ hư cấu để đọc căn cứ hai phía. Bạn có thể thấy điều phù hợp, thông tin còn thiếu và một lịch đang khác nhau.</p><a class="tc-button" href="/tacare/matching">Đối chiếu dữ liệu của tôi</a></div>
+        <nav class="hz-case-nav" aria-label="Chọn tình huống minh họa"><a t-foreach="examples" t-as="sample" t-att-href="'#' + sample['key']"><span t-esc="'0%s' % (sample_index + 1)"/><t t-esc="sample['category']"/></a></nav>
+        <article t-foreach="examples" t-as="sample" class="hz-case-detail" t-att-id="sample['key']" t-att-data-case="sample['key']">
+          <div class="hz-case-overview"><figure class="hz-case-photo"><img t-att-src="'/tacare_website/static/src/img/services/%s.webp' % sample['photo']" width="900" height="600" t-att-alt="'Ảnh minh họa ' + sample['category']" loading="lazy"/><figcaption>Ảnh minh họa công việc · tình huống hư cấu</figcaption></figure><div class="hz-case-copy"><p class="sx-kicker">TÌNH HUỐNG <t t-esc="'0%s' % (sample_index + 1)"/></p><h2 t-esc="sample['job']"/><div class="hz-case-sides"><div><small>BÊN CẦN NGƯỜI</small><strong t-esc="sample['job']"/><p t-esc="sample['need_schedule']"/><p t-esc="sample['need_price']"/></div><div><small>BÊN NHẬN LÀM</small><strong t-esc="sample['profile']"/><p t-esc="sample['offer_schedule']"/><p t-esc="sample['offer_price']"/></div></div></div></div>
+          <div class="hz-case-reason hx-match-basis"><span class="hz-outcome" t-att-data-state="sample['state']" t-esc="sample['badge']"/><h3 t-esc="sample['outcome']"/><p>Đọc từng điều kiện thay vì suy đoán từ tên nghề.</p><t t-call="tacare_website.comparison_rows"><t t-set="comparisons" t-value="sample['comparisons']"/></t><div class="hz-case-next"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'lock-simple'"/></t><p>Chỉ gửi lời kết nối khi có quyền đối chiếu hiện hành. Chủ hồ sơ quyết định chia sẻ liên hệ riêng sau khi hai bên đồng ý trao đổi.</p></div></div>
+        </article>
+      </div>
     </t>
   </template>
 </odoo>

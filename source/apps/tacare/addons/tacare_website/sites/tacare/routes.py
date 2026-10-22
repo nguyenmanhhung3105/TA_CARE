@@ -15,10 +15,12 @@ from ...controllers.site_context import site_context
 class HubControllers(http.Controller):
     def _connection(self, connection_id):
         item = request.env['tacare.connection'].sudo().browse(connection_id).exists()
-        business_access = (item and self._is_business() and item.job_id.company_id == request.env.company
-                           and item.organization_id in self._authorized_organizations('handle'))
-        candidate_access = item and self._is_candidate() and item.profile_id.user_id == self._user()
-        if not item or self._role() != 'admin' and not business_access and not candidate_access:
+        company_ids = self._user().company_ids.ids
+        if not item or item.company_id.id not in company_ids or item.job_id.care_opportunity_kind != 'flexible':
+            raise Forbidden('Kết nối không thuộc phạm vi của bạn.')
+        organization_access = self._role() == 'business' and item.organization_id in self._authorized_organizations('handle')
+        participant = self._role() == 'candidate' and (self._user() in (item.sender_id | item.receiver_id) or item.profile_id.user_id == self._user() or item.job_id.tacare_owner_user_id == self._user())
+        if self._role() != 'admin' and not participant and not organization_access:
             raise Forbidden('Kết nối không thuộc tài khoản này.')
         return item
 
@@ -37,47 +39,80 @@ class HubControllers(http.Controller):
 
     @http.route('/tacare/matching', type='http', auth='user', website=True)
     def matching(self, **kw):
+        self._flex_user()
         role = self._role()
-        if role == 'candidate':
+        view = kw.get('view') or ('receive' if role == 'candidate' else 'hire')
+        if view not in ('receive','hire'):
+            raise BadRequest('Chọn phía cần người hoặc nhận việc.')
+        if view == 'receive' and role == 'business':
+            raise Forbidden('Tài khoản doanh nghiệp dùng phía tìm người làm; hồ sơ nhận việc thuộc tài khoản cá nhân.')
+        if view == 'receive':
             profile = self._my_profile()
             if not profile:
-                return request.redirect(self._urls()['tuhoso'] + 'tuhoso/profiles?kind=recruitment')
-            jobs = request.env['hr.job'].sudo().search(
-                self._job_domain() + [('care_matching_enabled', '=', True),
-                    ('care_opportunity_kind', '=', 'recruitment' if profile.care_recruitment_enabled else 'flexible')]) if self._current_consent(profile, 'matching') else request.env['hr.job']
-            matches = sorted([(job, self._match(job, profile)) for job in jobs],
-                             key=lambda pair: pair[1]['rank'], reverse=True)
-            matches = [pair for pair in matches if pair[1].get('eligible', True)]
-            return self._render('live_matching', matches=matches, kind='jobs', profile=profile,
-                                matching_enabled=bool(self._current_consent(profile, 'matching')))
-        self._require_business()
-        organizations = self._authorized_organizations('handle')
-        if not organizations and role != 'admin':
-            raise Forbidden('Bạn chưa được cấp quyền xử lý ứng viên.')
-        domain = [('tacare_owner_partner_id', '!=', False)]
-        if role == 'admin':
-            domain.append(('company_id', 'in', self._user().company_ids.ids))
-        if role != 'admin':
-            domain.extend([('company_id', '=', request.env.company.id),
-                           ('tacare_owner_partner_id', 'in', organizations.ids)])
-        jobs = request.env['hr.job'].sudo().search(domain + [
-            ('tacare_status', '=', 'published'), ('care_matching_enabled', '=', True)])
+                return request.redirect(self._urls()['tuhoso'] + 'tuhoso/profiles/new?kind=flexible')
+            matches = self._receive_matching_data(profile)
+            return self._render('live_matching',matches=matches,kind='jobs',profile=profile,
+                matching_enabled=bool(self._current_consent(profile,'matching')),seasonal_view=view)
         try:
             selected_id = int(kw.get('job') or 0)
         except ValueError:
-            raise BadRequest('ID tin không hợp lệ.')
-        selected = jobs.filtered(lambda item: item.id == selected_id)[:1] if selected_id else jobs[:1]
+            raise BadRequest('Tin không hợp lệ.')
+        jobs, selected, matches = self._hire_matching_data(selected_id)
+        return self._render('live_matching', matches=matches, kind='profiles', jobs=jobs, selected=selected,
+            editable_org_ids=jobs.mapped('tacare_owner_partner_id').ids, seasonal_view=view)
+
+    def _hire_matching_data(self, selected_id=0):
+        role = self._role()
+        company_ids = self._user().company_ids.ids
+        domain = self._job_domain() + [('company_id', 'in', company_ids), ('care_matching_enabled', '=', True)]
+        if role == 'business':
+            domain.append(('tacare_owner_partner_id', 'in', self._authorized_organizations('handle').ids))
+        elif role != 'admin':
+            domain.append(('tacare_owner_user_id', '=', self._user().id))
+        jobs = request.env['hr.job'].sudo().search(domain, order='write_date desc, id desc')
+        selected = jobs.filtered(lambda j: j.id == selected_id)[:1] if selected_id else jobs[:1]
         if selected_id and not selected:
             raise NotFound()
-        profiles = self._visible_profiles(selected.tacare_owner_partner_id).filtered(lambda item: bool(self._current_consent(item, 'matching', selected.tacare_owner_partner_id, 'skills') and self._current_consent(item, 'matching', selected.tacare_owner_partner_id, 'profile'))) if selected else request.env['tacare.profile']
-        matches = sorted([(profile, self._match(selected, profile)) for profile in profiles],
-                         key=lambda pair: pair[1]['rank'], reverse=True) if selected else []
-        matches = [pair for pair in matches if pair[1].get('eligible', True)]
-        return self._render('live_matching', matches=matches, kind='profiles', jobs=jobs,
-                            selected=selected, editable_org_ids=organizations.ids)
+        profiles = self._visible_profiles(selected.tacare_owner_partner_id).filtered(lambda p:
+            p.user_id != self._user() and p.user_id.active and
+            self._current_consent(p, 'matching', selected.tacare_owner_partner_id, 'profile') and
+            self._current_consent(p, 'matching', selected.tacare_owner_partner_id, 'skills')) if selected else request.env['tacare.profile']
+        matches = [(p, self._match(selected, p)) for p in profiles] if selected else []
+        matches = sorted([p for p in matches if p[1].get('eligible', False)], key=lambda p: p[1]['rank'], reverse=True)
+        return jobs, selected, matches
+
+    def _receive_matching_data(self, profile):
+        jobs = request.env['hr.job'].sudo().search(self._job_domain() + [
+            ('care_matching_enabled', '=', True), ('tacare_owner_user_id', '!=', self._user().id)]) if \
+            self._current_consent(profile, 'matching') else request.env['hr.job']
+        matches = [(job, self._match(job, profile)) for job in jobs]
+        return sorted([p for p in matches if p[1].get('eligible', False)], key=lambda p: p[1]['rank'], reverse=True)
+
+    @http.route('/tacare/matching/<int:job_id>/profile/<int:profile_id>',
+                type='http', auth='user', website=True, methods=['GET'])
+    def matching_profile_detail(self, job_id, profile_id, **kw):
+        """Seasonal profile details, scoped to a live need and current consent."""
+        self._flex_user()
+        job = self._own_job(job_id, 'handle')
+        if not job.care_matching_enabled or not request.env['hr.job'].sudo().search_count(
+                self._job_domain() + [('id', '=', job.id)]):
+            raise NotFound()
+        recipient = job.tacare_owner_partner_id
+        profile = self._visible_profiles(recipient).filtered(lambda p: p.id == profile_id)[:1]
+        if not profile or not self._current_consent(profile, 'matching', recipient, 'profile') or not \
+                self._current_consent(profile, 'matching', recipient, 'skills'):
+            raise NotFound()
+        evidence = profile.evidence_ids.filtered(lambda e: e.visibility in ('public', 'members'))
+        if not self._current_consent(profile, 'discovery', recipient, 'evidence'):
+            evidence = request.env['tacare.profile.evidence']
+        reason = self._match(job, profile)
+        return self._render('kvl_candidate_detail', site='tacare', job=job, profile=profile,
+                            evidence=evidence, comparisons=reason['comparisons'],
+                            can_invite=bool(reason.get('eligible')))
 
     @http.route('/tacare/request/send', type='http', auth='user', methods=['POST'], website=True)
     def request_send(self, **kw):
+        self._flex_user()
         kind = kw.get('type')
         if kind not in ('application', 'invitation'):
             raise BadRequest('Loại đề nghị không hợp lệ.')
@@ -87,8 +122,12 @@ class HubControllers(http.Controller):
             raise BadRequest('ID không hợp lệ.')
         job = request.env['hr.job'].sudo().browse(job_id).exists()
         profile = request.env['tacare.profile'].sudo().browse(profile_id).exists()
-        if not job or not profile or profile.status != 'active' or not profile.user_id.active:
+        if not job or job.care_opportunity_kind != 'flexible' or not profile or profile.care_recruitment_enabled or profile.status != 'active' or not profile.user_id.active:
             raise BadRequest('Tin hoặc hồ sơ không tồn tại.')
+        company_ids = self._user().company_ids.ids
+        profile_companies = company_ids if kind == 'application' or self._role() == 'admin' else self._website('tuhoso').company_id.ids
+        if job.company_id.id not in company_ids or profile.company_id.id not in profile_companies:
+            raise Forbidden('Tin hoặc hồ sơ ngoài phạm vi tài khoản.')
         request.env.cr.execute('SELECT id FROM hr_job WHERE id = %s FOR UPDATE', [job.id])
         job.invalidate_recordset(['tacare_status', 'is_published'])
         if job.tacare_status != 'published' or not job.is_published or (job.tacare_deadline and job.tacare_deadline < fields.Date.today()):
@@ -96,7 +135,7 @@ class HubControllers(http.Controller):
         if kind == 'application':
             self._require_candidate()
             if profile.user_id != self._user():
-                raise Forbidden('Chỉ chủ hồ sơ được ứng tuyển.')
+                raise Forbidden('Chỉ chủ hồ sơ được đề nghị nhận việc.')
             receiver = job.tacare_owner_user_id
         else:
             self._own_job(job.id, 'handle')
@@ -110,8 +149,8 @@ class HubControllers(http.Controller):
                 raise BadRequest('Cần quyền đối chiếu hiện hành cho hồ sơ này.')
             if not self._match(job, profile).get('eligible', False):
                 raise BadRequest('Tin và công việc nhận làm chưa có căn cứ phù hợp hoặc có điều kiện xung đột.')
-        elif not profile.care_recruitment_enabled:
-            raise BadRequest('Chọn hồ sơ tuyển dụng cho tin tuyển dụng.')
+        if receiver == self._user():
+            raise BadRequest('Không thể tự gửi đề nghị cho chính mình.')
         if not receiver:
             raise BadRequest('Chưa có tài khoản nhận đề nghị.')
         message = (kw.get('message') or '').strip()[:2000]
@@ -130,52 +169,45 @@ class HubControllers(http.Controller):
             'snapshot_name': profile.name, 'snapshot_headline': profile.headline,
             'snapshot_skills': ', '.join(profile.skill_ids.mapped('name')),
         }
-        if kind == 'application' and job.care_opportunity_kind == 'recruitment':
-            applicant = request.env['hr.applicant'].sudo().create({
-                'partner_name': profile.name,
-                'email_from': False,
-                'job_id': job.id, 'company_id': job.company_id.id,
-                'applicant_notes': vals['message'],
-            })
-            vals['applicant_id'] = applicant.id
         connection = request.env['tacare.connection'].sudo().create(vals)
         self._audit('connection.' + kind + '.sent', connection)
-        self._notify(receiver, ('Có đề nghị ứng tuyển mới: ' if kind == 'application' else 'Có lời mời trao đổi mới: ') + job.name, connection)
+        self._notify(receiver, ('Có đề nghị nhận việc mới: ' if kind == 'application' else 'Có lời mời trao đổi mới: ') + job.name, connection)
         if kind == 'application':
             members = request.env['care.org.member'].sudo().search([
                 ('organization_id', '=', job.tacare_owner_partner_id.id),
                 ('company_id', '=', job.company_id.id), ('state', '=', 'active')])
             for member in members.filtered(lambda item: item.role in ('owner', 'recruiter') or item.can_handle_candidates):
                 if member.user_id != receiver and member.user_id.active:
-                    self._notify(member.user_id, 'Có đề nghị ứng tuyển mới: ' + job.name, connection)
+                    self._notify(member.user_id, 'Có đề nghị nhận việc mới: ' + job.name, connection)
         return request.redirect(f'/tacare/connection/{connection.id}?notice=sent')
 
     @http.route('/tacare/connections', type='http', auth='user', website=True)
     def connections(self, **kw):
-        if self._role() == 'admin':
-            domain = []
-        elif self._is_business():
-            domain = [('job_id.company_id', '=', request.env.company.id),
-                      ('organization_id', 'in', self._authorized_organizations('handle').ids)]
-        else:
-            domain = [('profile_id.user_id', '=', self._user().id)]
+        self._flex_user()
+        company_ids = self._user().company_ids.ids
+        domain = [('company_id','in',company_ids),('job_id.care_opportunity_kind','=','flexible')]
+        if self._role() == 'business':
+            domain.append(('organization_id','in',self._authorized_organizations('handle').ids))
+        elif self._role() != 'admin':
+            domain += ['|','|','|',('sender_id','=',self._user().id),('receiver_id','=',self._user().id),
+                ('profile_id.user_id','=',self._user().id),('job_id.tacare_owner_user_id','=',self._user().id)]
         if kw.get('type') in ('application', 'invitation'):
             domain.append(('type', '=', kw['type']))
         items = request.env['tacare.connection'].sudo().search(domain, limit=100)
         return self._render('live_connections', items=items)
+
+    def _can_respond_connection(self, item):
+        return self._role() == 'admin' or item.receiver_id == self._user() or (
+            self._role() == 'business' and item.type == 'application' and
+            item.organization_id in self._authorized_organizations('handle'))
 
     @http.route('/tacare/connection/<int:connection_id>', type='http', auth='user', website=True)
     def connection_detail(self, connection_id, **kw):
         item = self._connection(connection_id)
         show_contact = (item.status == 'accepted' and item.contact_consent_id and
                         item.contact_consent_id.is_current('contact', item.organization_id, 'email'))
-        can_respond = (item.status == 'pending' and (self._role() == 'admin' or
-            item.type == 'application' and self._is_business() and
-            item.organization_id in self._authorized_organizations('handle') or
-            item.type == 'invitation' and self._is_candidate() and item.profile_id.user_id == self._user()))
-        can_cancel = (item.status == 'pending' and (self._role() == 'admin' or
-            item.sender_id == self._user() and (self._is_candidate() or
-            item.organization_id in self._authorized_organizations('handle'))))
+        can_respond = item.status == 'pending' and self._can_respond_connection(item)
+        can_cancel = item.status == 'pending' and (self._role() == 'admin' or item.sender_id == self._user())
         return self._render('live_connection_detail', item=item, show_contact=show_contact,
                             can_respond=can_respond, can_cancel=can_cancel)
 
@@ -183,7 +215,7 @@ class HubControllers(http.Controller):
     def connection_contact(self, connection_id, **kw):
         item = self._connection(connection_id)
         if self._role() != 'candidate' or item.profile_id.user_id != self._user() or item.status != 'accepted':
-            raise Forbidden('Chỉ ứng viên trong kết nối đã đồng ý được thay đổi quyền liên hệ.')
+            raise Forbidden('Chỉ người nhận việc trong kết nối đã đồng ý được thay đổi quyền liên hệ.')
         action = kw.get('action')
         if action not in ('grant', 'revoke'):
             raise BadRequest('Thao tác chia sẻ không hợp lệ.')
@@ -191,7 +223,7 @@ class HubControllers(http.Controller):
         if action == 'revoke':
             if consent and consent.state == 'granted':
                 consent.write({'state': 'revoked', 'revoked_at': fields.Datetime.now(),
-                               'revoke_reason': 'Ứng viên thu hồi'})
+                               'revoke_reason': 'Người nhận việc thu hồi'})
             item.write({'contact_consent_id': False})
         elif not consent or not consent.is_current('contact', item.organization_id, 'email'):
             consent = request.env['care.consent'].sudo().create({
@@ -207,10 +239,7 @@ class HubControllers(http.Controller):
         item = self._connection(connection_id)
         request.env.cr.execute('SELECT id FROM tacare_connection WHERE id = %s FOR UPDATE', [item.id])
         item.invalidate_recordset(['status'])
-        business_receiver = (item.type == 'application' and self._is_business() and
-                             item.organization_id in self._authorized_organizations('handle'))
-        candidate_receiver = item.type == 'invitation' and self._is_candidate() and item.profile_id.user_id == self._user()
-        if not (self._role() == 'admin' or business_receiver or candidate_receiver) or item.status != 'pending':
+        if item.status != 'pending' or not self._can_respond_connection(item):
             raise Forbidden('Chỉ bên nhận phản hồi đề nghị đang chờ.')
         status = kw.get('status')
         if status not in ('accepted', 'declined'):
@@ -225,10 +254,7 @@ class HubControllers(http.Controller):
         item = self._connection(connection_id)
         request.env.cr.execute('SELECT id FROM tacare_connection WHERE id = %s FOR UPDATE', [item.id])
         item.invalidate_recordset(['status'])
-        business_sender = (item.type == 'invitation' and item.sender_id == self._user() and
-                           item.organization_id in self._authorized_organizations('handle'))
-        candidate_sender = item.type == 'application' and self._is_candidate() and item.profile_id.user_id == self._user()
-        if not (self._role() == 'admin' or business_sender or candidate_sender) or item.status != 'pending':
+        if item.status != 'pending' or not (self._role() == 'admin' or item.sender_id == self._user()):
             raise Forbidden('Chỉ bên gửi hủy đề nghị đang chờ.')
         item.write({'status': 'cancelled', 'decided_at': fields.Datetime.now()})
         self._audit('connection.cancelled', item)

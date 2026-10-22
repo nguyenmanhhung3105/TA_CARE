@@ -139,6 +139,8 @@ def validate_bundle(data):
             raise ValueError('Invalid parent reference')
         if model in ('hr.job', 'tacare.profile') and parent not in logins:
             raise ValueError('Owner is outside the selected accounts')
+        if model == 'hr.job' and values['care_opportunity_kind'] != 'flexible' or model == 'tacare.profile' and values['care_recruitment_enabled']:
+            raise ValueError('Recruitment is outside the current seasonal-only scope')
         if model == 'tacare.profile' and (values['scope'] != 'private' or values['visible'] is not False or values['share_contact'] is not False):
             raise ValueError('Transferred profiles must remain private')
         if model == 'tacare.profile.evidence' and values['visibility'] != 'private':

@@ -61,7 +61,7 @@ class CareConsent(models.Model):
                                 ('discovery', 'Hiển thị trong tìm kiếm'),
                                 ('contact', 'Chia sẻ liên hệ')], required=True)
     recipient_kind = fields.Selection([('public', 'Mọi người'), ('members', 'Thành viên'),
-                                       ('organization', 'Tổ chức cụ thể')], required=True)
+                                       ('organization', 'Bên thuê cụ thể')], required=True)
     recipient_partner_id = fields.Many2one('res.partner', ondelete='restrict')
     field_scope = fields.Json(default=list, required=True)
     version = fields.Integer(default=1, required=True)
@@ -78,9 +78,9 @@ class CareConsent(models.Model):
     def _check_consent(self):
         for consent in self:
             if consent.recipient_kind == 'organization' and not consent.recipient_partner_id:
-                raise ValidationError('Quyền cho tổ chức cần chỉ rõ tổ chức nhận.')
+                raise ValidationError('Quyền riêng cần chỉ rõ bên nhận.')
             if consent.purpose == 'contact' and consent.recipient_kind != 'organization':
-                raise ValidationError('Quyền liên hệ chỉ cấp cho tổ chức cụ thể.')
+                raise ValidationError('Quyền liên hệ chỉ cấp cho bên thuê cụ thể.')
             if consent.valid_from and consent.valid_until and consent.valid_until <= consent.valid_from:
                 raise ValidationError('Thời hạn quyền chia sẻ không hợp lệ.')
             if not isinstance(consent.field_scope, list) or any(not isinstance(x, str) for x in consent.field_scope):

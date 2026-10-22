@@ -38,7 +38,7 @@
             <p t-if="login_error" class="tc-login-error" role="alert" t-esc="login_error"/>
             <button type="submit" class="tc-button">Đăng nhập</button>
           </form>
-          <p class="tc-login-access" t-esc="{'khovieclam':'Dành cho tài khoản doanh nghiệp và quản trị.','tuhoso':'Dành cho tài khoản ứng viên và quản trị.','tacare':'Dành cho tài khoản doanh nghiệp, ứng viên và quản trị.'}[site]"/>
+          <p class="tc-login-access" t-esc="{'khovieclam':'Cá nhân và doanh nghiệp đều có thể đăng nhu cầu thời vụ.','tuhoso':'Dành cho người nhận việc và quản trị.','tacare':'Dành cho người cần thuê, người nhận việc và quản trị.'}[site]"/>
           <a href="/" class="tc-login-browse" data-login-close="1">Tiếp tục xem trang chủ</a>
         </section>
       </div>

@@ -25,7 +25,7 @@
             <h2 t-esc="record.name" />
             <p t-if="kind == 'jobs'" t-esc="record.tacare_owner_partner_id.name" />
             <p t-if="kind == 'profiles'" t-esc="record.headline or 'Hồ sơ năng lực'" />
-            <a t-if="kind == 'jobs'" t-att-href="'/tacare/job/%s?profile_id=%s' % (record.id, profile.id)">Xem cơ hội và ứng tuyển </a>
+            <a t-if="kind == 'jobs'" t-att-href="'/tacare/job/%s?profile_id=%s' % (record.id, profile.id)">Xem cơ hội và nhận việc </a>
             <t t-else="">
               <a t-att-href="'/tacare/job/%s/profile/%s' % (selected.id, record.id)">Xem hồ sơ </a>
               <form t-if="selected and (role == 'admin' or selected.tacare_owner_partner_id.id in editable_org_ids)" action="/tacare/request/send" method="post" class="tc-mini-form">
@@ -98,13 +98,13 @@
           </p>
           <p t-if="show_contact">
             <strong>Email liên hệ:</strong>
-            <span t-esc="item.profile_id.user_id.partner_id.email or 'Chưa cung cấp'" />
+            <a t-if="item.profile_id.user_id.partner_id.email" t-att-href="'mailto:' + item.profile_id.user_id.partner_id.email" t-esc="item.profile_id.user_id.partner_id.email"/><span t-else="">Chưa cung cấp</span>
           </p>
-          <p t-else="">Ứng viên chưa cấp quyền email cho tổ chức này hoặc đã thu hồi quyền.</p>
+          <p t-else="">Người nhận việc chưa cấp quyền email cho bên thuê này hoặc đã thu hồi quyền.</p>
           <form t-if="role == 'candidate' and item.profile_id.user_id.id == request.env.user.id and item.status == 'accepted'" t-att-action="'/tacare/connection/%s/contact' % item.id" method="post" class="tc-inline-form">
             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
             <button t-if="show_contact" type="submit" name="action" value="revoke">Thu hồi quyền email</button>
-            <button t-else="" type="submit" name="action" value="grant">Chia sẻ email cho tổ chức này</button>
+            <button t-else="" type="submit" name="action" value="grant">Chia sẻ email cho bên thuê này</button>
           </form>
           <p t-if="item.result">
             <strong>Kết quả:</strong>

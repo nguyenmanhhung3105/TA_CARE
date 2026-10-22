@@ -1,0 +1,148 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <template id="seasonal_profiles_home" inherit_id="tacare_website.home_profiles" priority="1000">
+    <xpath expr="//div[@data-care-home='profiles']" position="replace">
+      <t t-call="tacare_website.seasonal_home" />
+    </xpath>
+  </template>
+  <template id="seasonal_profile_workspace" inherit_id="tacare_website.profile_workspace" priority="1000">
+    <xpath expr="//t[@t-call='tacare_website.live_layout']" position="replace">
+      <t t-call="tacare_website.live_layout">
+        <div class="sm-page">
+          <section t-if="home_page" class="sm-shell sm-provider-cover">
+            <div>
+              <p class="sm-eyebrow">TỦ HỒ SƠ NHẬN VIỆC</p>
+              <h1>Khả năng của bạn.<br />
+                <em>Kết nối tiếp theo.</em>
+              </h1>
+              <p>Giữ rõ việc nhận làm, lịch, khu vực và tiền công. Chỉ hồ sơ được bạn cho phép mới tham gia gợi ý.</p>
+              <a class="tc-button" href="/tuhoso/profiles/new?kind=flexible">Giới thiệu khả năng mới</a>
+            </div>
+            <t t-call="tacare_website.seasonal_carousel" />
+          </section>
+          <section t-att-class="'sm-shell sm-library' if home_page else 'sm-library'">
+            <div class="sm-section-head">
+              <div>
+                <p class="sm-eyebrow">KHÔNG GIAN CỦA BẠN</p>
+                <h1 t-if="not home_page">Hồ sơ nhận việc</h1>
+                <h2 t-else="">Công việc bạn nhận làm</h2>
+                <p>Quản lý riêng từng hướng nhận việc, không cần tạo thêm tài khoản.</p>
+              </div>
+              <a class="tc-button" href="/tuhoso/profiles/new?kind=flexible">Tạo hồ sơ nhận việc</a>
+            </div>
+            <nav class="sm-view-tabs" aria-label="Phạm vi hồ sơ">
+              <a href="/tuhoso/profiles?scope=mine" t-att-aria-current="'page' if scope == 'mine' else None">Hồ sơ của tôi</a>
+              <a t-if="role == 'admin'" href="/tuhoso/profiles?scope=all" t-att-aria-current="'page' if scope == 'all' else None">Tất cả hồ sơ</a>
+            </nav>
+            <form method="get" class="sm-library-search">
+              <input type="hidden" name="scope" t-att-value="scope" />
+              <label>Tìm hồ sơ hoặc việc nhận làm<input type="search" name="q" t-att-value="query.get('q','')" placeholder="Chăm cây, dọn nhà…" />
+              </label>
+              <button type="submit" class="tc-button tc-outline">Tìm trong tủ</button>
+            </form>
+            <p class="sm-result">
+              <strong t-esc="len(profiles)" /> hồ sơ nhận việc</p>
+            <div class="sm-profile-grid">
+              <article t-foreach="profiles" t-as="p" class="sm-profile-card">
+                <p class="sm-eyebrow">HỒ SƠ NHẬN VIỆC</p>
+                <h3>
+                  <a t-att-href="'/tuhoso/profile/%s' % p.id" t-esc="p.profile_title or p.name" />
+                </h3>
+                <p t-esc="p.name" />
+                <p class="sm-muted" t-esc="p.headline or 'Bổ sung giới thiệu ngắn về việc nhận làm.'" />
+                <div class="sm-service-chips">
+                  <span t-foreach="p.capability_ids[:4]" t-as="s" t-esc="s.title" />
+                </div>
+                <p>
+                  <strong t-esc="len(p.capability_ids)" /> mục nhận làm · <t t-esc="dict(p._fields['scope'].selection).get(p.scope)" />
+                </p>
+                <div class="sm-profile-actions">
+                  <a class="tc-button tc-outline" t-att-href="'/tuhoso/profile/%s' % p.id">Mở hồ sơ</a>
+                  <a t-att-href="'/tuhoso/profile/%s/edit' % p.id">Chỉnh sửa</a>
+                  <a t-if="role == 'admin'" class="tc-delete-link" t-att-href="'/tuhoso/profile/%s/remove' % p.id">Xóa</a>
+                </div>
+              </article>
+            </div>
+            <div t-if="not profiles" class="sm-empty">
+              <h2>Bắt đầu từ một việc bạn làm được.</h2>
+              <p>Tạo hồ sơ, thêm đầu việc, lịch và khu vực nhận việc.</p>
+              <a class="tc-button" href="/tuhoso/profiles/new?kind=flexible">Tạo hồ sơ đầu tiên</a>
+            </div>
+          </section>
+          <t t-if="home_page" t-call="tacare_website.seasonal_footer" />
+        </div>
+      </t>
+    </xpath>
+  </template>
+  <template id="seasonal_profile_create" inherit_id="tacare_website.profile_create" priority="1000">
+    <xpath expr="//t[@t-call='tacare_website.live_layout']" position="replace">
+      <t t-call="tacare_website.live_layout">
+        <div class="sm-create">
+          <a href="/tuhoso/profiles">Trở về tủ hồ sơ</a>
+          <p class="sm-eyebrow">BẮT ĐẦU NHẬN VIỆC THỜI VỤ</p>
+          <h1>Bạn nhận làm việc gì?</h1>
+          <p>Một hồ sơ có thể gồm nhiều đầu việc. Sau bước này, thêm nghề, lịch, khu vực và mức tiền công.</p>
+          <p t-if="error" role="alert" class="tc-error" t-esc="error" />
+          <form class="tc-form tc-card" action="/tuhoso/profiles/create" method="post">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+            <input type="hidden" name="kind" value="flexible" />
+            <label>Tên hồ sơ nhận việc *<input name="profile_title" required="required" minlength="2" maxlength="160" t-att-value="vals.get('profile_title','')" placeholder="Ví dụ: Chăm vườn và cây cảnh cuối tuần" />
+            </label>
+            <button class="tc-button" type="submit">Tạo và thêm việc nhận làm</button>
+            <small>Hồ sơ mới được giữ riêng tư. Bạn tự quyết định khi nào chia sẻ.</small>
+          </form>
+        </div>
+      </t>
+    </xpath>
+  </template>
+  <template id="seasonal_profile_detail" inherit_id="tacare_website.profile_overview" priority="1000">
+    <xpath expr="//t[@t-call='tacare_website.live_layout']" position="replace">
+      <t t-call="tacare_website.live_layout">
+        <div class="sm-page">
+          <a href="/tuhoso/profiles">Trở về tủ hồ sơ</a>
+          <div class="sm-section-head">
+            <div>
+              <p class="sm-eyebrow">HỒ SƠ NHẬN VIỆC THỜI VỤ</p>
+              <h1 t-esc="profile.profile_title or profile.name" />
+              <p t-esc="profile.name" />
+            </div>
+            <div class="sm-profile-actions">
+              <a class="tc-button tc-outline" t-att-href="'/tuhoso/profile/%s/edit' % profile.id">Chỉnh sửa hồ sơ</a>
+              <a t-if="owner" class="tc-button" t-att-href="'/tuhoso/work/new?profile_id=%s' % profile.id">Thêm việc nhận làm</a>
+              <a t-if="role == 'admin'" class="tc-delete-link" t-att-href="'/tuhoso/profile/%s/remove' % profile.id">Xóa hồ sơ</a>
+            </div>
+          </div>
+          <section class="tc-card">
+            <h2>Việc tôi nhận làm</h2>
+            <p class="tc-prose" t-esc="profile.bio or 'Chưa bổ sung giới thiệu.'" />
+            <p t-if="profile.goal" t-esc="profile.goal" />
+          </section>
+          <div class="fw-grid sm-work-grid">
+            <t t-foreach="services" t-as="record" t-call="tacare_website.work_card">
+              <t t-set="is_service" t-value="True" />
+              <t t-set="mine" t-value="True" />
+            </t>
+          </div>
+          <section t-if="owner" class="tc-card sm-sharing">
+            <h2>Chia sẻ và tham gia ghép nối</h2>
+            <p>Chọn phạm vi tìm thấy hồ sơ. Quyền chia sẻ liên hệ được quyết định riêng sau khi hai bên kết nối.</p>
+            <form action="/tuhoso/sharing/save" method="post" class="tc-form">
+              <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+              <input type="hidden" name="profile_id" t-att-value="profile.id" />
+              <label>Phạm vi hồ sơ<select name="scope">
+                  <option t-foreach="profile._fields['scope'].selection" t-as="s" t-att-value="s[0]" t-att-selected="profile.scope == s[0]" t-esc="s[1]" />
+                </select>
+              </label>
+              <label class="tc-check">
+                <input type="checkbox" name="visible" t-att-checked="profile.visible" />Cho phép tìm thấy hồ sơ</label>
+              <label class="tc-check">
+                <input type="checkbox" name="matching" t-att-checked="matching_enabled" />Cho phép đối chiếu tại TA.CARE</label>
+              <button class="tc-button tc-outline" type="submit">Lưu quyền chia sẻ</button>
+            </form>
+            <a t-att-href="urls['tacare'] + 'tacare/matching?view=receive&amp;profile_id=%s' % profile.id">Xem việc phù hợp với hồ sơ này</a>
+          </section>
+        </div>
+      </t>
+    </xpath>
+  </template>
+</odoo>

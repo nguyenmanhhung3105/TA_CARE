@@ -21,7 +21,7 @@ class ProfileFlexible(KhoFlexible):
         kind = kw.get('kind', 'recruitment')
         if kind not in ('recruitment', 'flexible'):
             raise BadRequest('Loại hồ sơ không hợp lệ.')
-        domain = [('company_id', '=', request.env.company.id)]
+        domain = [('company_id', 'in', self._user().company_ids.ids)]
         if self._role() != 'admin':
             domain.append(('user_id', '=', self._user().id))
         profiles = request.env['tacare.profile'].sudo().search(domain)
@@ -53,7 +53,7 @@ class ProfileFlexible(KhoFlexible):
         # Tủ Hồ Sơ is now a personal workspace. Recruitment candidate access remains
         # on the separately authorized Kho routes, never this URL.
         self._flex_user()
-        domain = [('id', '=', profile_id), ('company_id', '=', request.env.company.id)]
+        domain = [('id', '=', profile_id), ('company_id', 'in', self._user().company_ids.ids)]
         if self._role() != 'admin':
             domain.append(('user_id', '=', self._user().id))
         profile = request.env['tacare.profile'].sudo().search(domain, limit=1)

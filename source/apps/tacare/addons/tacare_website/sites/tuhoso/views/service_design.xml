@@ -1,0 +1,114 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <template id="provider_everyday_gallery" name="Tủ · Những khả năng đời thường">
+    <section class="sx-provider-gallery" data-work-carousel="1" data-work-autoplay="0" aria-roledescription="carousel" aria-label="Những công việc có thể nhận làm" tabindex="0">
+      <div class="sx-provider-stage">
+        <figure t-foreach="provider_stories" t-as="story" data-work-slide="1" t-att-class="'sx-provider-slide is-active' if story_index == 0 else 'sx-provider-slide'" t-att-aria-hidden="'false' if story_index == 0 else 'true'" t-att-inert="None if story_index == 0 else 'inert'">
+          <img t-att-src="'/tacare_website/static/src/img/services/%s.webp' % story[1]" width="1200" height="800" t-att-alt="'Ảnh minh họa ' + service_by_code[story[0]]['label'].lower()" />
+          <figcaption>
+            <span class="sx-category-icon" t-att-data-tone="service_by_code[story[0]]['tone']">
+              <t t-call="tacare_website.service_icon">
+                <t t-set="icon" t-value="service_by_code[story[0]]['icon']" />
+              </t>
+            </span>
+            <small t-esc="service_by_code[story[0]]['label']" />
+            <strong t-esc="story[2]" />
+            <span>Ảnh minh họa công việc</span>
+          </figcaption>
+        </figure>
+      </div>
+      <div class="sx-provider-gallery-bottom">
+        <div class="sx-story-dots" aria-label="Chọn ảnh công việc">
+          <button t-foreach="provider_stories" t-as="story" type="button" data-work-dot="1" t-att-aria-pressed="'true' if story_index == 0 else 'false'" t-att-aria-label="'Xem ảnh ' + service_by_code[story[0]]['label'].lower()" />
+        </div>
+        <t t-call="tacare_website.service_gallery_controls" />
+      </div>
+    </section>
+  </template>
+  <template id="provider_everyday_home" name="Tủ · Tổng quan không gian năng lực">
+    <div class="sx-page tp-home to-home">
+      <section class="sx-shell to-overview" aria-labelledby="to-home-title">
+        <header class="to-heading"><p class="sx-kicker">TỦ HỒ SƠ · MỘT KẾT NỐI TỪ TA.CARE</p><h1 id="to-home-title">Mỗi người một khả năng.<br/><span>Mỗi khả năng một cơ hội.</span></h1><p>Tủ Hồ Sơ là nơi giới thiệu điều bạn làm được, quản lý những việc bạn nhận làm và chuẩn bị cho các kết nối phù hợp. Từ việc quen tay trong cuộc sống đến kỹ năng làm việc từ xa.</p><div class="to-actions"><a class="sx-button" href="/tuhoso/profiles/new?kind=flexible">Tạo hồ sơ nhận việc<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'plus'"/></t></a><a class="sx-button sx-button-light" href="/tuhoso/profiles?scope=mine">Mở hồ sơ của tôi<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></a></div></header>
+        <div class="to-visual"><t t-call="tacare_website.provider_everyday_gallery"/></div>
+      </section>
+      <section class="sx-shell to-purpose" aria-labelledby="to-purpose-title"><div class="to-section-title"><p class="sx-kicker">TỪ KHẢ NĂNG ĐẾN KẾT NỐI</p><h2 id="to-purpose-title">Một nơi để giới thiệu.<br/>Một cách để sẵn sàng.</h2></div><ol><li><span>01 / HỒ SƠ</span><h3>Cho biết bạn làm được gì</h3><p>Giới thiệu khả năng và hướng nhận làm. Một tài khoản có thể có nhiều hồ sơ cho từng mục đích.</p><a class="sx-text-link" href="/tuhoso/profiles/new?kind=flexible">Tạo hồ sơ<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></a></li><li><span>02 / VIỆC NHẬN LÀM</span><h3>Làm rõ điều kiện thực hiện</h3><p>Ghi rõ đầu việc, khu vực, lịch, tiền công và dụng cụ trong từng việc nhận làm.</p><a class="sx-text-link" href="/tuhoso/profiles?scope=mine">Quản lý trong tủ của bạn<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></a></li><li><span>03 / KẾT NỐI</span><h3>Mở thêm cơ hội phù hợp</h3><p>Khi bạn cho phép, hồ sơ có thể tham gia đối chiếu tại TA.CARE. Hai bên chủ động trao đổi và xác nhận.</p><a class="sx-text-link" t-att-href="urls['tacare'] + 'tacare/matching?view=receive'">Tìm hiểu việc phù hợp<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></a></li></ol></section>
+      <section class="sx-shell to-categories" aria-labelledby="to-categories-title"><div class="to-section-title"><p class="sx-kicker">ĐA DẠNG KHẢ NĂNG, NHIỀU HƯỚNG NHẬN LÀM</p><h2 id="to-categories-title">Từ những việc rất đời thường.</h2><p>Chọn một hướng để bắt đầu giới thiệu khả năng của bạn.</p></div><t t-call="tacare_website.service_categories"><t t-set="service_intent" t-value="'offer'"/></t></section>
+      <section class="sx-shell to-privacy"><span class="to-privacy-icon"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'lock-simple'"/></t></span><div><p class="sx-kicker">BẠN QUYẾT ĐỊNH CÁCH CHIA SẺ</p><h2>Khả năng được giới thiệu.<br/>Thông tin riêng được bạn quản lý.</h2><p>Hồ sơ mới được giữ riêng tư. Quyền tìm thấy và đối chiếu được thiết lập trong từng hồ sơ; quyền chia sẻ liên hệ được quyết định riêng sau khi hai bên đồng ý kết nối.</p></div><a class="sx-text-link" t-att-href="urls['tacare'] + 'how-it-works'">Xem cách hoạt động<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></a></section>
+    </div>
+  </template>
+  <template id="provider_everyday_home_rollout" inherit_id="tacare_website.seasonal_profiles_home" priority="1300">
+    <xpath expr="//t[@t-call='tacare_website.seasonal_home']" position="attributes">
+      <attribute name="t-call">tacare_website.provider_everyday_home</attribute>
+    </xpath>
+  </template>
+  <template id="provider_everyday_workspace" inherit_id="tacare_website.seasonal_profile_workspace" priority="1300">
+    <xpath expr="//t[@t-call='tacare_website.live_layout']" position="replace">
+      <t t-call="tacare_website.live_layout">
+        <div class="sx-page sx-workspace tp-workspace tl-workspace" t-att-data-workspace-home="'1' if home_page else '0'">
+          <div t-att-class="'sx-shell tl-studio' if home_page else 'tl-studio'">
+            <aside class="tl-index tl-workspace-index" aria-label="Quản lý tủ hồ sơ"><p class="tl-index-kicker">KHÔNG GIAN CỦA BẠN</p><h2>Mỗi hồ sơ,<br/>một hướng làm.</h2>
+              <nav class="sx-view-tabs" aria-label="Phạm vi hồ sơ"><a href="/tuhoso/profiles?scope=mine" t-att-aria-current="'page' if scope == 'mine' else None">Hồ sơ của tôi</a><a t-if="role == 'admin'" href="/tuhoso/profiles?scope=all" t-att-aria-current="'page' if scope == 'all' else None">Tất cả hồ sơ</a></nav>
+              <a class="sx-button tl-sidebar-create" href="/tuhoso/profiles/new?kind=flexible">Tạo hồ sơ<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'plus'"/></t></a>
+              <div class="tl-sidebar-links"><a t-att-href="urls['tacare'] + 'tacare/matching?view=receive'">Tìm việc phù hợp<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></a><a t-att-href="urls['tacare'] + 'tacare/connections'">Kết nối của tôi<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></a></div>
+              <div class="tl-index-note"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'lock-simple'"/></t><p>Bạn quản lý cách chia sẻ trong từng hồ sơ.</p></div>
+            </aside>
+            <div class="tl-stage">
+              <header class="tl-workspace-header"><div><p class="sx-kicker">XIN CHÀO, <t t-esc="account_name"/></p><h1 t-esc="'Thư viện hồ sơ' if scope == 'all' else 'Tủ hồ sơ của bạn'"/><p t-esc="'Các hồ sơ trong phạm vi quản lý được cấp quyền.' if scope == 'all' else 'Mở từng hồ sơ để thêm việc nhận làm, cập nhật lịch và quyền chia sẻ.'"/></div><span class="tl-workspace-mark" aria-hidden="true"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'stack'"/></t></span></header>
+            <section class="sx-library tp-library tl-library" id="profile-library" aria-labelledby="tp-library-title">
+              <div class="sx-library-toolbar"><form method="get" class="sx-library-search" role="search"><input type="hidden" name="scope" t-att-value="scope"/><label class="visually-hidden" for="sx-library-query">Tìm hồ sơ hoặc việc nhận làm</label><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'magnifying-glass'"/></t><input id="sx-library-query" name="q" type="search" t-att-value="query.get('q','')" placeholder="Tìm tên hồ sơ, việc nhận làm…"/><button type="submit" aria-label="Tìm trong tủ"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></button></form></div>
+              <div class="sx-result-heading"><div><p class="sx-kicker">BỘ SƯU TẬP KHẢ NĂNG</p><h2 id="tp-library-title" t-esc="'Hồ sơ trong phạm vi quản lý' if scope == 'all' else 'Những điều bạn đang giới thiệu'"/></div><span><t t-esc="len(profiles)"/> hồ sơ</span></div>
+              <div class="sx-profile-shelves tp-profile-grid tl-folders">
+                <article t-foreach="profiles" t-as="p" class="sx-profile-shelf tp-profile-card tl-folder" t-att-data-profile-id="p.id">
+                  <t t-set="first_offer" t-value="p.capability_ids[:1]"/>
+                  <div class="sx-profile-cover"><span class="tl-folder-number" t-esc="'%02d' % (p_index + 1)"/><img t-if="first_offer" t-att-src="first_offer._care_photo_url()" width="680" height="480" alt="Ảnh minh họa nhóm công việc, không phải ảnh chủ hồ sơ" loading="lazy"/><span t-else="" class="sx-category-icon" data-tone="mint"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'stack'"/></t></span><span class="tp-cover-label" t-esc="first_offer.flex_category_id.name if first_offer else 'Góc giới thiệu mới'"/><small t-if="first_offer">Ảnh minh họa</small></div>
+                  <div class="sx-profile-content"><div class="sx-work-meta"><span><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'stack'"/></t><t t-esc="len(p.capability_ids)"/> mục nhận làm</span><small t-esc="dict(p._fields['scope'].selection).get(p.scope)"/></div><h3><a t-att-href="'/tuhoso/profile/%s' % p.id" t-esc="p.profile_title or p.name"/></h3><p t-if="scope == 'all'" class="sx-profile-owner" t-esc="p.name"/><p t-esc="p.bio or p.headline or 'Thêm vài dòng giới thiệu những việc bạn nhận làm.'"/><div class="sx-offer-pills"><span t-foreach="p.capability_ids[:3]" t-as="s" t-esc="s.title"/></div><div class="sx-profile-actions"><a class="sx-button" t-att-href="'/tuhoso/profile/%s' % p.id">Mở hồ sơ<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></a><a t-att-href="'/tuhoso/profile/%s/edit' % p.id">Chỉnh sửa</a><a t-if="role == 'admin'" class="tc-delete-link" t-att-href="'/tuhoso/profile/%s/remove' % p.id">Xóa</a></div></div>
+                </article>
+              </div>
+              <div t-if="not profiles" class="sx-empty tp-empty"><span class="tp-empty-icon"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'stack'"/></t></span><p class="sx-kicker" t-esc="'KẾT QUẢ TÌM KIẾM' if query.get('q') else 'MỘT GÓC MỚI CHO KHẢ NĂNG CỦA BẠN'"/><h2 t-esc="'Chưa tìm thấy hồ sơ phù hợp.' if query.get('q') else 'Hồ sơ đầu tiên bắt đầu từ bạn.'"/><p t-esc="'Thử từ khóa khác hoặc bỏ bộ lọc tìm kiếm.' if query.get('q') else 'Đặt tên cho hướng nhận làm, rồi thêm những việc cụ thể, lịch và tiền công.'"/><a t-if="query.get('q')" class="sx-button sx-button-light" t-att-href="'/tuhoso/profiles?scope=' + scope">Xem lại tủ hồ sơ</a><a t-else="" class="sx-button" href="/tuhoso/profiles/new?kind=flexible">Tạo hồ sơ đầu tiên<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'plus'"/></t></a></div>
+              <p class="sx-private-note"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'lock-simple'"/></t>Quyền tìm thấy, đối chiếu và liên hệ được quản lý riêng trong từng hồ sơ.</p>
+            </section>
+            </div>
+          </div>
+        </div>
+      </t>
+    </xpath>
+  </template>
+  <template id="provider_everyday_create" inherit_id="tacare_website.seasonal_profile_create" priority="1300">
+    <xpath expr="//t[@t-call='tacare_website.live_layout']" position="replace">
+      <t t-call="tacare_website.live_layout">
+        <div class="sx-create-layout">
+          <aside class="sx-create-story">
+            <p class="sx-kicker">BẮT ĐẦU MỘT KHẢ NĂNG MỚI</p>
+            <h1>Góc nhỏ của bạn.<br /> Khả năng lớn hơn.</h1>
+            <img src="/tacare_website/static/src/img/services/garden.webp" width="720" height="480" alt="Ảnh minh họa chăm vườn" />
+            <p>Hôm nay là một việc quen.<br /> Ngày mai có thể là kết nối mới.</p>
+          </aside>
+          <section class="sx-create-form">
+            <a class="sx-text-link" href="/tuhoso/profiles">
+              <t t-call="tacare_website.service_icon">
+                <t t-set="icon" t-value="'arrow-left'" />
+              </t>Trở về tủ hồ sơ</a>
+            <p class="sx-kicker">BƯỚC ĐẦU TIÊN</p>
+            <h2>Bạn muốn giới thiệu điều gì?</h2>
+            <p>Đặt một tên dễ hiểu. Ở bước tiếp theo, bạn sẽ thêm việc nhận làm, lịch, khu vực và tiền công.</p>
+            <p t-if="error" role="alert" class="tc-error" t-esc="error" />
+            <form class="tc-form" action="/tuhoso/profiles/create" method="post">
+              <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+              <input type="hidden" name="kind" value="flexible" />
+              <label>Tên hồ sơ nhận việc *<input name="profile_title" required="required" minlength="2" maxlength="160" t-att-value="vals.get('profile_title','')" placeholder="Ví dụ: Chăm cây và vườn nhỏ cuối tuần" />
+              </label>
+              <button class="sx-button" type="submit">Tạo và thêm việc nhận làm<t t-call="tacare_website.service_icon">
+                  <t t-set="icon" t-value="'arrow-right'" />
+                </t>
+              </button>
+              <small>
+                <t t-call="tacare_website.service_icon">
+                  <t t-set="icon" t-value="'lock-simple'" />
+                </t>Hồ sơ mới được giữ riêng tư. Bạn tự chọn lúc chia sẻ.</small>
+            </form>
+          </section>
+        </div>
+      </t>
+    </xpath>
+  </template>
+</odoo>

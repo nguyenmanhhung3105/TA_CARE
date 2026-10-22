@@ -39,21 +39,28 @@ class TacareWebsite(Website):
 
         site = ('khovieclam' if 'khovieclam' in host else
                 'tuhoso' if 'tuhoso' in host else 'tacare')
-        if site == 'tuhoso' and not request.env.user._is_public() and \
-                request.env.user._tacare_can_access_host(request.httprequest.host):
-            from .profiles import TacareProfiles
-            return TacareProfiles().profile_library(**{**kw, '_home': True})
         urls = {
             key: f'http://{key}.localhost:8069/' if local else value
             for key, value in {'khovieclam': 'https://khovieclam.vn/',
                                'tuhoso': 'https://tuhoso.com/', 'tacare': 'https://tacare.vn/'}.items()
         }
         admin_overview = False
+        home_examples = []
+        home_suggestions = False
+        if site == 'tacare':
+            from ..sites.tacare.examples import TacareExamples
+            hub = TacareExamples()
+            home_examples = hub._example_cards()
+            if not request.env.user._is_public() and request.env.user._tacare_can_access_host(request.httprequest.host):
+                home_suggestions = hub._home_suggestions()
         if site == 'tacare' and not request.env.user._is_public() and request.env.user.has_group('base.group_system'):
             from ..sites.tacare.examples import TacareExamples
             admin_overview = TacareExamples()._home_admin_matches(**kw)
+        from .seasonal import marketplace_context
         response = request.render('tacare_website.live_home', {
+            **marketplace_context(request.env),
             'admin_overview': admin_overview,
+            'home_examples': home_examples, 'home_suggestions': home_suggestions,
             **site_context(site, urls),
             'site': site,
             'role': ('admin' if request.env.user.has_group('base.group_system') else
@@ -67,14 +74,14 @@ class TacareWebsite(Website):
             'modes': MODES,
             'notice': False,
             'jobs': request.env['hr.job'].sudo().search([
-                ('tacare_status', '=', 'published'),
+                ('care_opportunity_kind', '=', 'flexible'), ('tacare_status', '=', 'published'),
                 ('is_published', '=', True), '|', ('tacare_deadline', '=', False),
                 ('tacare_deadline', '>=', fields.Date.today()),
                 ('website_id', '=', request.env['website'].sudo().search([
                     ('domain', 'ilike', 'khovieclam')], limit=1).id),
             ], limit=4, order='create_date desc, id desc'),
             'job_count': request.env['hr.job'].sudo().search_count([
-                ('tacare_status', '=', 'published'),
+                ('care_opportunity_kind', '=', 'flexible'), ('tacare_status', '=', 'published'),
                 ('is_published', '=', True), '|', ('tacare_deadline', '=', False),
                 ('tacare_deadline', '>=', fields.Date.today()),
                 ('website_id', '=', request.env['website'].sudo().search([

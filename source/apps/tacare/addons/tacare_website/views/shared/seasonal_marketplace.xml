@@ -1,0 +1,209 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+  <template id="seasonal_navigation" name="Điều hướng nền tảng thời vụ">
+    <header class="sm-nav sm-shell">
+      <a class="sm-brand" t-att-href="urls[site]">
+        <img t-att-src="'/tacare_website/static/src/img/%s.png' % site" width="44" height="44" t-att-alt="site_labels[site]" />
+        <span>
+          <strong t-esc="site_labels[site]" />
+          <small>Việc thời vụ · Kết nối đa ngành</small>
+        </span>
+      </a>
+      <nav aria-label="Điều hướng chính">
+        <a t-att-href="urls['khovieclam'] + 'kvl/jobs'" data-nav-link="1">Khám phá việc</a>
+        <a t-att-href="urls['tacare'] + 'tacare/matching?view=hire'" data-nav-link="1">Tìm người làm</a>
+        <a t-if="'tuhoso' in switch_sites" t-att-href="urls['tuhoso'] + 'tuhoso/profiles'" data-nav-link="1">Việc tôi nhận</a>
+        <a t-att-href="urls['tacare'] + 'tacare/connections'" data-nav-link="1">Kết nối</a>
+      </nav>
+      <div class="sm-nav-actions">
+        <a class="tc-button tc-outline" t-att-href="urls['khovieclam'] + 'kvl/flexible/new'">Đăng nhu cầu</a>
+        <a t-if="is_guest" class="sm-login" href="/web/login?redirect=/">Đăng nhập</a>
+        <a t-else="" class="sm-login" href="/web/session/logout?redirect=/">Đăng xuất</a>
+      </div>
+    </header>
+  </template>
+  <template id="seasonal_layout" inherit_id="tacare_website.live_layout" priority="1100">
+    <xpath expr="//t[@t-call='tacare_website.home_navigation']" position="attributes">
+      <attribute name="t-call">tacare_website.seasonal_navigation</attribute>
+    </xpath>
+    <xpath expr="//header" position="replace">
+      <t t-if="not home_page and site != 'tuhoso'" t-call="tacare_website.seasonal_navigation" />
+    </xpath>
+    <xpath expr="//t[@t-call='tacare_website.profile_navigation']" position="attributes">
+      <attribute name="t-call">tacare_website.seasonal_navigation</attribute>
+    </xpath>
+  </template>
+  <template id="seasonal_categories" name="Danh mục việc thời vụ">
+    <section class="sm-shell sm-categories" id="sm-categories">
+      <div class="sm-section-head">
+        <div>
+          <p class="sm-eyebrow">MỘT KẾT NỐI, NHIỀU KHẢ NĂNG</p>
+          <h2>Bạn cần hoàn thành việc gì?</h2>
+        </div>
+        <a t-att-href="urls['khovieclam'] + 'kvl/jobs'">Xem tất cả công việc</a>
+      </div>
+      <div class="sm-category-grid">
+        <a t-foreach="seasonal_categories" t-as="c" t-att-href="urls['khovieclam'] + 'kvl/jobs?category=%s' % c.id">
+          <img t-att-src="'/tacare_website/static/src/img/work-%s.jpg' % seasonal_photos.get(c.code,'team')" width="144" height="112" alt="" loading="lazy" />
+          <strong t-esc="c.name" />
+          <small>
+            <t t-esc="seasonal_category_counts.get(c.id,0)" /> nhu cầu đang mở</small>
+        </a>
+      </div>
+    </section>
+  </template>
+  <template id="seasonal_carousel" name="Ảnh công việc theo sản phẩm">
+    <section class="sm-carousel" data-work-carousel="1" aria-roledescription="carousel" aria-label="Các công việc có thể kết nối" tabindex="0">
+      <div class="sm-carousel-track">
+        <figure t-foreach="[('cleaning','Dọn dẹp theo giờ','Một không gian gọn hơn. Một ngày nhẹ hơn.'),('warehouse','Hỗ trợ kho theo ca','Thêm người khi công việc cần.'),('tools','Lắp ráp và sửa chữa','Đúng đầu việc. Rõ phần bàn giao.')] if site == 'khovieclam' else [('garden','Chăm vườn, chăm cây','Khả năng của bạn bắt đầu từ việc quen thuộc.'),('cooking','Nấu ăn theo buổi','Nhận việc theo lịch bạn có thể làm.'),('digital','Dịch vụ số theo sản phẩm','Tạo giá trị, dù làm tại chỗ hay từ xa.')]" t-as="slide" t-att-class="'sm-slide is-active' if slide_index == 0 else 'sm-slide'" data-work-slide="1" t-att-aria-hidden="'false' if slide_index == 0 else 'true'" t-att-inert="'inert' if slide_index else None">
+          <img t-att-src="'/tacare_website/static/src/img/work-%s.jpg' % slide[0]" width="960" height="760" t-att-alt="slide[1]" t-att-loading="'eager' if slide_index == 0 else 'lazy'" />
+          <figcaption>
+            <span t-esc="slide[1]" />
+            <strong t-esc="slide[2]" />
+          </figcaption>
+        </figure>
+      </div>
+      <div class="sm-carousel-controls">
+        <button type="button" data-work-prev="1" aria-label="Ảnh trước">Trước</button>
+        <span>Việc thật trong đời sống</span>
+        <button type="button" data-work-pause="1" aria-pressed="false">Tạm dừng</button>
+        <button type="button" data-work-next="1" aria-label="Ảnh tiếp theo">Sau</button>
+      </div>
+      <span class="fw-carousel-status visually-hidden" aria-live="polite" aria-atomic="true" />
+    </section>
+  </template>
+  <template id="seasonal_flow" name="Luồng kết nối thời vụ">
+    <section class="sm-shell sm-flow">
+      <div class="sm-section-head">
+        <div>
+          <p class="sm-eyebrow">TỪ MỘT NHU CẦU ĐẾN MỘT KẾT NỐI</p>
+          <h2>Rõ việc. Hợp lịch. Cùng bắt đầu.</h2>
+        </div>
+        <a t-att-href="urls['tacare'] + 'how-it-works'">Tìm hiểu cách hoạt động</a>
+      </div>
+      <ol>
+        <li>
+          <span>01</span>
+          <h3>Nêu việc cần làm</h3>
+          <p>Chọn nghề, thời gian, khu vực và ngân sách. Cá nhân hay doanh nghiệp đều có thể đăng.</p>
+        </li>
+        <li>
+          <span>02</span>
+          <h3>Đối chiếu hai phía</h3>
+          <p>Xem đầu việc, lịch nhận, khu vực và tiền công. Những gì chưa rõ được để lại để trao đổi.</p>
+        </li>
+        <li>
+          <span>03</span>
+          <h3>Gửi lời kết nối</h3>
+          <p>Hai bên đồng ý trước khi chia sẻ liên hệ và thống nhất phạm vi thực hiện.</p>
+        </li>
+      </ol>
+    </section>
+  </template>
+  <template id="seasonal_footer" name="Chân trang thời vụ">
+    <footer class="sm-footer sm-shell">
+      <a t-att-href="urls['tacare']">TA.CARE</a>
+      <p>Kết nối người cần việc hoàn thành với người có thể làm.</p>
+      <a t-att-href="urls['tacare'] + 'how-it-works'">Cách hoạt động</a>
+    </footer>
+  </template>
+  <template id="seasonal_home" name="Trang chủ nền tảng ghép nối thời vụ">
+    <div class="sm-page">
+      <section t-att-class="'sm-hero sm-shell sm-hub-hero' if site == 'tacare' else 'sm-hero sm-shell'">
+        <div class="sm-hero-copy">
+          <p class="sm-eyebrow" t-esc="{'khovieclam':'KHO NHU CẦU VIỆC THỜI VỤ','tuhoso':'KHẢ NĂNG CỦA BẠN, CÔNG VIỆC CỦA BẠN','tacare':'HỆ SINH THÁI GHÉP NỐI ĐA NGÀNH'}[site]" />
+          <h1 t-if="site == 'khovieclam'">Một việc cần làm.<br />
+            <em>Một người phù hợp.</em>
+          </h1>
+          <h1 t-elif="site == 'tuhoso'">Việc bạn làm được.<br />
+            <em>Lịch bạn sẵn sàng.</em>
+          </h1>
+          <h1 t-else="">Mỗi nhu cầu,<br />
+            <em>một kết nối phù hợp.</em>
+          </h1>
+          <p class="sm-lead" t-esc="{'khovieclam':'Từ việc trong nhà đến hỗ trợ kinh doanh. Đăng nhu cầu hoặc tìm một việc thời vụ phù hợp với lịch của bạn.','tuhoso':'Giới thiệu công việc nhận làm, khu vực, lịch rảnh và đơn giá. Một tài khoản, nhiều khả năng tạo giá trị.','tacare':'Ghép người cần hoàn thành công việc với người có thể làm — theo đầu việc, thời gian, khu vực và chi phí.'}[site]" />
+          <div class="sm-intents">
+            <a class="tc-button" t-att-href="urls['khovieclam'] + 'kvl/flexible/new'">Tôi cần người làm</a>
+            <a class="tc-button tc-outline" t-att-href="urls['tuhoso'] + 'tuhoso/profiles/new?kind=flexible'">Tôi muốn nhận việc</a>
+          </div>
+          <form t-if="site != 'tuhoso'" class="sm-search" method="get" t-att-action="urls['khovieclam'] + 'kvl/jobs'">
+            <label>Đầu việc hoặc kỹ năng<input name="q" type="search" placeholder="Dọn nhà, chăm cây, thiết kế…" />
+            </label>
+            <button class="tc-button" type="submit">Tìm việc thời vụ</button>
+          </form>
+          <div class="sm-facts">
+            <span>
+              <strong t-esc="len(seasonal_categories)" /> nhóm công việc</span>
+            <span>
+              <strong t-esc="seasonal_job_count" /> nhu cầu đang mở</span>
+            <span>Cá nhân &amp; doanh nghiệp</span>
+          </div>
+          <small class="sm-demo-note">Các tin hiện tại là dữ liệu minh họa, chưa xác minh.</small>
+        </div>
+        <div t-if="site == 'tacare'" class="sm-network" aria-label="Kết nối nhiều nhóm công việc">
+          <div class="sm-orbit sm-orbit-one" />
+          <div class="sm-orbit sm-orbit-two" />
+          <div class="sm-network-core">
+            <img src="/tacare_website/static/src/img/tacare.png" width="66" height="66" alt="TA.CARE" />
+            <strong>TA.CARE</strong>
+            <span>Ghép đúng điều kiện</span>
+          </div>
+          <div t-foreach="[('cleaning','Dọn nhà'),('garden','Chăm cây'),('warehouse','Hỗ trợ kho'),('digital','Dịch vụ số')]" t-as="node" t-att-class="'sm-network-node sm-node-%s' % node_index">
+            <img t-att-src="'/tacare_website/static/src/img/work-%s.jpg' % node[0]" width="160" height="120" alt="" />
+            <span t-esc="node[1]" />
+          </div>
+          <span class="sm-network-pill">Theo giờ · Theo ca · Theo đầu việc</span>
+        </div>
+        <t t-else="" t-call="tacare_website.seasonal_carousel" />
+      </section>
+      <t t-call="tacare_website.seasonal_categories" />
+      <section t-if="site != 'tuhoso' and seasonal_jobs" class="sm-shell sm-featured">
+        <div class="sm-section-head">
+          <div>
+            <p class="sm-eyebrow">NHỮNG NHU CẦU ĐANG MỞ</p>
+            <h2>Việc nhỏ hay lớn,<br />đều bắt đầu từ một nhu cầu.</h2>
+          </div>
+          <a t-att-href="urls['khovieclam'] + 'kvl/jobs'">Khám phá công việc</a>
+        </div>
+        <div class="fw-grid sm-work-grid">
+          <t t-foreach="seasonal_jobs[:3]" t-as="record" t-call="tacare_website.work_card">
+            <t t-set="is_service" t-value="False" />
+            <t t-set="mine" t-value="False" />
+          </t>
+        </div>
+      </section>
+      <t t-call="tacare_website.seasonal_flow" />
+      <section class="sm-shell sm-two-sides">
+        <div>
+          <p class="sm-eyebrow">MỘT NỀN TẢNG, HAI PHÍA CHỦ ĐỘNG</p>
+          <h2>Bạn có thể cần người hôm nay.<br />Và nhận việc vào ngày mai.</h2>
+          <p>Cá nhân có thể đăng nhu cầu hoặc giới thiệu khả năng nhận việc. Doanh nghiệp có thể tìm người theo ca, buổi hoặc đầu việc cụ thể.</p>
+        </div>
+        <a class="tc-button" t-att-href="urls['tacare'] + 'tacare/matching'">Mở không gian ghép nối</a>
+      </section>
+      <section t-if="site == 'tacare' and admin_overview" class="sm-shell sm-admin-overview">
+        <p class="sm-eyebrow">GÓC NHÌN QUẢN TRỊ</p>
+        <h2>Ghép nối thực tế và ba tình huống mẫu</h2>
+        <p>Gợi ý thực tế chỉ sử dụng hồ sơ có quyền chia sẻ hiện hành.</p>
+        <div t-if="admin_overview['pairs']" class="sm-profile-grid">
+          <article t-foreach="admin_overview['pairs']" t-as="pair" class="tc-card">
+            <h3 t-esc="pair['job'].name" />
+            <p t-esc="pair['profile'].profile_title or pair['profile'].name" />
+            <a t-att-href="'/tacare/matching?view=hire&amp;job=%s' % pair['job'].id">Xem căn cứ ghép nối</a>
+          </article>
+        </div>
+        <p t-else="">Chưa có hồ sơ được phép đề xuất cho các nhu cầu đang kiểm tra.</p>
+        <div class="sm-profile-grid">
+          <article t-foreach="admin_overview['examples']" t-as="example" class="tc-card">
+            <p class="sm-eyebrow">VÍ DỤ HƯ CẤU</p>
+            <h3 t-esc="example['job']" />
+            <p t-esc="example['profile']" />
+            <strong t-esc="example['outcome']" />
+          </article>
+        </div>
+        <a href="/tacare/examples">Xem chi tiết ba ví dụ</a>
+      </section>
+      <t t-call="tacare_website.seasonal_footer" />
+    </div>
+  </template>
+</odoo>

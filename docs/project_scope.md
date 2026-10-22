@@ -1,47 +1,46 @@
 # Phạm vi sản phẩm TA.CARE
 
-> **Cập nhật 20/10/2026:** chủ dự án yêu cầu nhiều hồ sơ/một ứng viên và làm lại Tủ Hồ Sơ. Đã chuyển yêu cầu này thành [demo local](research/implementation_profile_refresh_2026-10-20.md); quyết định giữ một hồ sơ/user trong tài liệu cũ không còn áp dụng. Map và matching việc linh hoạt vẫn để sau.
+**Quyết định chủ dự án ngày 22/10/2026, sau trao đổi với mentor:** TA.CARE là nền tảng ghép nối việc thời vụ đa ngành. Tuyển dụng nhân sự, CV ứng tuyển và vị trí nhân viên dài hạn đã được loại khỏi phạm vi. Quyết định này thay thế phân chia “tuyển dụng + việc linh hoạt” trong các tài liệu ngày 19–21/10; tài liệu cũ chỉ là lịch sử.
 
-Cập nhật theo yêu cầu chủ dự án ngày **19/10/2026**. Chủ dự án đã cho phép chuyển một phần nghiên cứu thành **demo local có code và dữ liệu giả lập**. Xem [bản triển khai demo ngày 19/10](research/implementation_flexible_demo_2026-10-19.md) để phân biệt phần đã chạy và phần tiếp tục nghiên cứu.
+## Mục tiêu và ba không gian
 
-## Hai phần của dự án
+Kết nối người cần hoàn thành một công việc với người có thể thực hiện theo giờ, ca, buổi hoặc đầu việc/sản phẩm. Cá nhân và doanh nghiệp đều có thể đăng nhu cầu. Người nhận việc giới thiệu khả năng, lịch, khu vực và đơn giá. Không dùng quan hệ nhà tuyển dụng–ứng viên làm mô hình trung tâm.
 
-1. **Tuyển dụng:** phần đã triển khai, tạm ổn theo xác nhận của chủ dự án. Giữ nghiệp vụ hiện tại làm đường cơ sở; việc nghiên cứu phần mở rộng không tự cho phép sửa luồng này.
-2. **Tìm việc và tìm người làm việc linh hoạt:** phần mở rộng **đã có demo local cho biểu mẫu, danh sách và quản lý dữ liệu; nghiệp vụ kết nối tiếp tục nghiên cứu**, gồm doanh nghiệp–cá nhân và cá nhân–cá nhân. Người có nhu cầu đăng việc ở Kho Việc Làm; người nhận việc giới thiệu khả năng, điều kiện nhận việc ở Tủ Hồ Sơ; TA.CARE thực hiện matching và kết nối.
+| Không gian | Vai trò |
+| --- | --- |
+| Kho Việc Làm | Đăng, khám phá, lọc và quản lý nhu cầu thời vụ |
+| Tủ Hồ Sơ | Quản lý hồ sơ nhận việc và nhiều mục công việc nhận làm |
+| TA.CARE | Đối chiếu điều kiện, lời mời/đề nghị và kết nối hai phía |
 
-Trong ngôn ngữ sản phẩm dùng B2C/C2C theo yêu cầu chủ dự án. Chiều mua bán dịch vụ có thể được gọi khác trong tài liệu kinh doanh; không dùng nhãn B2C/C2C làm quy tắc quyền truy cập hay thuật toán matching.
+Một tài khoản cá nhân có thể vừa cần thuê vừa nhận việc. Cá nhân được dùng cả Kho, Tủ và TA.CARE. Doanh nghiệp dùng Kho + TA.CARE để đăng nhu cầu/tìm người; việc tổ chức cung ứng dịch vụ bằng hồ sơ doanh nghiệp chưa được mở rộng trong đợt này. Admin dùng cả ba trong phạm vi công ty được phép. Giữ tên kỹ thuật role `candidate` cho tương thích nhưng nhãn sản phẩm là “Cá nhân”, không còn “Ứng viên”.
 
-## Yêu cầu đã được chủ dự án nêu
+Tài khoản, model và XML ID hiện có được giữ. SSO mở các site được phép tương ứng; không tạo ba database hay ba bộ tài khoản. Mọi ghi dữ liệu vẫn kiểm vai trò, owner/công ty, trường cho phép và trạng thái. Mọi cập nhật hồ sơ/mục nhận làm dùng profile_id cụ thể.
 
-- Cá nhân có thể có nhu cầu thuê người làm một việc; cá nhân có thời gian rảnh có thể đăng năng lực để nhận việc, kể cả khi chưa có việc cố định.
-- Hướng tới nhiều nghề và cách hợp tác, không chỉ tuyển nhân viên. Cần nghiên cứu đơn giá theo giờ, ngày, tháng, công việc, sản phẩm hoặc chuyến tùy tình huống.
-- Các ví dụ dọn nhà, nấu ăn, bốc vác, chăm cây, công việc nông nghiệp và xe 7 chỗ là **đầu bài khảo sát**, chưa phải danh mục được duyệt vận hành. Các mức 30–40 nghìn/giờ, 1,2 triệu/chuyến, 1–2 triệu là ví dụ, không phải bảng giá.
-- Matching phải phù hợp về nội dung việc, thời gian, giá và vị trí; việc tại chỗ không được gợi ý người ở quá xa khi họ không nhận khu vực đó.
-- Nghiên cứu ảnh công việc/minh chứng **tùy chọn** trong hồ sơ để hỗ trợ tạo niềm tin.
-- **Matching chính đặt ở TA.CARE**, đồng thời Kho Việc Làm cần có một số gợi ý phù hợp và hiển thị tiền công/ngân sách để thu hút người xem. Hai nơi phải dùng cùng nguồn dữ liệu và cùng quy tắc.
-- Vị trí giai đoạn hiện tại dùng **địa chỉ/khu vực tĩnh do người dùng khai báo**, tách riêng cách thực hiện và nơi thực hiện. Kho ghi nơi làm; Tủ ghi khu vực nhận việc; việc theo hành trình có điểm đầu/cuối riêng. Bản đồ, bán kính và đánh giá khoảng cách để nghiên cứu sau.
-- Giai đoạn hiện tại: **được phép sửa code, schema local và tạo dữ liệu demo**. Đã thêm lựa chọn “Tuyển dụng” / “Việc linh hoạt”, bộ lọc riêng, form nhu cầu và công việc nhận làm, ảnh tùy chọn. Tủ chỉ hiện dữ liệu của chủ tài khoản; admin thấy tất cả. Chưa triển khai maps/matching cho nhánh mới; chưa đưa lên production.
+## Luồng hiện tại
 
-## Đề xuất nghiên cứu, chưa phải quyết định đã duyệt
+1. Người cần làm việc khai đầu việc, nghề, khu vực/cách làm, lịch, số người và ngân sách.
+2. Người nhận làm khai dịch vụ/công việc có thể làm, lịch, khu vực, tiền công và điều kiện.
+3. TA.CARE đối chiếu thông tin được đồng ý chia sẻ: cùng nghề, cách thực hiện, tỉnh/thành, lịch và cách tính giá. Xung đột đã khai được loại; dữ liệu thiếu là chưa biết, không phải điểm phần trăm hoặc xác nhận đủ điều kiện.
+4. Hai bên gửi và phản hồi đề nghị/lời mời. Chấp nhận kết nối mới là đồng ý trao đổi, chưa phải lịch đặt việc hay một giao dịch đã thanh toán.
+5. Chủ hồ sơ quyết định cấp/thu hồi liên hệ cho đúng bên thuê sau khi chấp nhận. Quyền này không tự cấp bởi admin hoặc chuyển đổi phạm vi.
 
-- Tách người đăng nhu cầu, người nhận việc và người được tổ chức ủy quyền; một cá nhân có thể có cả nhu cầu thuê và năng lực nhận việc. Quyền mỗi hành động vẫn phụ thuộc chủ bản ghi và ngữ cảnh.
-- Một hồ sơ cá nhân có thể giới thiệu nhiều dịch vụ, mỗi dịch vụ có giá, lịch và vùng nhận việc riêng; không tự tạo nhiều tài khoản hoặc nhiều hồ sơ trái ràng buộc hiện hành.
-- Dùng phần chung và phần bổ sung theo loại việc: tại một địa điểm; theo ca; theo đầu ra; theo hành trình. Không dùng một form dài cho tất cả nghề.
-- Lọc điều kiện bắt buộc trước, sau đó mới sắp xếp gợi ý. Thiếu dữ liệu là chưa biết; ảnh tự đăng không tự chứng minh tay nghề; không hiển thị phần trăm phù hợp ở Kho.
-- Khởi đầu bằng kết nối có giải thích; đặt lịch, giữ chỗ, thanh toán, bảo hiểm và điều phối tức thời cần phạm vi và kiểm chứng riêng.
-- Chưa mở vận tải hành khách trả tiền chỉ dựa vào việc có xe hoặc có giấy phép lái xe. Nhánh này cần hoàn tất nghiên cứu nghiệp vụ, giấy tờ, trách nhiệm và điều kiện vận hành.
-- Các bán kính, số lượng gợi ý và ngưỡng kiểm nghiệm trong báo cáo là giả thuyết thử nghiệm, không phải chuẩn ngành hoặc cấu hình đã phê duyệt.
+Nhóm nghề hiện có trải rộng việc nhà, chăm cây/nông nghiệp, kho/bốc xếp, sửa chữa/lắp ráp, dạy kèm, dịch vụ số và chăm thú cưng. Không tự mở vận tải hành khách do lấy cảm hứng từ nền tảng gọi xe.
 
-## Tài liệu nối tiếp
+## Triển khai local trong đợt này
 
-- [Triển khai demo việc linh hoạt ngày 19/10/2026](research/implementation_flexible_demo_2026-10-19.md): trạng thái hiện hành, dữ liệu demo, quyền truy cập và kiểm thử.
+- Sao lưu DB và filestore private trước xóa; đã bỏ 5 tin tuyển dụng và 3 hồ sơ tuyển dụng không có ràng buộc, giữ toàn bộ tài khoản, 15 việc thời vụ, 3 hồ sơ nhận việc, 12 mục nhận làm.
+- Bỏ lựa chọn/tab/form tuyển dụng khỏi ba website. Các đường dẫn tuyển dụng cũ và việc tạo/đổi loại dữ liệu tuyển dụng được chặn ở server; gói import cũ có nội dung tuyển dụng cũng bị từ chối.
+- Cá nhân được đăng và quản lý nhu cầu thời vụ; luồng C2C kiểm đúng người gửi, người nhận, chủ tin và quyền liên hệ theo bên thuê cụ thể.
+- Giao diện hai ý định “Tôi cần người làm” / “Tôi muốn nhận việc”, danh mục đa ngành, ảnh công việc, lịch và tiền công. Kho và Tủ có bộ carousel khác nhau; TA.CARE dùng bố cục mạng kết nối, không có carousel.
+- Bản đồ ở trang cách hoạt động là sơ đồ minh họa, không phải GPS/vị trí người dùng hoặc khoảng cách thật. Bộ tính chi phí chỉ tính thử số người dùng nhập, không tạo đơn hay thu tiền.
 
-- [Bộ trường tối thiểu và sáu ví dụ điền thử](research/flexible_work_minimum_trial_2026-10-19.md): phần 8 cập nhật các trường cần tách để đối chiếu; 8/7 là nhóm trình bày, không phải số trường lưu.
-- [Nghiên cứu trường Kho Việc Làm và Tủ Hồ Sơ cho việc linh hoạt](research/flexible_work_forms_2026-10-19.md): tài liệu nghiên cứu gốc; phần được chọn đưa vào demo ghi ở báo cáo triển khai, map/matching để sau.
-- [40 mẫu tin/hồ sơ dùng kiểm tra trường và giới hạn bằng chứng](research/flexible_work_form_samples_2026-10-19.md).
-- [Báo cáo nghiên cứu phần tìm việc linh hoạt, C2C và matching](research/flexible_work_c2c_2026-10-19.md).
-- [Danh mục nguồn, mức truy cập và giới hạn bằng chứng](research/flexible_work_sources_2026-10-19.md).
-- [Trạng thái triển khai gần nhất trước nghiên cứu](research/implementation_forms_homepages_2026-10-17.md).
-- [Mapping và các xung đột schema hiện hành](database_mapping.md).
+## Phần nghiên cứu để phát triển tiếp
 
-Nếu tiếp tục triển khai, đọc báo cáo và mapping trước khi chọn model, mở quyền cá nhân, tích hợp API hoặc thay đổi consent. Phạm vi mới không bãi bỏ các quy tắc bảo mật và triển khai trong `AGENTS.md`.
+Xem [nghiên cứu Grab, Green SM, bTaskee, Taskrabbit](research/seasonal_platform_benchmark_2026-10-22.md). Học mô hình yêu cầu–người nhận–xác nhận–thực hiện–hoàn thành; điều chỉnh theo đa ngành, không sao chép công thức tính tiền theo km hoặc giả định thuật toán nội bộ của các hãng.
+
+- Bản đồ thật: nhà cung cấp bản đồ/geocoding/routing, quyền vị trí chủ động, vùng nhận việc, bảo vệ địa chỉ và thời hạn lưu vị trí.
+- Đặt lịch: đơn công việc, giữ chỗ, tránh nhận trùng lịch, sửa lịch, hủy/không đến và kiểm tra hoàn thành.
+- Thanh toán: báo giá/version/phát sinh được chấp thuận, cổng thanh toán, đối soát, hoàn tiền và tranh chấp. Chưa chốt tỷ lệ phí nền tảng hoặc nhà cung cấp; không tích hợp thanh toán thật ở đợt này.
+- Xác minh, đánh giá sau công việc, hỗ trợ và quản lý rủi ro theo từng nhóm nghề.
+
+Không báo cáo GPS trực tiếp, tối ưu điều phối như Grab, thanh toán, OCR/CV upload, worker/outbox hoặc snapshot matching là đã vận hành nếu chưa có tích hợp và kiểm thử tương ứng. Dữ liệu mẫu là hư cấu, không phải quy mô người dùng thực tế. Đợt này là local; chưa push/deploy hoặc chuyển dữ liệu production.

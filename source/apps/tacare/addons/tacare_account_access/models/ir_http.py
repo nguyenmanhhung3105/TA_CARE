@@ -67,7 +67,7 @@ class IrHttp(models.AbstractModel):
                 # Upgrade existing native logins and complete post-MFA sign-in.
                 target = request.httprequest.full_path.rstrip('?')
                 abort(request.redirect('/care/sso/start?' + urlencode({'next': target}), code=303))
-            route_allowed = not user or ((prefix != '/kvl' or role in ('business', 'admin')) and
+            route_allowed = not user or ((prefix != '/kvl' or role in ('business', 'candidate', 'admin')) and
                                          (prefix != '/tuhoso' or role in ('candidate', 'admin')))
             # Native authentication, MFA, assets and logout must still work.
             public_plumbing = (path == '/' or path in ('/web/login', '/web/signup', '/web/reset_password',
