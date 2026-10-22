@@ -1,7 +1,7 @@
 {
     "name": "TA.CARE Website",
     "summary": "Giao diện Kho Việc Làm, Tủ Hồ Sơ và TA.CARE",
-    "version": "19.0.13.0.0",
+    "version": "19.0.14.0.0",
     "author": "TA.CARE",
     "category": "Website",
     "license": "LGPL-3",
@@ -45,6 +45,7 @@
         "sites/tuhoso/views/service_design.xml",
         "sites/tacare/views/service_design.xml",
         "views/shared/interior_design.xml",
+        "views/shared/company_contacts.xml",
     ],
     "assets": {
         "web.assets_frontend": [

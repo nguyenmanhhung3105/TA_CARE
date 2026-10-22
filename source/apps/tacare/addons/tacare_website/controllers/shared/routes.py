@@ -118,11 +118,14 @@ class SharedControllers(http.Controller):
     def _job_domain(self):
         website = self._website('khovieclam')
         return [('care_opportunity_kind', '=', 'flexible'), ('tacare_status', '=', 'published'), ('is_published', '=', True),
-                ('website_id', '=', website.id), '|', ('tacare_deadline', '=', False),
+                ('website_id', '=', website.id), ('company_id', '=', website.company_id.id), '|', ('tacare_deadline', '=', False),
                 ('tacare_deadline', '>=', fields.Date.today())]
 
     def _visible_profiles(self, recipient=None):
-        company_ids = self._user().company_ids.ids if self._role() == 'admin' else [request.env.company.id]
+        # Kho owns needs, Tu owns provider profiles. Crossing that product
+        # boundary is discovery only: current purpose/recipient consent still
+        # gates every returned profile; this grants no private-library access.
+        company_ids = self._user().company_ids.ids if self._role() == 'admin' else self._website('tuhoso').company_id.ids
         profiles = request.env['tacare.profile'].sudo().search([
             ('company_id', 'in', company_ids), ('care_recruitment_enabled', '=', False), ('visible', '=', True), ('status', '=', 'active'), ('scope', '!=', 'private')])
         if self._user()._is_public():

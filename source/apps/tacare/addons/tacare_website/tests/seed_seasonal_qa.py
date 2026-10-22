@@ -5,11 +5,17 @@ from odoo import fields
 assert env.cr.dbname == 'tacare_local'
 assert not env['res.users'].sudo().with_context(active_test=False).search_count([('login','=like','qa-seasonal-%@example.invalid')])
 data={'accounts':[]}
+job_company=env['website'].sudo().search([('domain','ilike','khovieclam.localhost')],limit=1).company_id
+profile_company=env['website'].sudo().search([('domain','ilike','tuhoso.localhost')],limit=1).company_id
+assert job_company and profile_company and job_company != profile_company
 for role in ('client','provider','outsider','business','admin'):
     password=secrets.token_urlsafe(28)
     user=env['res.users'].sudo().with_context(no_reset_password=True).create({'name':'QA hư cấu '+role,
         'login':'qa-seasonal-'+role+'@example.invalid','email':'qa-seasonal-'+role+'@example.invalid',
-        'password':password,'tacare_account_role':'business' if role=='business' else 'pending' if role=='admin' else 'candidate'})
+        'password':password,'tacare_account_role':'business' if role=='business' else 'pending' if role=='admin' else 'candidate',
+        'company_id':job_company.id if role=='business' else profile_company.id,
+        'company_ids':[(6,0,env['res.company'].sudo().search([]).ids if role=='admin' else
+            job_company.ids if role=='business' else (profile_company|job_company).ids)]})
     if role=='admin':user.write({'group_ids':[(6,0,[env.ref('base.group_user').id,env.ref('base.group_system').id])]})
     data['accounts'].append({'role':role,'login':user.login,'password':password,'user_id':user.id})
 users={a['role']:env['res.users'].sudo().browse(a['user_id']) for a in data['accounts']}
@@ -37,7 +43,7 @@ for role in ('client','business'):
         'tacare_description_text':'QA dữ liệu hư cấu: cần lau sàn và vệ sinh bếp trong ba giờ.',
         'care_opportunity_kind':'flexible','tacare_owner_user_id':user.id,
         'tacare_owner_partner_id':user.partner_id.commercial_partner_id.id,'website_id':site.id,
-        'company_id':env.company.id,'tacare_status':'published','is_published':True,
+        'company_id':job_company.id,'tacare_status':'published','is_published':True,
         'care_matching_enabled':True,'no_of_recruitment':1})
     assert not job._care_publish_errors()
     jobs.append(job)

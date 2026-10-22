@@ -13,7 +13,7 @@ class TacareProfiles(ProfileFlexible):
             site = 'tacare'
         if template in ('work_form', 'live_profile', 'live_matching', 'kvl_job_detail') and not self._user()._is_public():
             values['own_profiles'] = request.env['tacare.profile'].sudo().search([
-                ('user_id', '=', self._user().id), ('company_id', '=', request.env.company.id), ('status', '!=', 'archived')], order='id desc')
+                ('user_id', '=', self._user().id), ('company_id', 'in', self._user().company_ids.ids), ('status', '!=', 'archived')], order='id desc')
         if template in ('live_profile', 'profile_overview', 'profile_metadata_editor') and values.get('profile'):
             profile = values['profile']
             values.update(degree_options=request.env['hr.recruitment.degree'].sudo().search([]),
@@ -62,7 +62,7 @@ class TacareProfiles(ProfileFlexible):
             raise BadRequest('Bộ lọc hồ sơ không hợp lệ.')
         if scope == 'all' and self._role() != 'admin':
             raise Forbidden('Chỉ quản trị được xem toàn bộ hồ sơ.')
-        company_ids = self._user().company_ids.ids if self._role() == 'admin' else [request.env.company.id]
+        company_ids = self._user().company_ids.ids
         domain = [('care_recruitment_enabled', '=', False), ('company_id', 'in', company_ids), ('status', '!=', 'archived')]
         if scope == 'mine':
             domain.append(('user_id', '=', self._user().id))
@@ -126,7 +126,7 @@ class TacareProfiles(ProfileFlexible):
     @http.route()
     def profile_public(self, profile_id, **kw):
         self._flex_user()
-        company_ids = self._user().company_ids.ids if self._role() == 'admin' else [request.env.company.id]
+        company_ids = self._user().company_ids.ids
         domain = [('id', '=', profile_id), ('care_recruitment_enabled', '=', False), ('company_id', 'in', company_ids), ('status', '!=', 'archived')]
         if self._role() != 'admin':
             domain.append(('user_id', '=', self._user().id))

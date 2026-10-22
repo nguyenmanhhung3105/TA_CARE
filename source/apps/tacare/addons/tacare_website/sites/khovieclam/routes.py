@@ -15,7 +15,7 @@ from ...controllers.site_context import site_context
 class KhoControllers(http.Controller):
     def _own_job(self, job_id, capability='manage'):
         self._flex_user()
-        company_ids = self._user().company_ids.ids if self._role() == 'admin' else [request.env.company.id]
+        company_ids = self._user().company_ids.ids
         job = request.env['hr.job'].sudo().search([('id','=',job_id),
             ('care_opportunity_kind','=','flexible'), ('company_id','in',company_ids)], limit=1)
         if not job:

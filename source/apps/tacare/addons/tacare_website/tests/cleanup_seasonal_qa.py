@@ -11,6 +11,12 @@ env['care.job.revision'].sudo().search([('job_id', 'in', jobs.ids)]).unlink()
 jobs.unlink()
 profiles.unlink()
 users.unlink()
+# Deleting res.users retains its delegated contact in Odoo. Keep that audit
+# reference, but archive only our now-orphaned seasonal QA contacts so they do
+# not accumulate in the operating contact directory.
+qa_contacts = env['res.partner'].sudo().with_context(active_test=False).search([
+    ('email', '=like', 'qa-seasonal-%@example.invalid'), ('user_ids', '=', False)])
+qa_contacts.write({'active': False})
 assert env['hr.job'].sudo().search_count([('care_opportunity_kind', '=', 'flexible')]) == 15
 assert env['tacare.profile'].sudo().search_count([]) == 3
 assert env['care.profile.capability'].sudo().search_count([]) == 12

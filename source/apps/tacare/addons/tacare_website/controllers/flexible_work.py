@@ -27,7 +27,9 @@ class TacareFlexible(TacareLive):
 
     def _flex_own(self, model, record_id):
         self._flex_user()
-        company_ids = self._user().company_ids.ids if self._role() == 'admin' else [request.env.company.id]
+        if model == 'hr.job' and self._role() == 'business':
+            return self._own_job(record_id, 'manage')
+        company_ids = self._user().company_ids.ids
         domain = [('id', '=', record_id), ('company_id', 'in', company_ids)]
         if model == 'hr.job':
             domain.append(('care_opportunity_kind', '=', 'flexible'))
@@ -209,10 +211,14 @@ class TacareFlexible(TacareLive):
                         care_matching_enabled=kw.get('matching_enabled') == 'on',
                         tacare_status='published' if publish else 'draft', is_published=publish)
                     if not item:
+                        work_company = self._website('khovieclam').company_id
+                        if work_company not in self._user().company_ids:
+                            raise Forbidden('Tài khoản chưa được cấp phạm vi Kho Việc Làm.')
+                        organization = self._organization() if self._role() == 'business' else self._user().partner_id.commercial_partner_id
                         vals.update(care_opportunity_kind='flexible',
                             tacare_owner_user_id=self._user().id,
-                            tacare_owner_partner_id=self._user().partner_id.commercial_partner_id.id,
-                            company_id=request.env.company.id, website_id=self._website('khovieclam').id)
+                            tacare_owner_partner_id=organization.id,
+                            company_id=work_company.id, website_id=self._website('khovieclam').id)
                 if item:
                     item.write(vals)
                 else:

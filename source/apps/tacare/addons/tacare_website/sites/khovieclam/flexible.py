@@ -61,7 +61,7 @@ class KhoFlexible(TacareFlexible):
     @http.route('/kvl/flexible/mine', auth='user', website=True)
     def flexible_mine(self, **kw):
         self._flex_user()
-        company_ids = self._user().company_ids.ids if self._role() == 'admin' else [request.env.company.id]
+        company_ids = self._user().company_ids.ids
         domain = [('care_opportunity_kind', '=', 'flexible'), ('company_id', 'in', company_ids)]
         if self._role() != 'admin':
             domain.append(('tacare_owner_user_id', '=', self._user().id))

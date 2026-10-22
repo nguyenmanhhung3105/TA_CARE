@@ -1,5 +1,7 @@
 # Push nhánh, tạo pull request và deploy TA.CARE
 
+> **Thay đổi phạm vi phát hành 23/10:** chủ dự án đã chọn thay toàn bộ database và filestore bằng local, sau đó sắp xếp lại các doanh nghiệp demo. Luồng merge ở dưới chỉ triển khai code, không làm phần thay database. Có thể push nhánh để review; đợt hiện tại cần phối hợp merge/cutover theo [bản chuẩn bị dữ liệu đầy đủ](deploy_data_preparation_2026-10-23.md) sau khi kiểm tra server và staging. Không coi Actions xanh là đã chuyển xong dữ liệu local.
+
 Nhánh cho đợt chuyển sang thời vụ và làm mới giao diện: `update/seasonal-platform-ui`, được tạo từ local `main`. Đây là hướng dẫn chạy bởi chủ dự án; agent chỉ tạo nhánh và commit local, không push/merge/deploy.
 
 ## Đợt hiện tại

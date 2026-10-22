@@ -23,7 +23,7 @@ class ProfileControllers(http.Controller):
             raise BadRequest('Chọn hồ sơ cụ thể trước khi chỉnh sửa.')
         if not profile_id:
             raise BadRequest('Chọn hồ sơ cụ thể trước khi chỉnh sửa.')
-        company_ids = self._user().company_ids.ids if self._role() == 'admin' else [request.env.company.id]
+        company_ids = self._user().company_ids.ids
         domain = [('id', '=', profile_id), ('company_id', 'in', company_ids), ('status', '!=', 'archived')]
         if self._role() != 'admin':
             domain.append(('user_id', '=', self._user().id))
@@ -42,7 +42,7 @@ class ProfileControllers(http.Controller):
     def _my_profile(self, create=False):
         if self._role() not in ('candidate', 'business', 'admin') or self._user()._is_public():
             raise Forbidden('Đăng nhập tài khoản được cấp quyền để quản lý hồ sơ của mình.')
-        domain = [('user_id', '=', self._user().id), ('company_id', '=', request.env.company.id), ('status', '!=', 'archived')]
+        domain = [('user_id', '=', self._user().id), ('company_id', 'in', self._user().company_ids.ids), ('status', '!=', 'archived')]
         selected = request.params.get('profile_id')
         if not selected and request.httprequest.method == 'POST' and request.env['tacare.profile'].sudo().search_count(domain, limit=2) > 1:
             raise BadRequest('Chọn hồ sơ cụ thể trước khi lưu thay đổi.')

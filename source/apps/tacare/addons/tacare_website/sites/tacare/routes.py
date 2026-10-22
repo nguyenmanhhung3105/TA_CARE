@@ -15,7 +15,7 @@ from ...controllers.site_context import site_context
 class HubControllers(http.Controller):
     def _connection(self, connection_id):
         item = request.env['tacare.connection'].sudo().browse(connection_id).exists()
-        company_ids = self._user().company_ids.ids if self._role() == 'admin' else [request.env.company.id]
+        company_ids = self._user().company_ids.ids
         if not item or item.company_id.id not in company_ids or item.job_id.care_opportunity_kind != 'flexible':
             raise Forbidden('Kết nối không thuộc phạm vi của bạn.')
         organization_access = self._role() == 'business' and item.organization_id in self._authorized_organizations('handle')
@@ -63,7 +63,7 @@ class HubControllers(http.Controller):
 
     def _hire_matching_data(self, selected_id=0):
         role = self._role()
-        company_ids = self._user().company_ids.ids if role == 'admin' else [request.env.company.id]
+        company_ids = self._user().company_ids.ids
         domain = self._job_domain() + [('company_id', 'in', company_ids), ('care_matching_enabled', '=', True)]
         if role == 'business':
             domain.append(('tacare_owner_partner_id', 'in', self._authorized_organizations('handle').ids))
@@ -124,8 +124,9 @@ class HubControllers(http.Controller):
         profile = request.env['tacare.profile'].sudo().browse(profile_id).exists()
         if not job or job.care_opportunity_kind != 'flexible' or not profile or profile.care_recruitment_enabled or profile.status != 'active' or not profile.user_id.active:
             raise BadRequest('Tin hoặc hồ sơ không tồn tại.')
-        company_ids = self._user().company_ids.ids if self._role() == 'admin' else [request.env.company.id]
-        if job.company_id.id not in company_ids or profile.company_id.id not in company_ids:
+        company_ids = self._user().company_ids.ids
+        profile_companies = company_ids if kind == 'application' or self._role() == 'admin' else self._website('tuhoso').company_id.ids
+        if job.company_id.id not in company_ids or profile.company_id.id not in profile_companies:
             raise Forbidden('Tin hoặc hồ sơ ngoài phạm vi tài khoản.')
         request.env.cr.execute('SELECT id FROM hr_job WHERE id = %s FOR UPDATE', [job.id])
         job.invalidate_recordset(['tacare_status', 'is_published'])
@@ -183,7 +184,7 @@ class HubControllers(http.Controller):
     @http.route('/tacare/connections', type='http', auth='user', website=True)
     def connections(self, **kw):
         self._flex_user()
-        company_ids = self._user().company_ids.ids if self._role() == 'admin' else [request.env.company.id]
+        company_ids = self._user().company_ids.ids
         domain = [('company_id','in',company_ids),('job_id.care_opportunity_kind','=','flexible')]
         if self._role() == 'business':
             domain.append(('organization_id','in',self._authorized_organizations('handle').ids))

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="partner_list_company_scope" model="ir.ui.view">
+    <field name="name">TA.CARE contact company and organization</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_partner_tree"/>
+    <field name="arch" type="xml">
+      <xpath expr="//field[@name='company_id']" position="attributes">
+        <attribute name="optional">show</attribute>
+        <attribute name="string">Công ty vận hành</attribute>
+      </xpath>
+      <xpath expr="//field[@name='email']" position="after">
+        <field name="parent_id" string="Doanh nghiệp / tổ chức" optional="show" readonly="1"/>
+      </xpath>
+    </field>
+  </record>
+</odoo>
