@@ -23,6 +23,21 @@ class ResPartner(models.Model):
     care_company_intro = fields.Html(sanitize=True)
     care_business_sector_ids = fields.Many2many('care.job.sector', string='Lĩnh vực hoạt động')
     care_market_scope = fields.Char(string='Thị trường / phạm vi hoạt động')
+    care_account_member_ids = fields.One2many('care.org.member', 'organization_id', groups='base.group_system')
+    care_account_logins = fields.Char(compute='_compute_care_account_logins', compute_sudo=True, store=True,
+        string='Tài khoản đang liên kết', groups='base.group_system')
+    care_has_active_account = fields.Boolean(compute='_compute_care_account_logins', compute_sudo=True,
+        store=True, string='Có tài khoản hoạt động', groups='base.group_system')
+
+    @api.depends('user_ids.active', 'user_ids.login', 'child_ids.user_ids.active', 'child_ids.user_ids.login',
+                 'care_account_member_ids.state', 'care_account_member_ids.user_id.active', 'care_account_member_ids.user_id.login')
+    def _compute_care_account_logins(self):
+        for partner in self:
+            accounts = partner.user_ids | partner.child_ids.user_ids | partner.care_account_member_ids.filtered(
+                lambda m: m.state == 'active').mapped('user_id')
+            active = accounts.filtered('active')
+            partner.care_account_logins = ', '.join(sorted(active.mapped('login')))
+            partner.care_has_active_account = bool(active)
 
 
 class Website(models.Model):

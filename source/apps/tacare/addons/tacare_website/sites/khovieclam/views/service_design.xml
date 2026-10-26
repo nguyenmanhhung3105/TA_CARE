@@ -3,10 +3,22 @@
   <template id="kvl_everyday_home" name="Kho · Việc quanh cuộc sống">
     <div class="sx-page sx-kho-home">
       <section class="sx-kho-intro sx-shell">
+        <div class="sx-photo-ribbon" aria-label="Nhiều khả năng tạo nên cuộc sống">
+          <figure t-foreach="['repair','garden','cooking','digital','pets']" t-as="code" t-att-class="'sx-ribbon-tile sx-ribbon-%s' % code">
+            <img t-att-src="service_by_code[code]['photo']" width="450" height="600" t-att-alt="'Ảnh minh họa ' + service_by_code[code]['label'].lower()" />
+            <figcaption>
+              <t t-call="tacare_website.service_icon">
+                <t t-set="icon" t-value="service_by_code[code]['icon']" />
+              </t>
+              <span t-esc="service_by_code[code]['label']" />
+            </figcaption>
+          </figure>
+          <span class="sx-ribbon-sticker" aria-hidden="true">Khả năng của bạn.<br /> Việc ai đó đang cần.</span>
+        </div>
         <p class="sx-kicker">
           <span class="sx-tiny-spark" />VIỆC THỜI VỤ, MUÔN CÁCH KẾT NỐI</p>
-        <h1>Bạn cần thêm<br />
-          <span>một đôi tay?</span>
+        <h1>Từ việc bạn cần,<br />
+          <span>đến người phù hợp.</span>
         </h1>
         <p class="sx-intro-copy">Từ việc trong nhà đến việc ở cửa hàng.<br /> Kết nối người có thể làm, theo cách phù hợp với bạn.</p>
         <form class="sx-search" method="get" t-att-action="urls['khovieclam'] + 'kvl/jobs'" role="search">
@@ -24,18 +36,6 @@
           <a t-att-href="urls['khovieclam'] + 'kvl/flexible/new'">Đăng việc bạn cần người làm</a>
           <span>·</span>
           <a t-if="'tuhoso' in switch_sites" t-att-href="urls['tuhoso']">Tôi muốn nhận việc</a>
-        </div>
-        <div class="sx-photo-ribbon" aria-label="Nhiều khả năng tạo nên cuộc sống">
-          <figure t-foreach="['repair','garden','cooking','digital','pets']" t-as="code" t-att-class="'sx-ribbon-tile sx-ribbon-%s' % code">
-            <img t-att-src="service_by_code[code]['photo']" width="450" height="600" t-att-alt="'Ảnh minh họa ' + service_by_code[code]['label'].lower()" />
-            <figcaption>
-              <t t-call="tacare_website.service_icon">
-                <t t-set="icon" t-value="service_by_code[code]['icon']" />
-              </t>
-              <span t-esc="service_by_code[code]['label']" />
-            </figcaption>
-          </figure>
-          <span class="sx-ribbon-sticker" aria-hidden="true">Khả năng của bạn.<br /> Việc ai đó đang cần.</span>
         </div>
       </section>
       <section class="sx-shell sx-category-section" id="service-categories">

@@ -9,7 +9,7 @@ from odoo.exceptions import ValidationError
 from odoo.http import request
 
 from .live import TacareLive
-from ..models.flexible_work import WORK_MODES, SCHEDULES, PAY_UNITS, PAY_BASES, WEEKDAYS, TOOLS
+from ..models.marketplace.flexible_work import WORK_MODES, SCHEDULES, PAY_UNITS, PAY_BASES, WEEKDAYS, TOOLS
 
 
 class TacareFlexible(TacareLive):
@@ -85,6 +85,12 @@ class TacareFlexible(TacareLive):
             vals['flex_weekdays'] = ','.join(request.httprequest.form.getlist('weekdays'))
             vals['flex_negotiable'] = submitted.get('flex_negotiable', '')
             vals['matching_enabled'] = submitted.get('matching_enabled', '')
+        for name in ('geo_lat', 'geo_lon', 'geo_address', 'geo_share'):
+            if submitted is not None:
+                vals[name] = submitted.get(name, '')
+            elif record:
+                vals[name] = ('on' if record.geo_share else '') if name == 'geo_share' else (
+                    str(record[name]) if record.geo_set else '')
         return vals
 
 
@@ -103,6 +109,8 @@ class TacareFlexible(TacareLive):
             'csrf_token', 'flex_category_id', 'flex_region_id', 'flex_date_from', 'flex_date_to',
             'weekdays', 'skill_ids', 'preferred_skill_ids', 'flex_negotiable', 'flex_passengers',
             'flex_image', 'remove_image', 'matching_enabled'))
+        from ..sites.tacare.nearby import GEO_INPUTS, parse_location
+        allowed.update(GEO_INPUTS)
         if request.httprequest.path.startswith('/tuhoso/'):
             allowed.add('profile_id')
         if set(form.keys()) - allowed:
@@ -142,12 +150,20 @@ class TacareFlexible(TacareLive):
         if set(form.getlist('skill_ids')) & set(form.getlist('preferred_skill_ids')):
             raise ValidationError('Một kỹ năng chỉ chọn bắt buộc hoặc ưu tiên.')
         vals['flex_negotiable'] = kw.get('flex_negotiable') == 'on'
+        vals.update(parse_location(kw))
+        if vals['geo_set'] and vals['flex_mode'] != 'remote':
+            if not vals['flex_location']:
+                raise ValidationError('Điền địa chỉ đầy đủ cho điểm đã chọn trước khi lưu.')
+            # One canonical visible address; never silently save a different
+            # hidden geocoder label or accept a client-provided map URL.
+            vals['geo_address'] = vals['flex_location']
         if vals['flex_pay_unit'] != 'trip':
             # Hidden trip inputs can still contain values after switching price unit.
             vals.update(flex_destination=False, flex_trip_service=False,
                         flex_trip_direction=False, flex_passengers=0, flex_vehicle_note=False)
         if vals['flex_mode'] == 'remote':
             vals.update(flex_region_id=False, flex_location=False)
+            vals.update(geo_set=False, geo_lat=0, geo_lon=0, geo_address=False, geo_share=False)
             if vals['flex_pay_unit'] == 'trip':
                 raise ValidationError('Việc theo chuyến cần cách thực hiện trực tiếp hoặc kết hợp.')
         if kw.get('remove_image') == 'on':

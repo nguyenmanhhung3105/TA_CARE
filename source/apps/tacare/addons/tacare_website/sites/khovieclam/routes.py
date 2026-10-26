@@ -8,7 +8,7 @@ from werkzeug.exceptions import BadRequest, Forbidden, NotFound
 from odoo import http, fields
 from odoo.http import request
 
-from ...models.hr_job import SECTORS, TYPES, MODES, preferred_currency
+from ...models.jobs.hr_job import SECTORS, TYPES, MODES, preferred_currency
 from ...controllers.site_context import site_context
 
 

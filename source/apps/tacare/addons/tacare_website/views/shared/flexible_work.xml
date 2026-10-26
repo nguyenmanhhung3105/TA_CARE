@@ -76,7 +76,6 @@
       <div class="fw-card-body">
         <div class="fw-card-top">
           <span t-esc="record.flex_category_id.name" />
-          <span t-if="record.flex_demo_key" class="fw-demo-badge">Dữ liệu demo</span>
         </div>
         <h3>
           <a t-att-href="'/tuhoso/work/%s' % record.id if is_service else ('/kvl/flexible/%s' if mine else '/kvl/job/%s') % record.id" t-esc="record.title if is_service else record.name" />
@@ -153,7 +152,6 @@
               <p t-esc="job.tacare_schedule" />
               <a class="tc-button tc-outline" t-att-href="'/kvl/job/%s' % job.id">Xem chi tiết</a>
               <a t-if="role == 'admin'" class="tc-delete-link" t-att-href="'/kvl/job/%s/remove' % job.id">Xóa tin</a>
-              <span class="fw-demo-badge" t-if="job.flex_demo_key">Dữ liệu demo</span>
             </div>
           </article>
         </t>
@@ -407,7 +405,6 @@
           <p class="tc-eyebrow" t-esc="record.flex_category_id.name" />
           <h1 t-esc="record.title if is_service else record.name" />
           <p t-if="is_service" t-esc="record.profile_id.name" />
-          <span t-if="record.flex_demo_key" class="fw-demo-badge">Dữ liệu giả lập để trải nghiệm demo</span>
         </div>
         <a t-if="owner" class="tc-button" t-att-href="('/tuhoso/work/%s/edit' if is_service else '/kvl/flexible/%s/edit') % record.id">Chỉnh sửa</a>
       </div>

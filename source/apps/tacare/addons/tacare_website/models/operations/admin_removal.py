@@ -24,6 +24,8 @@ def plan_removal(record, actor):
     dependencies = []
     env = record.env
     references = []
+    if kind == 'service':
+        references.append(('care.work.participation', 'capability_id', 'lượt thực hiện công việc'))
     if kind in ('job', 'profile'):
         field = 'job_id' if kind == 'job' else 'profile_id'
         references += [('tacare.connection', field, 'kết nối'),
@@ -57,14 +59,17 @@ def remove_record(record, actor):
     if plan['archive']:
         if kind == 'job':
             record.write({'tacare_status': 'closed', 'is_published': False, 'care_matching_enabled': False, 'active': False})
+        elif kind == 'service':
+            record.write({'active': False, 'flex_state': 'paused'})
         else:
             record.write({'status': 'archived', 'visible': False, 'scope': 'private', 'share_contact': False})
             record.capability_ids.write({'active': False, 'flex_state': 'paused'})
             record.env['care.consent'].sudo().search([('profile_id', '=', record.id), ('state', '=', 'granted')]).write({
                 'state': 'revoked', 'revoked_at': fields.Datetime.now(), 'revoke_reason': 'Hồ sơ được quản trị gỡ khỏi hệ thống.'})
-        field = 'job_id' if kind == 'job' else 'profile_id'
-        record.env['tacare.connection'].sudo().search([(field, '=', record.id), ('status', '=', 'pending')]).write({
-            'status': 'cancelled', 'decided_at': fields.Datetime.now()})
+        if kind != 'service':
+            field = 'job_id' if kind == 'job' else 'profile_id'
+            record.env['tacare.connection'].sudo().search([(field, '=', record.id), ('status', '=', 'pending')]).write({
+                'status': 'cancelled', 'decided_at': fields.Datetime.now()})
     else:
         record.unlink()
     return 'removed' if plan['archive'] else 'deleted'

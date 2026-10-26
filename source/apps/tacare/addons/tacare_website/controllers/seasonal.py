@@ -6,6 +6,7 @@ from .service_design import service_design_context
 def marketplace_context(env):
     site = env['website'].sudo().search([('domain','ilike','khovieclam')],limit=1)
     jobs = env['hr.job'].sudo().search([('care_opportunity_kind','=','flexible'),
+        ('care_remaining_slots', '>', 0), ('company_id', '=', site.company_id.id),
         ('website_id','=',site.id), ('tacare_status','=','published'), ('is_published','=',True),
         '|', ('tacare_deadline','=',False), ('tacare_deadline','>=',fields.Date.today())], order='write_date desc,id desc')
     categories = env['care.capability.category'].sudo().search([('code','!=','driving')],order='id')

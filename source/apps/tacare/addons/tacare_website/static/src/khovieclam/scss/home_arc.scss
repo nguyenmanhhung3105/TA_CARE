@@ -1,0 +1,66 @@
+/* The photographs follow an arc around the heading, rather than a flat row. */
+.tc-live.tc-jobs .sx-kho-intro {
+  padding-top:32px;
+  >.sx-photo-ribbon {
+    display:block;
+    height:clamp(280px,23vw,360px);
+    padding:0;
+    margin-bottom:8px;
+  }
+  .sx-ribbon-tile {
+    position:absolute;
+    width:17%;
+    height:clamp(180px,16vw,230px);
+    margin:0;
+  }
+  .sx-ribbon-repair {left:0;top:calc(100% - 85px);transform:rotate(-8deg);}
+  .sx-ribbon-garden {
+    left:19%;top:100px;width:16.5%;
+    height:clamp(160px,14vw,205px);
+    transform:rotate(-7deg);
+  }
+  .sx-ribbon-cooking {
+    left:41.5%;top:0;
+    height:clamp(190px,16vw,230px);
+  }
+  .sx-ribbon-digital {
+    right:19%;top:100px;width:16.5%;
+    height:clamp(160px,14vw,205px);
+    transform:rotate(7deg);
+  }
+  .sx-ribbon-pets {right:0;top:calc(100% - 85px);transform:rotate(8deg);}
+  .sx-ribbon-garden {
+    border-radius:22px;
+    figcaption {left:10px;right:10px;bottom:10px;border-radius:14px;padding:9px 8px;}
+  }
+  .sx-ribbon-sticker {right:0;top:calc(100% - 126px);z-index:1;}
+  >.sx-kicker {position:relative;max-width:60%;margin-inline:auto;}
+  >h1 {
+    position:relative;
+    width:60%;
+    max-width:850px;
+    margin-inline:auto;
+    font-size:clamp(36px,4.7vw,72px);
+  }
+  @media(max-width:1100px) and (min-width:768px) {
+    .sx-ribbon-tile figcaption {left:6px;right:6px;gap:4px;font-size:10px;}
+    .sx-ribbon-tile figcaption .sx-icon {width:14px;height:14px;flex-basis:14px;}
+    .sx-ribbon-sticker {font-size:10px;padding:18px 12px;}
+    >.sx-kicker {font-size:10px;}
+  }
+  @media(max-width:767px) {
+    padding-top:24px;
+    >.sx-photo-ribbon {
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      height:auto;
+      padding:0 0 28px;
+      margin-bottom:40px;
+    }
+    .sx-ribbon-tile {position:relative;inset:auto;width:auto;height:150px;transform:none;}
+    .sx-ribbon-garden {top:24px;height:135px;transform:rotate(-5deg);}
+    .sx-ribbon-digital {top:24px;height:135px;transform:rotate(5deg);}
+    >.sx-kicker {max-width:none;}
+    &.sx-shell>h1 {width:auto;max-width:none;font-size:clamp(28px,8.5vw,38px);line-height:1.2;}
+  }
+}

@@ -4,7 +4,11 @@ from pathlib import Path
 from odoo import fields
 assert env.cr.dbname == 'tacare_local'
 assert not env['res.users'].sudo().with_context(active_test=False).search_count([('login','=like','qa-seasonal-%@example.invalid')])
-data={'accounts':[]}
+data={'accounts':[], 'baseline': {
+    'jobs': env['hr.job'].sudo().search([('care_opportunity_kind','=','flexible')]).ids,
+    'profiles': env['tacare.profile'].sudo().search([]).ids,
+    'offers': env['care.profile.capability'].sudo().search([]).ids,
+}}
 job_company=env['website'].sudo().search([('domain','ilike','khovieclam.localhost')],limit=1).company_id
 profile_company=env['website'].sudo().search([('domain','ilike','tuhoso.localhost')],limit=1).company_id
 assert job_company and profile_company and job_company != profile_company

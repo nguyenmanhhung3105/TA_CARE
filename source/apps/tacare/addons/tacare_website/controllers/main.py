@@ -3,7 +3,7 @@ from urllib.parse import urlencode, urlsplit
 from odoo import http, fields
 from odoo.http import request
 from odoo.addons.website.controllers.main import Website
-from ..models.hr_job import SECTORS, TYPES, MODES
+from ..models.jobs.hr_job import SECTORS, TYPES, MODES
 from .site_context import safe_next, site_context
 from odoo.addons.tacare_account_access.models.auth_session import FRESH_KEY
 
@@ -47,6 +47,10 @@ class TacareWebsite(Website):
         admin_overview = False
         home_examples = []
         home_suggestions = False
+        marketing_matches = []
+        if site == 'khovieclam':
+            from ..sites.khovieclam.matching_preview import matching_previews
+            marketing_matches = matching_previews(request.env)
         if site == 'tacare':
             from ..sites.tacare.examples import TacareExamples
             hub = TacareExamples()
@@ -57,10 +61,22 @@ class TacareWebsite(Website):
             from ..sites.tacare.examples import TacareExamples
             admin_overview = TacareExamples()._home_admin_matches(**kw)
         from .seasonal import marketplace_context
+        home_live_pairs = []
+        if admin_overview:
+            home_live_pairs = admin_overview['pairs']
+        elif home_suggestions:
+            seen = set()
+            for pair in home_suggestions['hire_pairs'] + home_suggestions['receive_pairs']:
+                key = (pair['job'].id, pair['profile'].id)
+                if key not in seen:
+                    home_live_pairs.append(pair)
+                    seen.add(key)
         response = request.render('tacare_website.live_home', {
             **marketplace_context(request.env),
             'admin_overview': admin_overview,
             'home_examples': home_examples, 'home_suggestions': home_suggestions,
+            'home_live_pairs': home_live_pairs,
+            'marketing_matches': marketing_matches,
             **site_context(site, urls),
             'site': site,
             'role': ('admin' if request.env.user.has_group('base.group_system') else
@@ -74,6 +90,7 @@ class TacareWebsite(Website):
             'modes': MODES,
             'notice': False,
             'jobs': request.env['hr.job'].sudo().search([
+                ('care_remaining_slots', '>', 0),
                 ('care_opportunity_kind', '=', 'flexible'), ('tacare_status', '=', 'published'),
                 ('is_published', '=', True), '|', ('tacare_deadline', '=', False),
                 ('tacare_deadline', '>=', fields.Date.today()),
@@ -81,6 +98,7 @@ class TacareWebsite(Website):
                     ('domain', 'ilike', 'khovieclam')], limit=1).id),
             ], limit=4, order='create_date desc, id desc'),
             'job_count': request.env['hr.job'].sudo().search_count([
+                ('care_remaining_slots', '>', 0),
                 ('care_opportunity_kind', '=', 'flexible'), ('tacare_status', '=', 'published'),
                 ('is_published', '=', True), '|', ('tacare_deadline', '=', False),
                 ('tacare_deadline', '>=', fields.Date.today()),

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="source_job_note" name="Tin việc làm tham khảo">
+    <section t-if="source_job" class="wr-reference" aria-label="Tin đang tham khảo">
+      <p class="sx-kicker">BẠN ĐANG THAM KHẢO CÔNG VIỆC</p>
+      <h3 t-esc="source_job.name"/>
+      <p><span t-esc="source_job.flex_category_id.name"/> · <span t-esc="source_job._flex_schedule_label()"/> · <span t-esc="source_job._flex_price_label()"/></p>
+      <p>Hãy mô tả khả năng, lịch rảnh và tiền công của chính bạn. Tạo hồ sơ chưa phải là gửi đề nghị nhận việc.</p>
+      <a t-att-href="urls['khovieclam'] + 'kvl/job/%s' % source_job.id">Xem lại yêu cầu công việc</a>
+    </section>
+  </template>
+
+  <template id="review_summary" name="Đánh giá công việc đã hoàn thành">
+    <h2>Đánh giá sau công việc</h2>
+    <p class="wr-rating" t-if="review_summary['count']"><strong t-esc="'%.1f / 5' % review_summary['average']"/> · <span t-esc="review_summary['count']"/> đánh giá đã công bố</p>
+    <p t-else="">Chưa có đánh giá.</p>
+    <p class="wr-help">Chỉ tính từ lượt thực hiện đã được hai bên xác nhận hoàn thành. <t t-if="not is_service">Đánh giá dành cho bên đăng nhu cầu trên các đầu việc của họ.</t><t t-else="">Đánh giá dành cho hồ sơ nhận việc này.</t></p>
+    <article t-foreach="review_summary['items']" t-as="review" class="wr-review">
+      <strong><t t-esc="review.rating"/> / 5 sao</strong>
+      <p class="tc-prose" t-esc="review.reason"/>
+      <small t-field="review.create_date"/>
+    </article>
+  </template>
+</odoo>

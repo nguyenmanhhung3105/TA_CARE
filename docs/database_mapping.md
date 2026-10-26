@@ -4,6 +4,8 @@
 
 # Đối chiếu ERD, Database và Odoo DEV
 
+> **Kiểm kê hiện hành 24/10/2026:** xem [Database và matching hiện tại](database_current_2026-10-24.md) để biết database đang phục vụ ba website, số đếm SQL, công thức matching đang chạy và thiết kế đề xuất cho hoàn thành công việc/đánh giá hai chiều. Các trạng thái cũ bên dưới cần đọc theo mốc thời gian.
+
 > **Hiện hành 20/10/2026:** theo yêu cầu mới, `tacare.profile.user_id` là quan hệ nhiều hồ sơ/một user; đã gỡ constraint `tacare_profile_unique_user` bằng migration 19.0.6.0.0 và thêm `profile_title`. Giữ model, ID hồ sơ và mọi FK cũ. Kỹ năng, capability, minh chứng, consent và kết nối tiếp tục gắn đúng `profile_id`, không gộp theo user. Các đoạn “một hồ sơ/user” bên dưới là quyết định cũ, đã được thay bằng [triển khai này](research/implementation_profile_refresh_2026-10-20.md).
 
 > **Bổ sung local 19/10/2026:** [demo việc linh hoạt](research/implementation_flexible_demo_2026-10-19.md) mở rộng `hr.job` bằng `care_opportunity_kind` và nhóm trường `flex_*`; dùng lại `care.profile.capability` cho nhiều việc nhận làm trên **một `tacare.profile`/user**. `flex_category_id`, `flex_rate_min/max` của capability là alias tới `category_id`, `rate_min/max` hiện có. Đã có form capability, ảnh tùy chọn và quyền owner/admin; các dòng “chưa có form” bên dưới là trạng thái lịch sử. Chưa dùng `care.availability`/`care.service.area` để tính lịch, bản đồ hay matching mới.
@@ -68,3 +70,10 @@ Các enum đang dùng là lựa chọn tạm của prototype, chưa được ph�
 ## SSO — local implementation, 20/10/2026
 
 The owner authorized synchronized sign-in/out across the role-permitted websites. `care.auth.session` stores a browser group linked to `res.users`, its role, expiry, revocation timestamp and private native-credential validity stamp. `care.auth.handoff` stores a short-lived, one-use browser-bound transition; it is unrelated to `care.match.session`. Native Odoo session cookies/files remain the actual website sessions. Portal users have no direct ACL on either model; server controllers scope and validate every transition. See [SSO implementation](research/implementation_sso_2026-10-20.md).
+
+
+## Bổ sung vị trí local — 26/10/2026
+
+`care.flex.mixin` mở rộng đúng hai model có sẵn `hr.job` và `care.profile.capability` bằng `geo_set`, `geo_lat`, `geo_lon`, `geo_address`, `geo_share`, `geo_sample`, `geo_hash`, `geo_map_url`. Không tạo bảng/profile thứ hai. Điểm của capability là khu vực nhận làm của đúng mục thuộc hồ sơ, không phải vị trí trực tiếp của tài khoản. `geo_hash` server-computed/store/index; `geo_map_url` server-computed/store từ tọa độ. `flex_location` / `geo_address` tối đa 1.000 ký tự, cùng địa chỉ đầy đủ từ ô vị trí chính (không cắt); job đồng bộ thêm `tacare_location`; portal/public không có quyền đọc trực tiếp các trường geo (field groups admin). Website form/controller lookup owner/admin/company trước sudo; điểm đối tác chỉ xuất tâm ô precision 5 sau kiểm consent/matching hiện hành. `geo_share` là opt-in khu vực của mục này, không thay thế consent discovery/matching/contact hoặc profile scope.
+
+Nhập/lưu ở Kho/Tủ; TA.CARE chỉ GET dữ liệu matching theo vị trí với nguồn thuộc quyền tài khoản. 12 tin/22 offer có tọa độ thử, giữ nguyên 15 jobs/15 profiles/24 offers và consent/account/owner hiện tại. Xem [bản thử](research/nearby_map_trial_2026-10-26.md). Không migration production; các snapshot phát hành cũ không chứa thay đổi này.

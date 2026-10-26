@@ -9,12 +9,14 @@ function initFlexibleWork() {
     let stopped = reduced.matches || root.dataset.workAutoplay === '0';
     let timer;
     let hovering = false;
+    let manualPlayback = false;
     const updateTimer = () => {
       clearInterval(timer);
       pause.textContent = reduced.matches ? 'Đã giảm chuyển động' : stopped ? 'Tiếp tục' : 'Tạm dừng';
       pause.disabled = reduced.matches;
       pause.setAttribute('aria-pressed', String(stopped || reduced.matches));
-      if (!stopped && !reduced.matches && !document.hidden && !hovering && !root.contains(document.activeElement)) {
+      if (!stopped && !reduced.matches && !document.hidden &&
+          (manualPlayback || !hovering && !root.contains(document.activeElement))) {
         timer = setInterval(() => show(index + 1, false), 6500);
       }
     };
@@ -32,18 +34,29 @@ function initFlexibleWork() {
     root.querySelector('[data-work-prev]').addEventListener('click', () => { show(index - 1); updateTimer(); });
     root.querySelector('[data-work-next]').addEventListener('click', () => { show(index + 1); updateTimer(); });
     dots.forEach((dot, i) => dot.addEventListener('click', () => { show(i); updateTimer(); }));
-    pause.addEventListener('click', () => { stopped = !stopped; updateTimer(); });
-    root.addEventListener('mouseenter', () => { hovering = true; updateTimer(); });
+    // An explicit resume must work while its button still has focus. Merely
+    // focusing that button must not reverse the subsequent pause click.
+    pause.addEventListener('click', () => { stopped = !stopped; manualPlayback = !stopped; updateTimer(); });
+    root.addEventListener('mouseenter', () => { hovering = true; manualPlayback = false; updateTimer(); });
     root.addEventListener('mouseleave', () => { hovering = false; updateTimer(); });
-    root.addEventListener('focusin', () => { stopped = true; updateTimer(); });
-    root.addEventListener('focusout', () => setTimeout(updateTimer, 0));
+    root.addEventListener('focusin', (event) => {
+      if (event.target !== pause) { stopped = true; manualPlayback = false; }
+      updateTimer();
+    });
+    root.addEventListener('focusout', () => setTimeout(() => {
+      if (!root.contains(document.activeElement)) manualPlayback = false;
+      updateTimer();
+    }, 0));
     root.addEventListener('keydown', (event) => {
       if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
         event.preventDefault(); show(index + (event.key === 'ArrowRight' ? 1 : -1));
       }
     });
     document.addEventListener('visibilitychange', updateTimer);
-    reduced.addEventListener('change', () => { if (reduced.matches) stopped = true; updateTimer(); });
+    reduced.addEventListener('change', () => {
+      if (reduced.matches) { stopped = true; manualPlayback = false; }
+      updateTimer();
+    });
     show(0, false); updateTimer();
   });
   document.querySelectorAll('[data-work-form]').forEach((form) => {

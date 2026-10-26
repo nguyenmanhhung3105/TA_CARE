@@ -1,7 +1,7 @@
 """Rollback admin deletion, retention of linked history, isolation and consent checks."""
 from odoo import fields
 from odoo.exceptions import AccessError
-from odoo.addons.tacare_website.models.admin_removal import plan_removal, remove_record
+from odoo.addons.tacare_website.models.operations.admin_removal import plan_removal, remove_record
 
 
 def check(env):
@@ -26,7 +26,8 @@ def check(env):
     assert profile.exists() and cap.exists()
     assert remove_record(cap, admin) == 'deleted' and profile.exists() and not cap.exists()
     assert remove_record(profile, admin) == 'deleted' and candidate.exists() and not profile.exists()
-    source = env['hr.job'].sudo().search([('flex_demo_key', '=', 'recruitment-01')])
+    source = env['hr.job'].sudo().create({'name': 'QA seasonal source',
+        'tacare_owner_user_id': business.id, 'tacare_owner_partner_id': business.partner_id.id})
     job = source.copy({'name': 'QA disposable job', 'flex_demo_key': False,
         'tacare_owner_user_id': business.id, 'tacare_owner_partner_id': business.partner_id.id})
     assert not plan_removal(job, admin)['archive']

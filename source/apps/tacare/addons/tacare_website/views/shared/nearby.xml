@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="location_picker" name="Chọn vị trí trên bản đồ">
+    <div class="gm-picker" data-geo-picker="1">
+      <input type="hidden" name="geo_address" t-att-value="vals.get('geo_address', '')"/>
+      <details class="gm-picker-details" open="open"><summary>Chọn vị trí trên bản đồ</summary>
+        <label t-att-for="geo_prefix + '-area'">Đến khu vực<select t-att-id="geo_prefix + '-area'" data-geo-area="1"><option value="">Chọn khu vực để di chuyển bản đồ</option></select></label>
+        <p class="gm-help">Chạm bản đồ, kéo ghim hoặc nhập tọa độ bên dưới. Danh sách khu vực là điểm tham chiếu; hãy chỉnh ghim đúng chỗ bạn chọn.</p>
+        <div class="gm-picker-map" data-geo-canvas="1" aria-label="Bản đồ chọn địa điểm"/>
+        <p data-tile-status="1" class="gm-help" role="status"/>
+        <button type="button" class="tc-button tc-outline" data-geo-gps="1">Dùng vị trí hiện tại</button>
+        <p class="gm-help">Chỉ lấy vị trí một lần khi bạn bấm và cho phép trên trình duyệt.</p>
+        <p class="gm-help">Địa chỉ được lấy từ <a href="https://photon.komoot.io/" target="_blank" rel="noopener">Photon / OpenStreetMap</a> khi bạn chọn ghim. Kiểm tra địa chỉ bên dưới và bổ sung số nhà/hẻm nếu còn thiếu.</p>
+        <button type="button" class="gm-text-button" data-geo-reverse="1">Tra lại địa chỉ từ ghim</button>
+      </details>
+      <div class="gm-picked-address"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'map-pin'"/></t><div><p>Địa chỉ đã chọn</p><strong data-geo-address-preview="1" t-esc="vals.get('flex_location') or 'Chưa chọn vị trí trên bản đồ'"/><small t-if="not is_service">Địa chỉ được lưu cùng ghim và xuất hiện trên tin công khai. Hãy chọn nơi làm việc bạn đồng ý công bố.</small><small t-else="">Địa chỉ được lưu cùng ghim của mục nhận làm, theo quyền chia sẻ của hồ sơ.</small></div></div>
+      <details class="gm-address-editor"><summary>Bổ sung số nhà / hẻm nếu cần</summary><label t-att-for="geo_prefix + '-address-detail'">Địa chỉ chi tiết<input t-att-id="geo_prefix + '-address-detail'" data-geo-address-manual="1" maxlength="1000" t-att-value="vals.get('flex_location', '')" placeholder="Bổ sung số nhà, hẻm hoặc chỉnh địa chỉ từ ghim…"/></label><p class="gm-help">Địa chỉ từ bản đồ có thể chưa đủ số nhà. Nội dung bạn sửa tại đây sẽ được lưu cho chính điểm đã chọn.</p></details>
+      <details class="gm-picker-advanced"><summary>Tọa độ và liên kết bản đồ</summary><div class="gm-coordinate-fields"><label t-att-for="geo_prefix + '-lat'">Vĩ độ<input t-att-id="geo_prefix + '-lat'" type="number" name="geo_lat" min="8" max="24" step="0.000001" t-att-value="vals.get('geo_lat', '')" placeholder="10.776900"/></label><label t-att-for="geo_prefix + '-lon'">Kinh độ<input t-att-id="geo_prefix + '-lon'" type="number" name="geo_lon" min="102" max="110" step="0.000001" t-att-value="vals.get('geo_lon', '')" placeholder="106.700900"/></label></div>
+        <label t-att-for="geo_prefix + '-url'">Liên kết vị trí đã chọn<input t-att-id="geo_prefix + '-url'" data-geo-url="1" type="url" readonly="readonly" placeholder="Tự tạo khi chọn vị trí"/><a data-geo-open="1" target="_blank" rel="noopener" hidden="hidden">Mở điểm này trên Google Maps</a></label></details>
+      <label class="gm-share"><input type="checkbox" name="geo_share" value="on" t-att-checked="vals.get('geo_share') == 'on'"/><span>Cho bên có quyền matching xem khu vực gần đúng của mục này trên bản đồ.<small>Điểm hiển thị đại diện một ô khoảng 5 km, không công khai địa chỉ hoặc tọa độ chính xác. Tắt để gỡ mục này khỏi bản đồ của đối tác.</small></span></label>
+      <button type="button" class="gm-text-button" data-geo-clear="1">Xóa vị trí đã chọn</button><p class="gm-help" role="status" data-geo-status="1"/>
+    </div>
+  </template>
+  <template id="work_location_picker" inherit_id="tacare_website.work_form" priority="2700">
+    <xpath expr="//label[input[@name='flex_location']]" position="replace"><input type="hidden" name="flex_location" t-att-value="vals.get('flex_location', '')"/></xpath>
+    <xpath expr="//section[@id='work-place']" position="inside"><div data-work-location="1"><t t-call="tacare_website.location_picker"><t t-set="geo_prefix" t-value="'work-geo'"/></t></div></xpath>
+  </template>
+  <template id="nearby_home" inherit_id="tacare_website.hub_connection_home" priority="2700">
+    <xpath expr="//section[hasclass('cn-intro')]" position="after">
+      <section class="sx-shell gm-section" id="nearby-connections" aria-labelledby="gm-title" data-nearby-map="1" t-att-data-guest="'1' if is_guest else '0'" t-att-data-role="role">
+        <header class="gm-section-head"><h2 id="gm-title">Bản đồ kết nối <span>TA.CARE</span></h2></header>
+        <div class="gm-workspace">
+          <aside class="gm-sidebar" aria-label="Bộ lọc và gợi ý bản đồ">
+            <div class="gm-directions" role="group" aria-label="Hướng kết nối"><button type="button" data-geo-view="hire" aria-pressed="true">Tôi cần người làm</button><button t-if="role != 'business'" type="button" data-geo-view="receive" aria-pressed="false">Tôi muốn nhận việc</button></div>
+            <t t-if="is_guest"><div class="gm-guest"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'map-pin'"/></t><h3>Mở bản đồ của bạn</h3><p>Đăng nhập để chọn tin hoặc mục nhận làm và xem các gợi ý trong phạm vi được chia sẻ.</p><a class="sx-button" href="/tacare/matching">Đăng nhập để kết nối</a><small>Bản đồ công khai không hiển thị vị trí hay hồ sơ cá nhân.</small></div></t>
+            <div t-else="" class="gm-controls">
+              <p class="gm-panel-label"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'sliders-horizontal'"/></t>Tìm gợi ý phù hợp</p>
+              <label for="gm-source">Tin / mục nhận làm của bạn<select id="gm-source" data-geo-source="1"><option value="">Đang tải…</option></select></label>
+              <div class="gm-source-location"><div class="gm-location-note"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'map-pin'"/></t><span data-geo-source-label="1">Chọn một tin để bắt đầu</span></div><a class="gm-action gm-action-location" data-geo-edit="1" hidden="hidden"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'pencil-simple'"/></t><span class="gm-action-label">Chọn vị trí tại Kho / Tủ</span></a></div>
+              <label for="gm-radius">Tìm trong bán kính<select id="gm-radius" data-geo-radius="1"><option value="2">2 km</option><option value="5">5 km</option><option value="10" selected="selected">10 km</option><option value="20">20 km</option><option value="50">50 km</option></select></label>
+              <button type="button" class="gm-action gm-action-primary gm-search-button" data-geo-refresh="1"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'magnifying-glass'"/></t><span class="gm-action-label">Cập nhật gợi ý</span></button>
+            </div>
+            <p class="gm-result-status" data-geo-results-status="1" role="status" aria-live="polite" aria-atomic="true"/>
+            <div class="gm-results" data-geo-results="1"/>
+            <div t-if="not is_guest" class="gm-sidebar-footer"><a class="gm-action gm-action-secondary" href="/tacare/matching"><span>Xem đầy đủ đối chiếu</span><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></a><div class="gm-create-links"><a t-att-href="urls['khovieclam'] + 'kvl/flexible/new'"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'plus'"/></t>Đăng nhu cầu</a><a t-if="role != 'business'" t-att-href="urls['tuhoso'] + 'tuhoso/profiles'"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'user-circle'"/></t>Cập nhật hồ sơ</a></div></div>
+          </aside>
+          <div class="gm-map-panel"><div class="gm-map-heading"><span><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'map-pin'"/></t>Khu vực kết nối</span><button type="button" class="gm-action gm-action-secondary" data-geo-fit="1"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'stack'"/></t>Xem toàn bộ</button></div><div class="gm-map" data-nearby-canvas="1" aria-label="Bản đồ các kết nối phù hợp"/><p class="gm-map-status" data-tile-status="1" role="status"/>
+            <div class="gm-route-summary" data-geo-route="1" hidden="hidden"><p data-geo-route-status="1" role="status"/>
+              <div class="gm-route-body"><dl class="gm-route-metrics" data-geo-route-metrics="1" hidden="hidden"><div><dt>Tổng quãng đường</dt><dd data-geo-route-distance="1"/></div><div><dt>Thời gian tham khảo</dt><dd data-geo-route-duration="1"/></div></dl>
+                <div class="gm-route-actions"><a class="gm-action gm-action-primary" data-geo-directions="1" target="_blank" rel="noopener"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'map-pin'"/></t><span>Mở chỉ đường trên Google Maps</span><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></a><button type="button" class="gm-action gm-action-secondary" data-geo-route-clear="1"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'x'"/></t>Xóa tuyến</button></div>
+              </div><small class="gm-route-caption">Tuyến tham khảo tới khu vực gần đúng; chưa gồm giao thông trực tiếp.</small><details class="gm-route-info"><summary>Thông tin đường đi</summary><small>Điểm đến không phải vị trí chính xác của người dùng. Bấm tìm đường sẽ gửi điểm nguồn và điểm khu vực đích tới dịch vụ <a href="https://project-osrm.org/" target="_blank" rel="noopener">OSRM</a>. <a href="https://www.openstreetmap.org/fixthemap" target="_blank" rel="noopener">Sửa dữ liệu OSM</a>.</small></details></div>
+            <div class="gm-map-legend"><span><i class="gm-dot"/>Điểm của bạn</span><span><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'hammer'"/></t>Icon nghề · khu vực gần đúng</span></div></div>
+        </div>
+        <p class="gm-disclosure">Tọa độ mẫu được gán ngẫu nhiên để đánh giá bản thử, không phải vị trí thực hay theo dõi trực tiếp. Bán kính lọc theo đường chim bay; “Xem đường đi” lấy tuyến ô tô và thời gian tham khảo tới khu vực gần đúng. Chấp nhận kết nối là đồng ý trao đổi; chưa tự xác nhận nhận việc.</p>
+
+      </section>
+    </xpath>
+  </template>
+</odoo>

@@ -14,7 +14,7 @@ try:
     tu = env['website'].sudo().search([('care_site_kind', '=', 'tuhoso')]).company_id
     assert kho and tu and kho != tu
     accounts = [_identity(env, 'res.users', 'user_' + key.replace('.', '_')) for key, _, _ in BUSINESSES]
-    profiles = env['tacare.profile'].sudo().search([])
+    profiles = env['tacare.profile'].sudo().search([('flex_demo_key', 'not like', 'matching-20261024-')])
     assert len(profiles) == 3 and all(p.company_id == tu for p in profiles)
     assert len(profiles.mapped('capability_ids')) == 12
     for user in accounts:
@@ -29,7 +29,7 @@ try:
     legacy = env['res.users'].sudo().with_context(active_test=False).search([
         ('login', '=like', 'demo-flex-%@example.invalid'), ('tacare_account_role', '=', 'business')])
     assert len(legacy) == 16 and not any(legacy.mapped('active'))
-    assert all(c.active and c.company_id == kho and c.parent_id for c in legacy.mapped('partner_id'))
+    assert all(not c.active and c.company_id == kho and c.parent_id for c in legacy.mapped('partner_id'))
     controller = TacareExamples()
     modules = ('controllers.shared.routes', 'controllers.flexible_work', 'controllers.profiles',
                'sites.khovieclam.routes', 'sites.tuhoso.routes', 'sites.tacare.routes')

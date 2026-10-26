@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="live_pair_card" name="Cặp việc và hồ sơ từ thuật toán">
+    <article class="lp-pair" t-att-data-job-id="pair['job'].id" t-att-data-profile-id="pair['profile'].id" t-att-data-capability-id="pair['offer'].id">
+      <header class="lp-pair-heading"><p class="sx-kicker">CÔNG VIỆC VÀ KHẢ NĂNG NHẬN LÀM</p><span class="lp-live-label">Đối chiếu hiện tại</span></header>
+      <div class="lp-sides">
+        <section class="lp-side lp-need">
+          <figure><img t-att-src="pair['job']._care_photo_url()" width="720" height="400" alt="Ảnh minh họa nhóm công việc" loading="lazy"/><figcaption>BÊN CẦN NGƯỜI</figcaption></figure>
+          <div class="lp-side-body"><p class="lp-person" t-esc="pair['job'].tacare_owner_partner_id.name"/><h2 t-esc="pair['job'].name"/><p class="lp-description" t-esc="pair['job'].tacare_description_text"/><dl><dt>Khu vực</dt><dd t-esc="pair['job'].flex_region_id.name or pair['job']._flex_label('flex_mode')"/><dt>Lịch cần người</dt><dd t-esc="pair['job']._flex_schedule_label()"/><dt>Ngân sách</dt><dd class="lp-price" t-esc="pair['job']._flex_price_label()"/></dl></div>
+        </section>
+        <span class="lp-bridge" aria-hidden="true"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'handshake'"/></t></span>
+        <section class="lp-side lp-provider">
+          <figure><img t-att-src="pair['offer']._care_photo_url()" width="720" height="400" alt="Ảnh minh họa lĩnh vực nhận làm, không phải ảnh chân dung" loading="lazy"/><figcaption>BÊN NHẬN LÀM</figcaption></figure>
+          <div class="lp-side-body"><p class="lp-person" t-esc="pair['profile'].name"/><h2 t-esc="pair['profile'].profile_title or pair['profile'].name"/><p class="lp-description" t-esc="pair['offer'].description"/><dl><dt>Khu vực nhận</dt><dd t-esc="pair['offer'].flex_region_id.name or pair['offer']._flex_label('flex_mode')"/><dt>Lịch nhận làm</dt><dd t-esc="pair['offer']._flex_schedule_label()"/><dt>Tiền công</dt><dd class="lp-price" t-esc="pair['offer']._flex_price_label()"/></dl></div>
+        </section>
+      </div>
+      <div class="lp-highlights"><span t-foreach="pair['highlights']" t-as="row" t-att-data-result="row['result']"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'check' if row['result'] == 'met' else 'magnifying-glass'"/></t><t t-esc="row['name']"/> · <t t-esc="'Có căn cứ phù hợp' if row['result'] == 'met' else 'Cần làm rõ'"/></span></div>
+      <footer class="lp-pair-footer"><p><strong t-esc="pair['met_count']"/> điều kiện có căn cứ · <strong t-esc="pair['unknown_count']"/> điều kiện cần làm rõ</p><a class="sx-button" t-att-href="'#lp-comparison' if pair.get('is_detail') else pair['detail_url']"><t t-esc="'Xem bảng đối chiếu' if pair.get('is_detail') else 'Đối chiếu hai phía'"/><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></a></footer>
+      <small class="lp-disclosure">Gợi ý từ dữ liệu đã được phép chia sẻ; hai bên cần trao đổi để xác nhận. Ảnh minh họa lĩnh vực.</small>
+    </article>
+  </template>
+
+  <template id="live_home_pairs" inherit_id="tacare_website.hub_everyday_home" priority="2000">
+    <xpath expr="//section[hasclass('hz-personal')]" position="replace"/>
+    <xpath expr="//section[hasclass('sm-admin-overview')]" position="replace">
+      <section t-if="not is_guest" class="sx-shell lp-home-section" id="home-suggestions">
+        <div class="hz-section-title"><div><p class="sx-kicker">GỢI Ý DÀNH CHO BẠN</p><h2>Công việc và hồ sơ nhận việc phù hợp</h2><p>Mỗi gợi ý gồm một việc cần người làm và một hồ sơ nhận việc. Xem chi tiết để biết những điểm phù hợp và những điều hai bên cần trao đổi thêm.</p></div><a class="sx-text-link" href="/tacare/matching">Xem tất cả gợi ý</a></div>
+        <form t-if="admin_overview" method="get" action="/#home-suggestions" class="sm-library-search"><label>Chọn việc để xem hồ sơ phù hợp<select name="home_job"><option value="">Tất cả việc đang cần người</option><option t-foreach="admin_overview['jobs']" t-as="j" t-att-value="j.id" t-att-selected="str(j.id) == admin_overview['selected_id']" t-esc="j.name"/></select></label><button class="tc-button tc-outline">Xem gợi ý</button></form>
+        <div class="lp-home-pairs"><t t-foreach="home_live_pairs" t-as="pair" t-call="tacare_website.live_pair_card"/></div>
+        <p t-if="not home_live_pairs" class="lp-empty">Chưa có gợi ý phù hợp với tin hoặc hồ sơ của bạn. Hãy kiểm tra thông tin công việc, lịch, tiền công và quyền chia sẻ hồ sơ.</p>
+      </section>
+    </xpath>
+    <xpath expr="//section[hasclass('hz-examples')]" position="replace"/>
+    <xpath expr="//section[hasclass('hx-basis')]//a" position="replace"><a class="sx-text-link" href="/tacare/matching">Xem đối chiếu từ dữ liệu hiện tại</a></xpath>
+  </template>
+
+  <template id="live_matching_pairs" inherit_id="tacare_website.hub_matching_workspace" priority="2000">
+    <xpath expr="//div[hasclass('sm-match-grid')]" position="replace"><div class="lp-pair-list"><t t-foreach="live_pairs" t-as="pair" t-call="tacare_website.live_pair_card"/></div></xpath>
+    <xpath expr="//a[@href='/tacare/examples']" position="replace"><a href="/tacare/matching" t-att-aria-current="None">Các cặp phù hợp</a></xpath>
+    <xpath expr="//div[hasclass('sm-empty')]" position="replace">
+      <div t-if="not matches and (kind != 'profiles' or jobs)" class="sm-empty"><h2>Chưa có matching phù hợp với thông tin của bạn.</h2><p>Chi tiết đối chiếu chỉ mở khi tin hoặc hồ sơ của bạn có gợi ý phù hợp. Kiểm tra đầu việc, lịch, khu vực, tiền công và quyền chia sẻ; thông tin chưa khai vẫn cần làm rõ.</p><div class="hx-start-actions"><a class="sx-text-link" t-att-href="urls['khovieclam'] + 'kvl/flexible/new'">Đăng nhu cầu mới</a><a t-if="role != 'business'" class="sx-text-link" t-att-href="urls['tuhoso'] + 'tuhoso/profiles'">Cập nhật hồ sơ nhận làm</a></div></div>
+    </xpath>
+  </template>
+
+  <template id="live_pair_comparison" name="Đối chiếu dữ liệu hai phía">
+    <section class="lp-comparison-section" id="lp-comparison"><p class="sx-kicker">CĂN CỨ TỪ THUẬT TOÁN HIỆN TẠI</p><h2>Đối chiếu từng điều kiện</h2><p>Thông tin chưa khai được giữ là cần làm rõ; không tự suy ra năng lực hoặc lịch trống.</p>
+      <table class="lp-comparison"><caption class="visually-hidden">So sánh nhu cầu công việc với mục nhận làm của hồ sơ</caption><thead><tr><th scope="col">Điều kiện và kết quả</th><th scope="col">Công việc cần người</th><th scope="col">Hồ sơ nhận làm</th></tr></thead><tbody><tr t-foreach="pair['reason']['comparisons']" t-as="row" t-att-data-result="row['result']"><th scope="row"><strong t-esc="row['name']"/><span class="lp-result" t-att-data-result="row['result']" t-esc="{'met':'Có căn cứ phù hợp','unknown':'Cần làm rõ','unmet':'Chưa phù hợp'}[row['result']]"/><small t-esc="row['basis']"/></th><td t-esc="row['need_value']"/><td t-esc="row['offer_value']"/></tr></tbody></table>
+    </section>
+  </template>
+
+  <template id="live_pair_detail" name="TA.CARE · Đối chiếu công việc và hồ sơ">
+    <t t-call="tacare_website.live_layout"><p class="tc-breadcrumb"><a href="/tacare/matching">Các cặp phù hợp</a> / Đối chiếu hai phía</p><div class="tc-page-head"><p class="sx-kicker">CÔNG VIỆC · HỒ SƠ · CĂN CỨ PHÙ HỢP</p><h1>Nhìn rõ trước khi kết nối.</h1><p>Kết quả được tính lại từ thông tin và quyền chia sẻ hiện tại.</p></div>
+      <div class="lp-detail-summary"><t t-call="tacare_website.live_pair_card"/></div>
+      <t t-call="tacare_website.live_pair_comparison"/>
+      <div class="lp-detail-content"><section class="tc-card"><h2>Phạm vi công việc</h2><h3 t-esc="pair['job'].name"/><p class="tc-prose" t-esc="pair['job'].tacare_description_text"/><h3 t-esc="pair['offer'].title"/><p class="tc-prose" t-esc="pair['offer'].description"/><p><strong>Dụng cụ phía cần người: </strong><t t-esc="pair['job']._flex_label('flex_tools')"/> · <t t-esc="pair['job'].flex_tools_note"/></p><p><strong>Dụng cụ phía nhận làm: </strong><t t-esc="pair['offer']._flex_label('flex_tools')"/> · <t t-esc="pair['offer'].flex_tools_note"/></p></section>
+      <section class="tc-card"><h2>Bắt đầu bằng một lời trao đổi</h2><form action="/tacare/request/send" method="post" class="tc-form"><input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/><input type="hidden" name="type" t-att-value="'application' if pair['view'] == 'receive' else 'invitation'"/><input type="hidden" name="job_id" t-att-value="pair['job'].id"/><input type="hidden" name="profile_id" t-att-value="pair['profile'].id"/><label for="lp-message">Nội dung trao đổi<textarea id="lp-message" name="message" required="required" maxlength="2000" rows="5" placeholder="Nêu phạm vi, lịch có thể làm và những điều cần xác nhận thêm…"/></label><button class="tc-button" t-esc="'Gửi đề nghị nhận việc' if pair['view'] == 'receive' else 'Mời trao đổi công việc'"/></form><p class="tc-help">Liên hệ chỉ được chia sẻ khi chủ hồ sơ đồng ý riêng sau khi hai bên chấp nhận trao đổi.</p></section></div>
+      <section class="tc-card wr-summary"><t t-set="is_service" t-value="True"/><t t-call="tacare_website.review_summary"/></section>
+    </t>
+  </template>
+</odoo>

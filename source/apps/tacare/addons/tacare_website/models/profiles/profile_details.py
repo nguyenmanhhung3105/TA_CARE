@@ -2,7 +2,7 @@
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
-from .hr_job import TYPES
+from ..jobs.hr_job import TYPES
 
 
 class CareProfileCapability(models.Model):

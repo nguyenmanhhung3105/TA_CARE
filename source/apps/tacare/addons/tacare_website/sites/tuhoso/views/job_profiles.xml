@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="source_profile_create" inherit_id="tacare_website.provider_everyday_create" priority="1800">
+    <xpath expr="//form[@action='/tuhoso/profiles/create']" position="before"><t t-call="tacare_website.source_job_note"/></xpath>
+    <xpath expr="//form[@action='/tuhoso/profiles/create']" position="inside">
+      <input t-if="source_job" type="hidden" name="source_job_id" t-att-value="source_job.id"/>
+    </xpath>
+  </template>
+
+  <template id="source_work_form" inherit_id="tacare_website.work_form" priority="1800">
+    <xpath expr="//form[@data-work-form]" position="before"><t t-call="tacare_website.source_job_note"/></xpath>
+  </template>
+
+  <template id="provider_public_catalog_link" inherit_id="tacare_website.provider_everyday_home" priority="1800">
+    <xpath expr="//div[hasclass('to-actions')]" position="inside">
+      <a class="sx-text-link" t-att-href="urls['khovieclam'] + 'kvl/jobs'">Tham khảo công việc đang mở</a>
+    </xpath>
+  </template>
+
+  <template id="provider_public_jobs_navigation" inherit_id="tacare_website.service_navigation" priority="1800">
+    <xpath expr="//a[@href='/tuhoso/profiles?scope=mine']" position="before">
+      <a t-att-href="urls['khovieclam'] + 'kvl/jobs'">Việc đang mở</a>
+    </xpath>
+  </template>
+
+  <template id="provider_profile_reviews" inherit_id="tacare_website.profile_overview" priority="1800">
+    <xpath expr="//form[@action='/tuhoso/sharing/save']" position="before">
+      <p t-if="scoped_matching_orgs" class="wr-reference">Hồ sơ đang có quyền đối chiếu riêng cho: <strong t-esc="', '.join(scoped_matching_orgs.mapped('name'))"/>. Biểu mẫu bên dưới thay thế quyền hiện có bằng phạm vi chung bạn chọn; chỉ lưu khi muốn thay đổi quyền.</p>
+    </xpath>
+    <xpath expr="//t[@t-call='tacare_website.live_layout']" position="inside">
+      <section class="tc-card wr-summary"><t t-set="is_service" t-value="True"/><t t-call="tacare_website.review_summary"/></section>
+    </xpath>
+  </template>
+</odoo>

@@ -40,6 +40,8 @@ def _register(env, record, key):
 
 def organize_local_demo(env, apply=False, backup_receipt=None):
     """Arrange five employers, archive legacy logins, retain all demo contacts."""
+    if apply:
+        raise ValueError('Luồng tổ chức demo cũ đã ngừng; không khôi phục liên hệ không có tài khoản hoạt động.')
     if not env.su or env.cr.dbname != 'tacare_local':
         raise ValueError('This operation is restricted to the trusted local shell')
     env = env(context=dict(env.context, active_test=False, tracking_disable=True,

@@ -1,7 +1,7 @@
 import math
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
-from .hr_job import SECTORS, MODES, validate_numeric_values, preferred_currency
+from ..jobs.hr_job import SECTORS, MODES, validate_numeric_values, preferred_currency
 
 
 class TacareProfile(models.Model):

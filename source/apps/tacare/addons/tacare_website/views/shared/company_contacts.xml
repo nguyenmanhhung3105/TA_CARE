@@ -10,8 +10,18 @@
         <attribute name="string">Công ty vận hành</attribute>
       </xpath>
       <xpath expr="//field[@name='email']" position="after">
+        <field name="care_account_logins" optional="show" readonly="1" groups="base.group_system"/>
         <field name="parent_id" string="Doanh nghiệp / tổ chức" optional="show" readonly="1"/>
       </xpath>
     </field>
+  </record>
+  <record id="partner_search_account_bound" model="ir.ui.view">
+    <field name="name">TA.CARE active account contacts</field>
+    <field name="model">res.partner</field>
+    <field name="inherit_id" ref="base.view_res_partner_filter"/>
+    <field name="arch" type="xml"><xpath expr="//search" position="inside"><filter name="care_active_account" string="Có tài khoản hoạt động" domain="[('care_has_active_account','=',True)]" groups="base.group_system"/></xpath></field>
+  </record>
+  <record id="contacts.action_contacts" model="ir.actions.act_window">
+    <field name="context">{'default_is_company': True, 'search_default_care_active_account': 1}</field>
   </record>
 </odoo>

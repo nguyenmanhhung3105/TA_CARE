@@ -5,6 +5,7 @@ from urllib.parse import urlsplit
 
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
+from ...geo_utils import encode
 
 WORK_MODES = [('onsite', 'Trực tiếp'), ('remote', 'Từ xa'), ('hybrid', 'Kết hợp')]
 SCHEDULES = [('once', 'Một lần'), ('recurring', 'Định kỳ'),
@@ -25,7 +26,39 @@ class FlexibleWorkMixin(models.AbstractModel):
     flex_category_id = fields.Many2one('care.capability.category', ondelete='restrict')
     flex_mode = fields.Selection(WORK_MODES)
     flex_region_id = fields.Many2one('res.country.state', ondelete='restrict')
-    flex_location = fields.Char(size=250)
+    flex_location = fields.Char(size=1000)
+    # Exact positions are controller-only: portal/public RPC cannot read them.
+    geo_set = fields.Boolean(groups='base.group_system', copy=False)
+    geo_lat = fields.Float(digits=(10, 6), groups='base.group_system', copy=False)
+    geo_lon = fields.Float(digits=(10, 6), groups='base.group_system', copy=False)
+    geo_address = fields.Char(size=1000, groups='base.group_system', copy=False)
+    geo_share = fields.Boolean(groups='base.group_system', copy=False,
+        help='Cho phép bên có quyền matching xem khu vực gần đúng, không phải địa chỉ chính xác.')
+    geo_sample = fields.Boolean(groups='base.group_system', copy=False)
+    geo_hash = fields.Char(compute='_compute_geo_hash', store=True, index=True, groups='base.group_system')
+    geo_map_url = fields.Char(compute='_compute_geo_hash', store=True, groups='base.group_system')
+
+    @api.depends('geo_set', 'geo_lat', 'geo_lon')
+    def _compute_geo_hash(self):
+        for record in self:
+            try:
+                record.geo_hash = encode(record.geo_lat, record.geo_lon) if record.geo_set else False
+            except ValueError:
+                record.geo_hash = False
+            record.geo_map_url = ('https://www.google.com/maps/search/?api=1&query=%.6f%%2C%.6f' %
+                (record.geo_lat, record.geo_lon)) if record.geo_hash else False
+
+    @api.constrains('geo_set', 'geo_lat', 'geo_lon', 'geo_share', 'flex_mode')
+    def _check_geo(self):
+        for record in self:
+            if not all(math.isfinite(v) for v in (record.geo_lat, record.geo_lon)):
+                raise ValidationError('Tọa độ phải là số hữu hạn.')
+            if record.geo_set and (not 8 <= record.geo_lat <= 24 or not 102 <= record.geo_lon <= 110):
+                raise ValidationError('Bản thử hỗ trợ vị trí tại Việt Nam (8–24°B, 102–110°Đ).')
+            if record.geo_set and record.flex_mode == 'remote':
+                raise ValidationError('Việc hoàn toàn từ xa không dùng vị trí bản đồ.')
+            if record.geo_share and not record.geo_set:
+                raise ValidationError('Chọn vị trí trước khi bật chia sẻ khu vực.')
     flex_destination = fields.Char(size=250)
     flex_schedule = fields.Selection(SCHEDULES, default='flexible')
     flex_date_from = fields.Date()

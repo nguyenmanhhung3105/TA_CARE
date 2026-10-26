@@ -1,0 +1,131 @@
+/* Continuous native forms, scoped to the posting/profile editors. */
+.tc-live {
+  .ix-main .ff-page-head { display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:20px 32px; padding:28px 0 36px; }
+  .ff-page-head h1 { margin:10px 0 14px; }
+  .ff-page-head p { margin-bottom:0; color:var(--sx-muted); max-width:760px; }
+  .ff-page-head .tc-eyebrow { color:var(--sx-brand); }
+  .ff-head-note { display:flex; align-items:center; gap:9px; padding:12px 16px; border:1px solid var(--sx-line); border-radius:12px; background:white; color:var(--sx-muted); font-size:13px; margin-top:8px; }
+  .ff-head-note .sx-icon { width:20px; height:20px; flex-basis:20px; }
+  .ix-editor.ff-editor { grid-template-columns:236px minmax(0,1fr); gap:32px; }
+  .ff-editor .ix-editor-guide { padding:20px 14px; border:1px solid var(--sx-line); border-radius:20px; background:white; }
+  .ff-editor .ix-editor-guide>.sx-kicker { margin:0 12px 16px; font-size:11px; }
+  .ff-editor .ix-editor-guide nav { gap:8px; }
+  .ff-editor .ix-editor-guide nav a { min-height:52px; padding:10px 12px; border:1px solid transparent; font-size:14px; }
+  .ff-editor .ix-editor-guide nav b { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:8px; background:var(--sx-panel); font-size:11px; flex-shrink:0; }
+  .ff-editor .ix-editor-guide nav a:hover,.ff-editor .ix-editor-guide nav a[aria-current] { border-color:var(--sx-brand); background:var(--sx-mint); color:var(--sx-brand); }
+  .ff-editor .ix-guide-note { margin:20px 0 0; padding:18px; background:var(--sx-panel); border-radius:12px; }
+  .ff-editor .ix-guide-note h3 { margin:12px 0 8px; font-size:16px; }
+  .ff-editor .ix-guide-note p { margin-bottom:12px; }
+  .ff-editor .ix-guide-note small { font-size:12px; }
+  .ff-editor .ix-editor-content { gap:28px; }
+  .ff-editor .ix-form-section,.ff-metadata-form .tc-card { border:1px solid var(--sx-line); border-radius:20px; padding:32px; background:white; box-shadow:0 4px 16px var(--sx-shadow); }
+  .ff-editor .ix-form-section { display:grid; gap:22px; }
+  .ff-editor .ix-form-section>.tc-eyebrow,.ff-metadata-form .tc-card>.sx-kicker { width:fit-content; margin:0; background:var(--sx-panel); border-radius:7px; padding:5px 10px; font-size:11px; letter-spacing:.07em; }
+  .ff-editor .ix-form-section>h2 { margin:0; font-size:25px; line-height:1.35; }
+  .ff-editor .ix-section-help { font-size:14px; line-height:1.7; }
+  .ff-editor .tc-form-grid { gap:24px; }
+  .ff-editor label,.ff-simple-form label,.ff-metadata-form label { display:grid; gap:9px; margin:0; color:var(--sx-ink); font-size:14px; font-weight:600; }
+  .ix-main :is(.ff-editor,.ff-simple-form,.ff-metadata-form) :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea) { border:1px solid var(--sx-control-border); background-color:white; border-radius:12px; min-height:50px; box-shadow:0 1px 2px var(--sx-shadow); padding:13px 15px; font-size:16px; }
+  .ix-main :is(.ff-editor,.ff-simple-form,.ff-metadata-form) textarea { resize:vertical; min-height:130px; }
+  :is(.ff-editor,.ff-simple-form,.ff-metadata-form) input::placeholder,:is(.ff-editor,.ff-simple-form,.ff-metadata-form) textarea::placeholder { color:var(--sx-muted); font-weight:400; opacity:1; }
+  .ff-editor fieldset { margin:0; min-width:0; border:0; padding:0; }
+  .ff-editor legend { float:none; width:auto; font-size:15px; font-weight:650; margin:0 0 8px; }
+  .ff-editor fieldset>p { font-size:13px; color:var(--sx-muted); margin:0 0 14px; }
+  .ff-editor .fw-skill-options,.ff-editor .fw-weekdays { gap:10px; }
+  .ff-editor .fw-skill-options label,.ff-editor .fw-weekdays label { display:flex; align-items:center; gap:9px; min-height:44px; border:1px solid var(--sx-control-border); border-radius:10px; padding:10px 13px; background:white; font-size:13px; font-weight:500; cursor:pointer; }
+  .ff-editor .fw-skill-options label:hover,.ff-editor .fw-weekdays label:hover { border-color:var(--sx-brand); }
+  .ff-editor .fw-skill-options label:has(:focus-visible),.ff-editor .fw-weekdays label:has(:focus-visible) { outline:3px solid var(--sx-focus); outline-offset:3px; }
+  .ff-editor label.tc-check { display:flex; gap:12px; align-items:center; min-height:48px; font-weight:500; cursor:pointer; }
+  .ff-editor .ff-matching-option { padding:20px 24px; background:var(--sx-mint); border:1px solid var(--sx-control-border); border-radius:16px; }
+  .ff-editor .ff-profile-choice { display:grid; gap:16px; padding:24px 32px; border-left:4px solid var(--sx-brand); background:var(--sx-panel); }
+  .ff-profile-choice h2 { margin:0; font-size:21px; }
+  .ff-profile-choice>.ff-button { justify-self:start; }
+  .ff-editor details { border:1px solid var(--sx-line); border-radius:12px; padding:0 18px 16px; background:var(--sx-surface); }
+  .ff-editor summary { min-height:48px; padding-block:12px; font-size:14px; font-weight:600; cursor:pointer; color:var(--sx-brand); }
+  .ff-editor details:not([open]) { padding-bottom:0; }
+  .ff-editor .gm-picker { margin-top:0; padding:0; border:0; }
+  .ff-editor .gm-picker-details { background:white; }
+  .ff-editor .gm-picker-details>summary { font-size:17px; }
+  .ff-editor .gm-picker-map { margin-top:18px; border-radius:12px; }
+  .ff-editor .gm-picked-address { border:1px solid var(--sx-line); border-radius:12px; background:var(--sx-panel); }
+  .ff-editor .gm-picked-address strong { font-size:16px; line-height:1.6; }
+  .ff-editor .gm-share { display:flex; align-items:flex-start; padding:16px; background:var(--sx-panel); border:1px solid var(--sx-line); border-radius:12px; gap:12px; cursor:pointer; }
+  .ff-editor .gm-share input { margin-top:5px; }
+  .ff-editor .gm-share small { margin-top:6px; }
+  .ff-editor .gm-text-button { min-height:44px; padding:10px 14px; border:1px solid var(--sx-control-border); border-radius:10px; background:white; font-size:14px; font-weight:600; text-decoration:none; cursor:pointer; }
+  .ff-editor .gm-text-button:hover { background:var(--sx-panel); border-color:var(--sx-brand); }
+  .ix-main :is(.ff-editor,.ff-metadata-form) .ff-save-panel { display:grid; gap:22px; padding:28px 32px; border:1px solid var(--sx-control-border); border-top:4px solid var(--sx-brand); border-radius:18px; background:var(--sx-panel); }
+  .ff-save-copy strong { font-size:19px; font-weight:650; color:var(--sx-ink); }
+  .ff-save-copy p { margin:6px 0 0; font-size:14px; line-height:1.7; color:var(--sx-muted); }
+  .ff-save-buttons { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  .ix-main .ff-button { display:inline-flex; align-items:center; justify-content:center; gap:10px; min-height:48px; padding:12px 20px; border:1px solid var(--sx-brand); border-radius:12px; font-size:14px; line-height:1.5; font-weight:650; text-align:center; text-decoration:none; white-space:normal; cursor:pointer; transition:background-color .16s,border-color .16s,box-shadow .16s; }
+  .ix-main .ff-button .sx-icon { width:20px; height:20px; flex-basis:20px; }
+  .ix-main .ff-button-primary { color:white; background:var(--sx-brand); box-shadow:0 3px 0 var(--sx-brand-hover); }
+  .ix-main .ff-button-primary .sx-icon { filter:brightness(0) invert(1); }
+  .ix-main .ff-button-primary:hover { background:var(--sx-brand-hover); border-color:var(--sx-brand-hover); box-shadow:0 4px 12px var(--sx-shadow); color:white; }
+  .ix-main .ff-button-secondary { background:white; color:var(--sx-brand); }
+  .ix-main .ff-button-secondary:hover { background:var(--sx-mint); }
+  .ix-main .ff-button-quiet { background:transparent; color:var(--sx-muted); border-color:var(--sx-line); }
+  .ix-main .ff-button-quiet:hover { background:white; color:var(--sx-brand); border-color:var(--sx-brand); }
+  .ix-main :is(.ff-button,.ff-editor summary,.ff-editor nav a,.ff-editor .gm-text-button):focus-visible { outline:3px solid var(--sx-focus); outline-offset:4px; }
+  .ff-editor input[type=file]::file-selector-button { padding:10px 14px; margin-right:14px; border:1px solid var(--sx-control-border); border-radius:8px; background:var(--sx-panel); color:var(--sx-brand); font:inherit; cursor:pointer; }
+  .ix-main .ff-profile-create { display:grid; grid-template-columns:minmax(260px,.85fr) minmax(0,1.15fr); gap:32px; align-items:stretch; padding:32px 0; border:0; border-radius:0; background:transparent; overflow:visible; }
+  .ff-profile-create .ff-create-guide { padding:40px; border:1px solid var(--sx-line); border-radius:24px; background:var(--sx-panel); }
+  .ff-create-guide .ff-create-icon { display:inline-flex; width:56px; height:56px; align-items:center; justify-content:center; background:white; border:1px solid var(--sx-line); border-radius:16px; margin-bottom:28px; }
+  .ff-profile-create .ff-create-guide .ff-create-icon .sx-icon { width:26px; height:26px; flex-basis:26px; margin:0; border-radius:0; object-fit:contain; aspect-ratio:auto; }
+  .ff-create-guide .sx-kicker { color:var(--sx-brand); }
+  .ff-profile-create .ff-create-guide h1 { font-size:clamp(28px,3vw,42px); margin:12px 0 20px; line-height:1.25; }
+  .ff-profile-create .ff-create-guide>p { color:var(--sx-muted); font-size:15px; line-height:1.8; }
+  .ff-create-steps { list-style:none; margin:32px 0; padding:0; display:grid; gap:24px; }
+  .ff-create-steps li { display:flex; gap:16px; align-items:flex-start; }
+  .ff-create-steps b { display:inline-flex; flex-shrink:0; align-items:center; justify-content:center; width:36px; height:36px; background:white; color:var(--sx-brand); border:1px solid var(--sx-control-border); border-radius:50%; font-size:14px; }
+  .ff-create-steps [aria-current] b { background:var(--sx-brand); color:white; border-color:var(--sx-brand); }
+  .ff-create-steps strong { font-size:16px; color:var(--sx-ink); }
+  .ff-create-steps p { font-size:13px; color:var(--sx-muted); margin:6px 0 0; }
+  .ff-profile-create .ff-create-guide .ff-private-note { display:flex; align-items:center; gap:10px; font-size:13px; margin:0; }
+  .ff-private-note .sx-icon { width:20px; height:20px; flex-basis:20px; }
+  .ff-profile-create .sx-create-form { padding:40px; border:1px solid var(--sx-line); border-radius:24px; background:white; align-self:stretch; display:flex; flex-direction:column; justify-content:center; }
+  .ff-profile-create .sx-create-form>.sx-text-link { margin:0 0 32px; align-self:flex-start; min-height:44px; border:1px solid var(--sx-line); border-radius:10px; padding:10px 14px; text-decoration:none; }
+  .ff-profile-create .sx-create-form h2 { font-size:clamp(24px,2.3vw,32px); line-height:1.35; margin:12px 0 16px; }
+  .ff-profile-create .sx-create-form>p:not(.sx-kicker) { margin-bottom:24px; font-size:15px; }
+  .ff-profile-create .ff-simple-form { display:grid; gap:24px; margin:0; max-width:none; }
+  .ff-simple-form>small { padding:14px; background:var(--sx-panel); border-radius:10px; }
+  .ff-metadata-layout .ix-profile-tip { border:1px solid var(--sx-line); background:var(--sx-panel); }
+  .ff-metadata-form .tc-card { gap:24px; }
+  @media(max-width:1023px) {
+    .ix-editor.ff-editor { grid-template-columns:1fr; gap:24px; }
+    .ff-editor .ix-editor-guide { position:static; padding:18px; }
+    .ff-editor .ix-editor-guide nav { grid-template-columns:repeat(5,minmax(0,1fr)); gap:8px; }
+    .ff-editor .ix-editor-guide nav a { flex-direction:column; text-align:center; gap:6px; padding:10px 6px; }
+    .ff-editor .ix-editor-guide nav a span { font-size:13px; }
+    .ff-editor .ix-guide-note { display:none; }
+    .ix-main .ff-profile-create { gap:24px; grid-template-columns:minmax(240px,.8fr) minmax(0,1.2fr); }
+    .ff-profile-create .ff-create-guide,.ff-profile-create .sx-create-form { padding:28px; }
+    .ff-metadata-layout { grid-template-columns:minmax(0,1fr); }
+    .ff-metadata-layout .ix-profile-tip { position:static; }
+  }
+  @media(max-width:767px) {
+    .ix-main .ff-page-head { padding:24px 0; gap:16px; }
+    .ff-page-head h1 { font-size:30px; }
+    .ff-head-note { margin:0; width:100%; font-size:12px; }
+    .ff-editor .ix-editor-guide nav { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .ff-editor .ix-editor-guide nav a { flex-direction:row; text-align:left; justify-content:flex-start; gap:9px; }
+    .ff-editor .ix-editor-guide nav a:last-child { grid-column:1/-1; }
+    .ff-editor .ix-form-section,.ff-metadata-form .tc-card,.ff-editor .ff-profile-choice { padding:22px 18px; border-radius:16px; }
+    .ff-editor .ix-form-section>h2 { font-size:22px; }
+    .ff-editor .tc-form-grid,.ff-metadata-form .tc-form-grid { grid-template-columns:minmax(0,1fr); gap:20px; }
+    .ff-editor .ix-editor-content { gap:20px; }
+    .ff-editor .ff-matching-option { padding:18px; }
+    .ff-editor details { padding-inline:12px; }
+    .ix-main :is(.ff-editor,.ff-metadata-form) .ff-save-panel { padding:22px 18px; }
+    .ff-save-buttons { display:grid; grid-template-columns:minmax(0,1fr); gap:12px; }
+    .ff-save-buttons .ff-button-primary { grid-row:1; }
+    .ix-main .ff-profile-create { grid-template-columns:minmax(0,1fr); gap:20px; padding-top:24px; }
+    .ff-profile-create .ff-create-guide,.ff-profile-create .sx-create-form { padding:24px 20px; border-radius:18px; }
+    .ff-create-guide .ff-create-icon { margin-bottom:16px; width:44px; height:44px; }
+    .ff-profile-create .ff-create-guide h1 { font-size:28px; }
+    .ff-create-steps { margin:24px 0; gap:20px; }
+    .ff-profile-create .sx-create-form>.sx-text-link { margin-bottom:24px; }
+  }
+  @media(prefers-reduced-motion:reduce) { .ff-button { transition:none; } }
+}
