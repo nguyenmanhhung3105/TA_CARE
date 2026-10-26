@@ -430,10 +430,21 @@
     function init() {
         document.querySelectorAll('[data-geo-picker]').forEach(initPicker);
         document.querySelectorAll('[data-nearby-map]').forEach(root => {
+            const canvas = root.querySelector('[data-nearby-canvas]');
+            if (!canvas) return;
+            // The section starts above the canvas. Watching it with a large
+            // margin eagerly started WebGL/API work under the homepage hero.
+            // Wait for the actual map to be visible, then yield the first paint.
+            let scheduled = false;
             const observer = new IntersectionObserver(entries => {
-                if (entries.some(e => e.isIntersecting)) { observer.disconnect(); initNearby(root); }
-            }, {rootMargin: '200px'});
-            observer.observe(root);
+                if (scheduled || !entries.some(e => e.isIntersecting && e.intersectionRatio >= .1)) return;
+                scheduled = true;
+                observer.disconnect();
+                const start = () => initNearby(root);
+                if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(start, {timeout: 1000});
+                else setTimeout(start, 0);
+            }, {rootMargin: '0px', threshold: .1});
+            observer.observe(canvas);
         });
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
