@@ -1,7 +1,7 @@
 {
     "name": "TA.CARE Website",
     "summary": "Giao diện Kho Việc Làm, Tủ Hồ Sơ và TA.CARE",
-    "version": "19.0.17.0.0",
+    "version": "19.0.17.1.0",
     "author": "TA.CARE",
     "category": "Website",
     "license": "LGPL-3",
