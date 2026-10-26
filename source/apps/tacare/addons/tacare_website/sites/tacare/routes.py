@@ -8,7 +8,7 @@ from werkzeug.exceptions import BadRequest, Forbidden, NotFound
 from odoo import http, fields
 from odoo.http import request
 
-from ...models.hr_job import SECTORS, TYPES, MODES, preferred_currency
+from ...models.jobs.hr_job import SECTORS, TYPES, MODES, preferred_currency
 from ...controllers.site_context import site_context
 
 
@@ -48,16 +48,31 @@ class HubControllers(http.Controller):
             raise Forbidden('Tài khoản doanh nghiệp dùng phía tìm người làm; hồ sơ nhận việc thuộc tài khoản cá nhân.')
         if view == 'receive':
             profile = self._my_profile()
+            if not kw.get('profile_id'):
+                own_profiles = request.env['tacare.profile'].sudo().search([
+                    ('user_id', '=', self._user().id), ('status', '=', 'active'),
+                    ('company_id', 'in', self._user().company_ids.ids)], order='id desc', limit=100)
+                # Read-only default selection; every form write still requires
+                # an explicit owner-checked profile_id.
+                profile = next((p for p in own_profiles if self._receive_matching_data(p)), profile)
             if not profile:
                 return request.redirect(self._urls()['tuhoso'] + 'tuhoso/profiles/new?kind=flexible')
             matches = self._receive_matching_data(profile)
             return self._render('live_matching',matches=matches,kind='jobs',profile=profile,
-                matching_enabled=bool(self._current_consent(profile,'matching')),seasonal_view=view)
+                matching_enabled=self._matching_is_enabled(profile),seasonal_view=view)
         try:
             selected_id = int(kw.get('job') or 0)
         except ValueError:
             raise BadRequest('Tin không hợp lệ.')
         jobs, selected, matches = self._hire_matching_data(selected_id)
+        if not selected_id and not matches:
+            # The marketing entry opens the account's own suggestions, including
+            # those attached to an older need. Explicit selections stay intact.
+            for job in jobs - selected:
+                _, candidate, candidate_matches = self._hire_matching_data(job.id)
+                if candidate_matches:
+                    selected, matches = candidate, candidate_matches
+                    break
         return self._render('live_matching', matches=matches, kind='profiles', jobs=jobs, selected=selected,
             editable_org_ids=jobs.mapped('tacare_owner_partner_id').ids, seasonal_view=view)
 
@@ -83,10 +98,19 @@ class HubControllers(http.Controller):
 
     def _receive_matching_data(self, profile):
         jobs = request.env['hr.job'].sudo().search(self._job_domain() + [
-            ('care_matching_enabled', '=', True), ('tacare_owner_user_id', '!=', self._user().id)]) if \
-            self._current_consent(profile, 'matching') else request.env['hr.job']
+            ('care_matching_enabled', '=', True), ('tacare_owner_user_id', '!=', self._user().id)])
+        jobs = jobs.filtered(lambda j: self._current_consent(profile, 'matching', j.tacare_owner_partner_id, 'profile') and
+            self._current_consent(profile, 'matching', j.tacare_owner_partner_id, 'skills'))
         matches = [(job, self._match(job, profile)) for job in jobs]
         return sorted([p for p in matches if p[1].get('eligible', False)], key=lambda p: p[1]['rank'], reverse=True)
+
+    def _matching_is_enabled(self, profile):
+        # Display state only; this never grants discovery to an unspecified
+        # recipient. Each job above still checks the exact organization.
+        grants = request.env['care.consent'].sudo().search([
+            ('profile_id', '=', profile.id), ('purpose', '=', 'matching'), ('state', '=', 'granted')])
+        return any(c.is_current('matching', c.recipient_partner_id, 'profile') and
+                   c.is_current('matching', c.recipient_partner_id, 'skills') for c in grants)
 
     @http.route('/tacare/matching/<int:job_id>/profile/<int:profile_id>',
                 type='http', auth='user', website=True, methods=['GET'])
@@ -106,6 +130,8 @@ class HubControllers(http.Controller):
         if not self._current_consent(profile, 'discovery', recipient, 'evidence'):
             evidence = request.env['tacare.profile.evidence']
         reason = self._match(job, profile)
+        if not reason.get('eligible'):
+            raise NotFound('Cặp này không còn gợi ý phù hợp để xem chi tiết.')
         return self._render('kvl_candidate_detail', site='tacare', job=job, profile=profile,
                             evidence=evidence, comparisons=reason['comparisons'],
                             can_invite=bool(reason.get('eligible')))
@@ -129,8 +155,8 @@ class HubControllers(http.Controller):
         if job.company_id.id not in company_ids or profile.company_id.id not in profile_companies:
             raise Forbidden('Tin hoặc hồ sơ ngoài phạm vi tài khoản.')
         request.env.cr.execute('SELECT id FROM hr_job WHERE id = %s FOR UPDATE', [job.id])
-        job.invalidate_recordset(['tacare_status', 'is_published'])
-        if job.tacare_status != 'published' or not job.is_published or (job.tacare_deadline and job.tacare_deadline < fields.Date.today()):
+        job.invalidate_recordset(['tacare_status', 'is_published', 'care_remaining_slots'])
+        if job.tacare_status != 'published' or not job.is_published or job.care_remaining_slots <= 0 or (job.tacare_deadline and job.tacare_deadline < fields.Date.today()):
             raise BadRequest('Tin hoặc hồ sơ không còn sẵn sàng.')
         if kind == 'application':
             self._require_candidate()

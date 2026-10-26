@@ -3,7 +3,7 @@ from odoo import http
 from odoo.http import request
 from odoo.exceptions import AccessError, ValidationError
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound
-from ...models.admin_removal import KINDS, check_admin, plan_removal, remove_record
+from ...models.operations.admin_removal import KINDS, check_admin, plan_removal, remove_record
 
 
 class AdminRemovalControllers(http.Controller):

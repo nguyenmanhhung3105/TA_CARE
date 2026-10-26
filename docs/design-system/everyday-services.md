@@ -81,3 +81,27 @@ Scroller có đệm focus và tự căn ô được chọn bằng bàn phím và
 ### Phân biệt thương hiệu bằng màu — 23/10/2026
 
 Chủ dự án nhận xét Kho và Tủ đang quá giống vì cùng xanh lá đậm. Bản hiện tại chỉ đổi block palette Tủ: navy `#24385a`, hover `#18283f`, nền xanh xám sáng `#f5f7fc`, chữ `#1f2c43`, nhấn slate blue `#445d86`, soft surface `#e7edf7` và điểm nhấn nhạt `#d6e1f4`. Kho giữ forest green `#0b2e24` / kem, TA.CARE giữ petrol `#116879` / xanh băng. Cầu nối token áp dụng màu này cho header, nút/tab, sidebar thư viện và form; không đổi bố cục, logo hoặc dữ liệu. Màu trạng thái giữ ý nghĩa hiện có.
+
+### Tiêu đề và thứ tự ảnh Kho — 24/10/2026
+
+Chủ dự án chốt “Từ việc bạn cần, đến người phù hợp.” cho Kho Việc Làm và yêu cầu thử đưa dải ảnh hiện có lên đầu phần nội dung, ngay dưới điều hướng. `sites/khovieclam/views/service_design.xml` chuyển nguyên dải ảnh lên trước kicker/tiêu đề, mô tả và tìm kiếm; không nhân bản ảnh. Giữ năm ảnh trên desktop, ba ảnh ở mobile theo responsive hiện có. `service_design.scss` chỉnh khoảng cách riêng khối giới thiệu Kho; tiêu đề mobile dùng clamp 28–38px để câu vừa hai dòng tại 320/375px. Không đổi TA.CARE/Tủ, màu, gutter, header hoặc matching.
+
+Đã backup DB local, cập nhật addon và kiểm Chrome tại 320/375/640/768/1440/1920px: đúng tiêu đề/thứ tự, ảnh tải, không tràn ngang, hai matching giới thiệu còn nguyên, tìm kiếm công khai giữ từ khóa và không yêu cầu đăng nhập. Ảnh xem thử ở ignored `runtime/kho-hero-review/`. XML parse, security scanner và diff whitespace đạt. Chỉ triển khai local, chưa commit/push/deploy.
+
+Điều chỉnh tiếp cùng ngày: tăng khoảng cách sau dải ảnh từ 32 lên 64px ở desktop, từ 24 lên 40px ở mobile. Hai ảnh ngoài cùng (sửa chữa/chăm thú cưng) cao 250px, bo vòm đối xứng ở hai góc trên bằng radius phần trăm; giữ nhãn nghề và ảnh hiện có. Chrome kiểm sáu kích thước, hình vòm desktop, khoảng cách responsive, tiêu đề mobile hai dòng, không tràn ngang và tìm kiếm công khai đạt. Ảnh ở ignored `runtime/kho-arch-review/`. Chỉ CSS local, không cập nhật dữ liệu hoặc deploy.
+
+### Đính chính vòng cung quanh tiêu đề Kho — 24/10/2026
+
+Chủ dự án làm rõ: toàn bộ ảnh cần xếp như cầu vồng quanh tiêu đề, thay vì chỉ bo hai ảnh thành vòm. `static/src/khovieclam/scss/home_arc.scss` là lớp CSS riêng Kho: ảnh nấu ăn cao nhất ở giữa, ảnh làm vườn/thiết kế hạ xuống hai phía, sửa chữa/thú cưng nằm thấp hai bên phần chữ. Giữ ảnh, caption và khôi phục hình khung trước thử bo vòm. Tiêu đề nằm giữa khoảng trống bên trong cung; mô tả/tìm kiếm tiếp tục bên dưới. Dưới 768px ba ảnh tạo cung nhỏ phía trên, phần chữ dùng toàn chiều rộng. Không đổi header/gutter hoặc nội dung TA.CARE/Tủ.
+
+Sau backup DB đã kiểm danh mục dump và cập nhật addon để đăng ký asset mới, Chrome kiểm 320/375/640/641/767/768/1024/1440/1920px: đúng thứ tự độ cao, hai ảnh giữa đối xứng, ảnh ngoài không đè khung tiêu đề, không tràn ngang, title mobile hai dòng, ảnh tải được và tìm kiếm công khai giữ từ khóa. Hai marketing matching vẫn hiển thị đúng. Ảnh xem thử ở ignored `runtime/kho-rainbow-review/`. Manifest parse, security scanner và diff whitespace đạt. Không sửa dữ liệu hoặc deploy production.
+
+### Biên tập Tủ, kết nối TA.CARE và các hàng đối chiếu — 26/10/2026
+
+Hướng mới theo yêu cầu tham khảo Minimal Gallery/21st.dev: Tủ dùng portfolio biên tập với chữ lớn, serif nghiêng, bento ảnh và chương nội dung; TA.CARE dùng khối hai phía kết nối có ảnh, native details và matching thật bên dưới. Giữ navy của Tủ, petrol của TA.CARE cùng shell/header fluid. Kho sửa hai ảnh giữa về 19%/100px, đưa title lên và bo đều khung chăm cây để nhãn không bị cắt. CSS subgrid đồng bộ các hàng trong cặp và giữa hai cặp cùng hàng, giữ lịch dài đầy đủ. Chi tiết/kiểm chứng tại [báo cáo triển khai](../research/visual_refresh_2026-10-26.md). Geohash/map chỉ ghi lộ trình, chưa tích hợp.
+
+### Lựa chọn cuối từ ba mẫu — 26/10/2026
+
+Chủ dự án từ chối bản editorial/navy và petrol-stage. Hướng hiện tại là **mẫu 1 cho Tủ Hồ Sơ** (giấy kem/cam, ảnh ghim, tiêu đề và tên việc rõ nghĩa) và **mẫu 2 cho TA.CARE** (ảnh lớn, nền trắng/đen, điểm vàng). Tủ brand #b94630/nền #fff9ef, TA.CARE brand #252525/nền #fff. Kho, logo, trạng thái ngữ nghĩa và kích thước shell/header giữ nguyên. CSS cuối `pinboard_home.scss` / `cinematic_home.scss`; giữ `pair_alignment.scss`. Xem [triển khai hai mẫu được chọn](../research/selected_homepages_2026-10-26.md).
+
+Tinh chỉnh được chủ dự án yêu cầu tiếp: riêng hero TA.CARE tràn chiều ngang màn hình, hai lối vào hòa trên ảnh bằng nền tối trong suốt và chữ trắng. Bốn ảnh nghề có nguồn sẵn tự đổi mỗi 6,5 giây, fade 850ms; chữ/nút đứng yên, có trước/sau và pause/resume. Giảm chuyển động tắt autoplay/fade. Ngoại lệ tự chuyển ảnh này thay quy tắc TA.CARE không có carousel trước đây; không áp dụng cho matching hoặc đổi gutter phần còn lại.

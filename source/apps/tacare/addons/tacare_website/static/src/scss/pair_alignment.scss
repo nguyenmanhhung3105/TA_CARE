@@ -1,0 +1,61 @@
+/* Share actual row sizes, including long names/schedules; do not crop data. */
+@supports (grid-template-rows:subgrid) {
+  .tc-live.tc-hub {
+    .lp-sides {grid-template-rows:repeat(10,auto);row-gap:0;}
+    .lp-side {display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:subgrid;grid-row:1 / span 10;}
+    .lp-side figure {grid-row:1;}
+    .lp-side-body,.lp-side-body dl {display:contents;}
+    .lp-side-body {
+      >p,>h2,dt,dd {margin-left:24px;margin-right:24px;}
+      .lp-person {grid-row:2;margin-top:20px;margin-bottom:0;}
+      h2 {grid-row:3;align-self:start;min-height:0;display:block;overflow:visible;-webkit-line-clamp:unset;margin-top:8px;margin-bottom:18px;}
+      .lp-description {grid-row:4;margin-top:0;margin-bottom:16px;}
+      dt {align-self:start;margin-top:0;margin-bottom:4px;}
+      dd {align-self:start;display:block;-webkit-line-clamp:unset;overflow:visible;margin-top:0;margin-bottom:16px;}
+      dt:nth-of-type(1) {grid-row:5;}
+      dd:nth-of-type(1) {grid-row:6;}
+      dt:nth-of-type(2) {grid-row:7;}
+      dd:nth-of-type(2) {grid-row:8;}
+      dt:nth-of-type(3) {grid-row:9;}
+      dd:nth-of-type(3) {grid-row:10;margin-bottom:24px;}
+    }
+    :is(.lp-home-pairs,.lp-pair-list) {
+      row-gap:0;align-items:stretch;
+      .lp-pair {display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:subgrid;grid-row:span 15;row-gap:0;margin-bottom:24px;}
+      .lp-pair-heading {grid-row:1;align-self:start;}
+      .lp-sides {grid-row:2 / span 10;grid-template-rows:subgrid;row-gap:0;}
+      .lp-side-body {
+        >p,>h2,dt,dd {margin-left:16px;margin-right:16px;}
+        .lp-person {margin-top:16px;}
+        h2 {font-size:19px;display:block;overflow:visible;-webkit-line-clamp:unset;min-height:0;margin-bottom:18px;}
+        dd:nth-of-type(2) {display:block;-webkit-line-clamp:unset;overflow:visible;}
+        dd:nth-of-type(3) {margin-bottom:18px;}
+      }
+      .lp-highlights {grid-row:12;align-self:start;}
+      .lp-pair-footer {grid-row:13 / span 2;display:grid;grid-template-rows:subgrid;grid-template-columns:minmax(0,1fr);row-gap:0;>p{grid-row:1;align-self:start;margin-bottom:12px;}.sx-button{grid-row:2;align-self:end;} }
+      .lp-disclosure {grid-row:15;align-self:start;}
+    }
+    @media(max-width:640px) {
+      .lp-sides {grid-template-rows:none;}
+      .lp-side {display:block;grid-row:auto;}
+      .lp-side-body {display:block;padding:20px;dl{display:grid;} >p,>h2,dt,dd{margin-inline:0;}dt,dd{grid-row:auto;}.lp-person{margin-top:0;}dd:nth-of-type(3){margin-bottom:0;} }
+      .lp-bridge {display:none;}
+      :is(.lp-home-pairs,.lp-pair-list) {
+        display:grid;row-gap:24px;
+        .lp-pair {display:block;grid-row:auto;margin-bottom:0;}
+        .lp-sides {grid-template-rows:none;}
+        .lp-side-body {display:block;padding:18px;>p,>h2,dt,dd{margin-inline:0;}.lp-person{margin-top:0;}dd:nth-of-type(3){margin-bottom:0;} }
+        .lp-pair-footer {display:flex;>p{margin-bottom:0;}}
+      }
+    }
+  }
+}
+/* Public previews use equal card heights and aligned actions as well. */
+.tc-live.tc-jobs .km-preview {
+  .km-grid {align-items:stretch;}
+  .km-card {display:grid;grid-template-rows:180px minmax(0,1fr);}
+  .km-body {display:flex;flex-direction:column;}
+  .km-sides {flex:1 1 auto;}
+  .km-body>.sx-button {margin-top:auto;}
+  @media(max-width:640px) {.km-card{grid-template-rows:160px minmax(0,1fr);}}
+}

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Presentation only: retain native field names, explicit IDs, intents and CSRF. -->
+  <template id="work_form_friendly" inherit_id="tacare_website.work_form" priority="2900">
+    <xpath expr="//div[hasclass('fw-page-head')]" position="replace">
+      <header class="fw-page-head ff-page-head">
+        <div><p class="tc-eyebrow" t-esc="'TỦ HỒ SƠ / VIỆC BẠN NHẬN LÀM' if is_service else 'KHO VIỆC LÀM / NHU CẦU CỦA BẠN'"/>
+          <h1 t-esc="('Chỉnh sửa việc nhận làm' if record else 'Thêm việc nhận làm') if is_service else ('Chỉnh sửa tin của bạn' if record else 'Đăng nhu cầu tìm người')"/>
+          <p t-esc="'Giới thiệu việc bạn làm được, nơi nhận làm và mức tiền công mong muốn.' if is_service else 'Cho người nhận việc biết bạn cần làm gì, ở đâu và ngân sách dự kiến.'"/>
+        </div>
+        <span class="ff-head-note"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'pencil-simple'"/></t>Có thể lưu nháp để bổ sung sau</span>
+      </header>
+    </xpath>
+    <xpath expr="//form[@data-work-form]" position="attributes"><attribute name="class" add="ff-editor" separator=" "/></xpath>
+    <xpath expr="//aside[hasclass('ix-editor-guide')]/p" position="replace"><p class="sx-kicker">THÔNG TIN CỦA BẠN</p></xpath>
+    <xpath expr="//aside[hasclass('ix-editor-guide')]/nav" position="replace">
+      <nav aria-label="Đi nhanh đến phần cần điền">
+        <a href="#work-scope"><b>01</b><span>Công việc</span></a>
+        <a href="#work-place"><b>02</b><span>Địa điểm</span></a>
+        <a href="#work-schedule"><b>03</b><span>Thời gian</span></a>
+        <a href="#work-price"><b>04</b><span>Tiền công</span></a>
+        <a href="#work-extra"><b>05</b><span>Thông tin thêm</span></a>
+      </nav>
+    </xpath>
+    <xpath expr="//div[hasclass('ix-guide-note')]" position="replace">
+      <div class="ix-guide-note"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'pencil-simple'"/></t><h3>Điền rõ, dễ kết nối.</h3><p>Thông tin có dấu * cần có để đăng. Những mục còn lại có thể bổ sung khi liên quan.</p><small>Lưu nháp nếu bạn chưa sẵn sàng đăng.</small></div>
+    </xpath>
+    <xpath expr="//section[label/select[@name='profile_id']]" position="attributes"><attribute name="class" add="ff-profile-choice" separator=" "/></xpath>
+    <xpath expr="//section[label/select[@name='profile_id']]/h2" position="replace"><h2>Chọn hồ sơ để lưu việc này</h2><p class="ix-section-help">Mỗi hồ sơ có thể có nhiều việc nhận làm. Hãy chọn đúng hồ sơ của bạn.</p></xpath>
+    <xpath expr="//section[label/select[@name='profile_id']]/a" position="attributes"><attribute name="class">ff-button ff-button-quiet</attribute></xpath>
+    <xpath expr="//section[@id='work-place']/h2" position="replace"><h2>Bạn làm việc ở đâu?</h2></xpath>
+    <xpath expr="//section[@id='work-place']/p[hasclass('ix-section-help')]" position="replace"><p class="ix-section-help">Chọn cách thực hiện. Với việc tại chỗ, chấm vị trí trên bản đồ rồi kiểm tra địa chỉ.</p></xpath>
+    <xpath expr="//label[input[@name='matching_enabled']]" position="attributes"><attribute name="class" add="ff-matching-option" separator=" "/></xpath>
+    <xpath expr="//div[hasclass('fw-form-actions')]" position="replace">
+      <div class="fw-form-actions ff-save-panel">
+        <div class="ff-save-copy"><strong t-esc="'Lưu việc nhận làm của bạn' if is_service else 'Sẵn sàng đăng nhu cầu?'"/><p t-esc="'Bật nhận việc cho mục này. Quyền chia sẻ hồ sơ vẫn do bạn quản lý riêng.' if is_service else 'Kiểm tra lại công việc, địa điểm, lịch và tiền công trước khi đăng.'"/></div>
+        <div class="ff-save-buttons">
+          <button type="submit" class="ff-button ff-button-secondary" name="intent" value="draft" formnovalidate="formnovalidate"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'pencil-simple'"/></t>Lưu nháp</button>
+          <button type="submit" class="ff-button ff-button-primary" name="intent" value="publish"><span t-esc="'Lưu và bật nhận việc' if is_service else ('Lưu và đăng tin' if record else 'Đăng nhu cầu')"/><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'check'"/></t></button>
+          <a class="ff-button ff-button-quiet" t-att-href="'/tuhoso/profiles?kind=flexible' if is_service else '/kvl/flexible/mine'">Quay lại danh sách</a>
+        </div>
+      </div>
+    </xpath>
+  </template>
+
+  <template id="profile_create_friendly" inherit_id="tacare_website.provider_everyday_create" priority="2900">
+    <xpath expr="//div[hasclass('sx-create-layout')]" position="attributes"><attribute name="class" add="ff-profile-create" separator=" "/></xpath>
+    <xpath expr="//aside[hasclass('sx-create-story')]" position="replace">
+      <aside class="sx-create-story ff-create-guide"><span class="ff-create-icon"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'stack'"/></t></span><p class="sx-kicker">TỦ HỒ SƠ CỦA BẠN</p><h1>Tạo hồ sơ nhận việc</h1><p>Một nơi giới thiệu những việc bạn làm được để kết nối với nhu cầu phù hợp.</p>
+        <ol class="ff-create-steps"><li aria-current="step"><b>1</b><div><strong>Đặt tên hồ sơ</strong><p>Một tên gợi rõ việc bạn nhận làm.</p></div></li><li><b>2</b><div><strong>Thêm việc nhận làm</strong><p>Điền khả năng, địa điểm, lịch và tiền công.</p></div></li></ol>
+        <p class="ff-private-note"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'lock-simple'"/></t>Bạn quyết định khi nào chia sẻ hồ sơ.</p>
+      </aside>
+    </xpath>
+    <xpath expr="//section[hasclass('sx-create-form')]/p[hasclass('sx-kicker')]" position="replace"><p class="sx-kicker">BƯỚC 1 / ĐẶT TÊN</p></xpath>
+    <xpath expr="//section[hasclass('sx-create-form')]/h2" position="replace"><h2>Hồ sơ này giới thiệu việc gì?</h2></xpath>
+    <xpath expr="//section[hasclass('sx-create-form')]/p[not(@*)]" position="replace"><p>Đặt tên theo nhóm việc bạn làm được, chẳng hạn “Chăm cây và vườn nhỏ cuối tuần”. Bạn có thể đổi tên sau.</p></xpath>
+    <xpath expr="//form[@action='/tuhoso/profiles/create']" position="attributes"><attribute name="class" add="ff-simple-form" separator=" "/></xpath>
+    <xpath expr="//form[@action='/tuhoso/profiles/create']/button" position="replace"><button class="ff-button ff-button-primary" type="submit">Tạo hồ sơ và tiếp tục<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></button></xpath>
+  </template>
+
+  <template id="profile_metadata_friendly" inherit_id="tacare_website.profile_metadata_everyday" priority="2900">
+    <xpath expr="//div[hasclass('tc-page-head')]" position="attributes"><attribute name="class" add="ff-page-head" separator=" "/></xpath>
+    <xpath expr="//div[hasclass('tc-page-head')]/h1" position="replace"><h1>Giới thiệu hồ sơ của bạn</h1></xpath>
+    <xpath expr="//div[hasclass('ix-metadata-layout')]" position="attributes"><attribute name="class" add="ff-metadata-layout" separator=" "/></xpath>
+    <xpath expr="//form[@action='/tuhoso/profile/save']" position="attributes"><attribute name="class" add="ff-metadata-form" separator=" "/></xpath>
+    <xpath expr="//div[hasclass('fw-form-actions')]" position="replace"><div class="fw-form-actions ff-save-panel"><div class="ff-save-copy"><strong>Lưu phần giới thiệu</strong><p>Địa điểm, lịch và tiền công được điền riêng trong từng việc nhận làm.</p></div><div class="ff-save-buttons"><button class="ff-button ff-button-primary" type="submit"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'check'"/></t>Lưu hồ sơ</button><a class="ff-button ff-button-secondary" t-att-href="'/tuhoso/profile/%s' % profile.id">Trở về hồ sơ</a></div></div></xpath>
+  </template>
+</odoo>

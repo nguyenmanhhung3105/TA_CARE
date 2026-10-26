@@ -3,7 +3,7 @@ import math
 from urllib.parse import urlsplit
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
-from .hr_job import validate_numeric_values
+from ..jobs.hr_job import validate_numeric_values
 
 CAREER_LEVELS = [('intern', 'Thực tập / đang học'), ('junior', 'Mới bắt đầu'),
                  ('middle', 'Có kinh nghiệm'), ('senior', 'Chuyên môn sâu')]

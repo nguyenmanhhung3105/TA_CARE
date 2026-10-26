@@ -9,7 +9,7 @@ from odoo.exceptions import ValidationError
 from odoo.http import request
 
 from ...controllers.live import TacareLive
-from ...models.flexible_work import WORK_MODES, SCHEDULES, PAY_UNITS, PAY_BASES, WEEKDAYS, TOOLS
+from ...models.marketplace.flexible_work import WORK_MODES, SCHEDULES, PAY_UNITS, PAY_BASES, WEEKDAYS, TOOLS
 
 
 from ..khovieclam.flexible import KhoFlexible
@@ -71,5 +71,11 @@ class ProfileFlexible(KhoFlexible):
     def service_form(self, record_id=None, **kw):
         self._flex_user()
         item = self._flex_own('care.profile.capability', record_id) if record_id else False
+        source = self._source_job(kw.get('source_job_id')) if kw.get('source_job_id') else False
+        vals = self._work_values(item)
+        if source and not item:
+            # Suggest category only: schedule, skill claims and pay belong to
+            # the provider and must be supplied explicitly by that person.
+            vals['flex_category_id'] = str(source.flex_category_id.id)
         return self._render('work_form', site='tuhoso', record=item, is_service=True,
-                            vals=self._work_values(item), error=False)
+                            vals=vals, source_job=source, error=False)

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="kvl_marketing_matching" inherit_id="tacare_website.kvl_everyday_home" priority="2100">
+    <xpath expr="//t[@t-call='tacare_website.service_scenarios']" position="before">
+      <section t-if="marketing_matches" class="sx-shell sx-section km-preview" aria-labelledby="km-title" id="matching-preview">
+        <div class="sx-section-heading">
+          <div><p class="sx-kicker">TỪ NHU CẦU ĐẾN KẾT NỐI</p><h2 id="km-title">Có việc cần làm.<br/>Có khả năng phù hợp.</h2></div>
+          <p class="km-intro">Một vài nhu cầu đang có gợi ý nhận làm từ TA.CARE.<br/>Biết đâu, kết nối tiếp theo là của bạn.</p>
+        </div>
+        <div class="km-grid">
+          <article t-foreach="marketing_matches" t-as="preview" class="km-card">
+            <figure class="km-photo"><img t-att-src="preview['photo']" width="720" height="360" alt="Ảnh minh họa nhóm công việc" loading="lazy"/><figcaption><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'handshake'"/></t>Có gợi ý phù hợp</figcaption></figure>
+            <div class="km-body">
+              <div class="km-sides">
+                <section class="km-need"><p class="sx-kicker">BÊN CẦN NGƯỜI</p><h3 t-esc="preview['job_title']"/><p class="km-location"><t t-esc="preview['region']"/> · <t t-esc="preview['schedule']"/></p><p class="km-price" t-esc="preview['price']"/></section>
+                <section class="km-provider"><span class="km-provider-icon" aria-hidden="true"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'user-circle'"/></t></span><p class="sx-kicker">BÊN NHẬN LÀM</p><h3 t-esc="preview['category']"/><p>Đã có hồ sơ được thuật toán gợi ý cho nhu cầu này.</p><small>Thông tin hồ sơ chỉ hiện cho tài khoản có quyền.</small></section>
+              </div>
+              <a class="sx-button" t-att-href="urls['tacare'] + 'tacare/matching'" t-esc="'Đăng nhập để xem matching của bạn' if is_guest else 'Xem matching của tôi'"/>
+              <p class="km-note">Gợi ý hiện tại, chưa phải thỏa thuận nhận việc. Ảnh minh họa lĩnh vực.</p>
+            </div>
+          </article>
+        </div>
+        <div class="km-start"><p>Muốn có kết quả của riêng bạn? Đăng nhu cầu hoặc tạo hồ sơ nhận làm. Khi thông tin phù hợp, hệ thống sẽ gợi ý để bạn xem chi tiết.</p><div><a class="sx-text-link" href="/kvl/flexible/new">Đăng nhu cầu</a><a t-if="'tuhoso' in switch_sites" class="sx-text-link" t-att-href="urls['tuhoso'] + 'tuhoso/profiles/new?kind=flexible'">Tạo hồ sơ nhận làm</a></div></div>
+      </section>
+    </xpath>
+  </template>
+</odoo>

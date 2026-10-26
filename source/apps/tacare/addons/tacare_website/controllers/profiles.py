@@ -8,6 +8,18 @@ from ..sites.tuhoso.flexible import ProfileFlexible
 
 
 class TacareProfiles(ProfileFlexible):
+    def _source_job(self, value):
+        if not value:
+            return request.env['hr.job'].sudo().browse()
+        try:
+            job_id = int(value)
+        except (TypeError, ValueError):
+            raise BadRequest('Tin tham khảo không hợp lệ.')
+        job = request.env['hr.job'].sudo().search(self._job_domain() + [('id', '=', job_id)], limit=1)
+        if not job:
+            raise NotFound('Tin tham khảo không còn mở.')
+        return job
+
     def _render(self, template, site='tacare', **values):
         if template in ('kvl_job_detail', 'kvl_candidate_detail') and '/tacare/job/' in request.httprequest.path:
             site = 'tacare'
@@ -105,23 +117,34 @@ class TacareProfiles(ProfileFlexible):
         self._flex_user()
         if kw.get('kind') == 'recruitment':
             raise NotFound()
-        return self._render('profile_create', site='tuhoso', vals={**kw, 'kind':'flexible'}, error=False)
+        job = self._source_job(kw.get('source_job_id'))
+        vals = {**kw, 'kind': 'flexible'}
+        if job:
+            vals.setdefault('profile_title', 'Nhận ' + job.flex_category_id.name.lower())
+        return self._render('profile_create', site='tuhoso', vals=vals, source_job=job, error=False)
 
     @http.route('/tuhoso/profiles/create', auth='user', website=True, methods=['POST'])
     def create_profile(self, **kw):
         self._flex_user()
         title = (kw.get('profile_title') or '').strip()
         kind = kw.get('kind')
+        try:
+            job = self._source_job(kw.get('source_job_id'))
+        except NotFound:
+            return self._render('profile_create', site='tuhoso', vals=kw, source_job=False,
+                error='Tin tham khảo không còn mở. Tên bạn đã nhập được giữ lại; có thể tạo hồ sơ độc lập hoặc quay lại chọn tin khác.')
         if kind != 'flexible':
             raise BadRequest('Chỉ hỗ trợ hồ sơ nhận việc thời vụ.')
-        if set(kw) - {'csrf_token', 'profile_title', 'kind'} or not 2 <= len(title) <= 160:
+        if set(kw) - {'csrf_token', 'profile_title', 'kind', 'source_job_id'} or not 2 <= len(title) <= 160:
             return self._render('profile_create', site='tuhoso', vals=kw,
-                error='Nhập tên hồ sơ nhận việc từ 2–160 ký tự.')
+                source_job=job, error='Nhập tên hồ sơ nhận việc từ 2–160 ký tự.')
         profile = request.env['tacare.profile'].sudo().create({
             'user_id': self._user().id, 'name': self._user().name, 'profile_title': title,
-            'care_recruitment_enabled': False, 'scope': 'private', 'visible': False})
+            'care_recruitment_enabled': False, 'scope': 'private', 'visible': False,
+            'source_job_id': job.id})
         self._audit('profile.created', profile)
-        return request.redirect('/tuhoso/work/new?profile_id=%s' % profile.id)
+        return request.redirect('/tuhoso/work/new?profile_id=%s%s' % (profile.id,
+            '&source_job_id=%s' % job.id if job else ''))
 
     @http.route()
     def profile_public(self, profile_id, **kw):

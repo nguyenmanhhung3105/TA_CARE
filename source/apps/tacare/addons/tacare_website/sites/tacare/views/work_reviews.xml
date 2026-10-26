@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="shared_profile_reviews" inherit_id="tacare_website.hub_shared_profile_everyday" priority="1800">
+    <xpath expr="//t[@t-call='tacare_website.live_layout']" position="inside">
+      <section class="tc-card wr-summary"><t t-set="is_service" t-value="True"/><t t-call="tacare_website.review_summary"/></section>
+    </xpath>
+  </template>
+
+  <template id="connection_work_reviews" inherit_id="tacare_website.hub_connection_workspace" priority="1800">
+    <xpath expr="//div[hasclass('tc-detail-grid')]" position="after">
+      <section class="tc-card wr-workspace" id="work-progress">
+        <header><p class="sx-kicker">TỪ TRAO ĐỔI ĐẾN HOÀN THÀNH</p><h2>Thực hiện và đánh giá công việc</h2></header>
+        <div t-if="work_error" class="tc-error" role="alert" t-esc="work_error"/>
+        <p t-if="item.status != 'accepted'">Hai bên cần đồng ý trao đổi trước khi lập thỏa thuận nhận việc.</p>
+        <t t-elif="not participation">
+          <p>Thống nhất phạm vi, lịch cụ thể và tiền công. Chỉ sau khi cả hai xác nhận, hệ thống mới ghi nhận đã chốt người làm.</p>
+          <form t-if="work_side" class="tc-form" t-att-action="'/tacare/connection/%s/work' % item.id" method="post">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+            <label for="work-offer">Việc nhận làm được thống nhất<select id="work-offer" name="capability_id" required="required"><option value="">Chọn việc nhận làm</option><option t-foreach="offer_options" t-as="offer" t-att-value="offer.id" t-att-selected="str(offer.id) == work_vals.get('capability_id')" t-esc="offer.title"/></select></label>
+            <label for="work-terms">Phạm vi, lịch và tiền công đã trao đổi<textarea id="work-terms" name="terms" minlength="20" maxlength="4000" rows="5" required="required" placeholder="Ví dụ: Dọn bếp và phòng khách ngày 28/10, 08:00–11:00. 80.000đ/giờ/người. Bên thuê chuẩn bị dụng cụ." t-esc="work_vals.get('terms', '')"/></label>
+            <button type="submit" class="tc-button">Xác nhận của tôi và gửi thỏa thuận</button>
+          </form>
+        </t>
+        <t t-else="">
+          <p class="wr-state" t-esc="dict(participation._fields['state'].selection)[participation.state]"/>
+          <h3 t-esc="participation.capability_id.title"/>
+          <p class="tc-prose" t-esc="participation.terms"/>
+          <dl class="wr-confirmations"><dt>Bên cần người</dt><dd t-esc="'Đã xác nhận nhận việc' if participation.buyer_confirmed else 'Chờ xác nhận'"/><dt>Người nhận việc</dt><dd t-esc="'Đã xác nhận nhận việc' if participation.provider_confirmed else 'Chờ xác nhận'"/><t t-if="participation.state in ('in_progress','completion_pending','completed','disputed')"><dt>Xác nhận hoàn thành</dt><dd><t t-esc="'Bên cần: đã xác nhận' if participation.buyer_completed else 'Bên cần: đang chờ'"/> · <t t-esc="'Người nhận: đã xác nhận' if participation.provider_completed else 'Người nhận: đang chờ'"/></dd></t></dl>
+          <p t-if="participation.issue_note" class="tc-error" t-esc="participation.issue_note"/>
+          <form t-if="work_side and participation.state not in ('completed', 'cancelled', 'disputed')" class="tc-form" t-att-action="'/tacare/connection/%s/work/action' % item.id" method="post">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+            <div class="wr-actions"><button t-if="participation.state == 'proposed' and not participation[work_side + '_confirmed']" class="tc-button" name="action" value="confirm">Đồng ý thỏa thuận nhận việc</button><button t-if="participation.state == 'confirmed'" class="tc-button" name="action" value="start">Bắt đầu thực hiện</button><button t-if="participation.state in ('in_progress','completion_pending') and not participation[work_side + '_completed']" class="tc-button" name="action" value="complete">Xác nhận công việc đã hoàn thành</button><button t-if="participation.state in ('proposed','confirmed')" class="tc-button tc-outline" name="action" value="cancel">Hủy thỏa thuận</button></div>
+            <details t-if="participation.state in ('confirmed','in_progress','completion_pending')"><summary>Công việc có bất đồng?</summary><label for="work-issue">Nội dung cần làm rõ<textarea id="work-issue" name="note" maxlength="2000" rows="3" t-esc="work_vals.get('note', '')"/></label><button class="tc-button tc-outline" name="action" value="dispute">Báo bất đồng và dừng xác nhận</button></details>
+          </form>
+          <section t-if="participation.state == 'completed'" class="wr-review-area">
+            <h3>Đánh giá sau khi hoàn thành</h3>
+            <p>Hai phía đánh giá độc lập. Công bố khi cả hai đã gửi hoặc sau 14 ngày tính từ lúc hoàn thành. Không sửa sau khi gửi; không đưa số điện thoại, email hay địa chỉ riêng vào bình luận.</p>
+            <form t-if="work_side and not own_review" class="tc-form" t-att-action="'/tacare/connection/%s/review' % item.id" method="post">
+              <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+              <fieldset class="wr-stars"><legend t-esc="'Bạn đánh giá người nhận việc' if work_side == 'buyer' else 'Bạn đánh giá bên cần người'"/><label t-foreach="range(1,6)" t-as="star"><input type="radio" name="rating" t-att-value="star" t-att-checked="str(star) == work_vals.get('rating')" required="required"/><span aria-hidden="true">★</span><span><t t-esc="star"/> sao</span></label></fieldset>
+              <label for="review-comment">Nhận xét về công việc<textarea id="review-comment" name="comment" required="required" minlength="5" maxlength="2000" rows="4" t-esc="work_vals.get('comment', '')"/></label>
+              <button class="tc-button" type="submit">Gửi đánh giá</button>
+            </form>
+            <p t-if="own_review" role="status">Bạn đã gửi đánh giá cho lượt thực hiện này.</p>
+          </section>
+          <div class="wr-reviews"><article t-foreach="work_reviews" t-as="review" class="wr-review"><h3 t-esc="'Bên cần người đánh giá người nhận' if review.author_side == 'buyer' else 'Người nhận đánh giá bên cần người'"/><strong><t t-esc="review.rating"/> / 5 sao</strong><p class="tc-prose" t-esc="review.reason"/><small t-esc="'Đã công bố' if review.published else 'Chưa công bố hoặc đã được quản trị ẩn'"/>
+            <form t-if="role == 'admin'" class="tc-form" method="post" t-att-action="'/tacare/review/%s/moderate' % review.id"><input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/><label t-att-for="'review-reason-%s' % review.id">Lý do kiểm duyệt<input t-att-id="'review-reason-%s' % review.id" name="reason" required="required" maxlength="1000"/></label><button class="tc-button tc-outline" name="moderation" t-att-value="'visible' if review.moderation == 'hidden' else 'hidden'" t-esc="'Hiện lại đánh giá' if review.moderation == 'hidden' else 'Ẩn đánh giá'"/></form>
+          </article></div>
+        </t>
+      </section>
+    </xpath>
+  </template>
+</odoo>

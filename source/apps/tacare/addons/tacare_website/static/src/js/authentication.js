@@ -49,8 +49,14 @@ function initCareAuthentication() {
     if (!link || dialog.contains(link) || link.target || link.hasAttribute('download')) return;
     const url = new URL(link.href,location.href);
     if (url.origin !== location.origin) return;
-    const explicit = link.hasAttribute('data-login-open') || pathOf(url) === '/web/login';
-    const requiresLogin = root.dataset.accessGuest === '1' && /^\/(kvl|tuhoso|tacare)(\/|$)/.test(pathOf(url));
+    const path = pathOf(url).replace(/\/+$/, '') || '/';
+    const explicit = link.hasAttribute('data-login-open') || path === '/web/login';
+    // Mirror the server's read-only catalog exception. Opening a published
+    // need is public; previews, profile creation and all writes stay protected.
+    const publicCatalog = path === '/kvl/jobs' || /^\/kvl\/job\/\d+$/.test(path) ||
+      /^\/kvl\/flexible\/\d+\/image$/.test(path);
+    const requiresLogin = root.dataset.accessGuest === '1' && !publicCatalog &&
+      /^\/(kvl|tuhoso|tacare)(\/|$)/.test(path);
     if (explicit || requiresLogin) {
       event.preventDefault();
       open(explicit ? url.searchParams.get('redirect') || '/' : url.pathname + url.search, link);

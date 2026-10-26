@@ -1,5 +1,7 @@
 # Phạm vi sản phẩm TA.CARE
 
+> **Cập nhật 24/10/2026:** đã bổ sung local tin mở công khai → tạo hồ sơ sau đăng nhập và đánh giá hai chiều sau xác nhận hoàn thành. Xem [triển khai và giới hạn](research/public_jobs_work_reviews_2026-10-24.md). Accepted vẫn chỉ là đồng ý trao đổi; lượt thực hiện là đối tượng riêng.
+
 **Quyết định chủ dự án ngày 22/10/2026, sau trao đổi với mentor:** TA.CARE là nền tảng ghép nối việc thời vụ đa ngành. Tuyển dụng nhân sự, CV ứng tuyển và vị trí nhân viên dài hạn đã được loại khỏi phạm vi. Quyết định này thay thế phân chia “tuyển dụng + việc linh hoạt” trong các tài liệu ngày 19–21/10; tài liệu cũ chỉ là lịch sử.
 
 ## Mục tiêu và ba không gian

@@ -1,4 +1,5 @@
 from urllib.parse import urlencode
+import re
 
 from werkzeug.exceptions import Forbidden, abort
 from odoo import api, models
@@ -75,8 +76,15 @@ class IrHttp(models.AbstractModel):
                                path.startswith(('/web/assets/', '/web/image/', '/web/content/',
                                                 '/web/session/', '/web/login/', '/auth_oauth/',
                                                 '/website/translations/', '/care/sso/')))
+            # Only read-only catalog routes are public. Private previews, writes,
+            # matching and profile namespaces retain the normal login gate.
+            public_catalog = (request.httprequest.method in ('GET', 'HEAD') and
+                              (path == '/kvl/jobs' or re.fullmatch(r'/kvl/job/\d+', path) or
+                               re.fullmatch(r'/kvl/flexible/\d+/image', path)))
             blocked = (prefix and (not request.session.uid or not host_allowed or not route_allowed)) or \
                       (user and not host_allowed and not public_plumbing)
+            if public_catalog:
+                blocked = False
             if blocked:
                 if request.httprequest.method in ('GET', 'HEAD') and rule.endpoint.routing['type'] == 'http':
                     target = request.httprequest.full_path.rstrip('?') if route_allowed else '/'

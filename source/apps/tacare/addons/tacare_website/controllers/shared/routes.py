@@ -8,7 +8,7 @@ from werkzeug.exceptions import BadRequest, Forbidden, NotFound
 from odoo import http, fields
 from odoo.http import request
 
-from ...models.hr_job import SECTORS, TYPES, MODES, preferred_currency
+from ...models.jobs.hr_job import SECTORS, TYPES, MODES, preferred_currency
 from ..site_context import site_context
 
 
@@ -117,7 +117,7 @@ class SharedControllers(http.Controller):
 
     def _job_domain(self):
         website = self._website('khovieclam')
-        return [('care_opportunity_kind', '=', 'flexible'), ('tacare_status', '=', 'published'), ('is_published', '=', True),
+        return [('care_opportunity_kind', '=', 'flexible'), ('care_remaining_slots', '>', 0), ('tacare_status', '=', 'published'), ('is_published', '=', True),
                 ('website_id', '=', website.id), ('company_id', '=', website.company_id.id), '|', ('tacare_deadline', '=', False),
                 ('tacare_deadline', '>=', fields.Date.today())]
 

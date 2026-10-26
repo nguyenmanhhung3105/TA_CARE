@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="hub_connection_home" inherit_id="tacare_website.hub_everyday_home" priority="2400">
+    <xpath expr="//section[hasclass('hx-hero')]" position="replace">
+      <section class="cn-intro sx-shell" aria-labelledby="cn-title">
+        <div class="cn-hero" data-work-carousel="1" data-work-autoplay="1" role="region" aria-roledescription="carousel" aria-label="Ảnh minh họa các nhóm công việc">
+          <figure t-foreach="['repair','cooking','cleaning','farm']" t-as="code" data-work-slide="1" t-att-class="'cn-slide is-active' if code_index == 0 else 'cn-slide'" t-att-aria-hidden="'false' if code_index == 0 else 'true'" t-att-inert="None if code_index == 0 else 'inert'"><img class="cn-photo" t-att-src="service_by_code[code]['photo']" width="1600" height="1000" t-att-alt="'Ảnh minh họa ' + service_by_code[code]['label'].lower()" t-att-loading="'eager' if code_index == 0 else 'lazy'" t-att-fetchpriority="'high' if code_index == 0 else 'auto'" decoding="async"/></figure>
+          <div class="cn-shade" aria-hidden="true"/>
+          <div class="cn-photo-controls"><t t-call="tacare_website.service_gallery_controls"/></div>
+          <div class="cn-copy"><p class="cn-kicker">TA.CARE / KẾT NỐI CÔNG VIỆC THỜI VỤ</p><h1 id="cn-title">Kết nối việc cần làm<br/>với người phù hợp.</h1><p>Đối chiếu đầu việc, khu vực, lịch và tiền công.<br/>Hai bên cùng trao đổi để bắt đầu.</p><a class="sx-button cn-primary" href="/tacare/matching">Xem gợi ý phù hợp<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></a></div>
+          <nav class="cn-choices" aria-label="Chọn hướng kết nối"><a href="/tacare/matching?view=hire"><span><strong>Tôi cần người làm</strong><small>Đăng nhu cầu và tìm người phù hợp</small></span><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></a><a t-if="'tuhoso' in switch_sites" href="/tacare/matching?view=receive"><span><strong>Tôi muốn nhận việc</strong><small>Giới thiệu khả năng và tìm việc phù hợp</small></span><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></a></nav>
+        </div>
+        <div class="cn-basis-strip"><span><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'hammer'"/></t>Đầu việc &amp; khả năng</span><span><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'calendar-blank'"/></t>Lịch &amp; khu vực</span><span><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'sliders-horizontal'"/></t>Tiền công &amp; điều kiện</span><small>Ảnh minh họa công việc</small></div>
+      </section>
+    </xpath>
+    <xpath expr="//section[hasclass('hx-doorways')]" position="replace">
+      <section class="sx-shell cn-entry" aria-labelledby="cn-entry-title"><header><p class="sx-kicker">HAI CÁCH BẮT ĐẦU</p><h2 id="cn-entry-title">Bạn đang cần điều gì?</h2></header><div class="cn-entry-grid"><a t-att-href="urls['khovieclam'] + 'kvl/flexible/new'"><span>01 / KHO VIỆC LÀM</span><h3>Đăng việc bạn cần người làm.</h3><p>Nêu đầu việc, thời gian, khu vực và ngân sách để tìm gợi ý phù hợp.</p><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></a><a t-if="'tuhoso' in switch_sites" t-att-href="urls['tuhoso'] + 'tuhoso/profiles/new?kind=flexible'"><span>02 / TỦ HỒ SƠ</span><h3>Tạo hồ sơ nhận việc.</h3><p>Giới thiệu những việc có thể làm và điều kiện bạn sẵn sàng nhận.</p><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></a></div></section>
+    </xpath>
+    <xpath expr="//section[hasclass('hx-basis')]" position="replace">
+      <section class="sx-shell cn-how" aria-labelledby="cn-how-title"><header><p class="sx-kicker">GỢI Ý PHẢI CÓ CĂN CỨ</p><h2 id="cn-how-title">Vì sao hai bên<br/>được gợi ý?</h2><p>TA.CARE đối chiếu thông tin được cho phép chia sẻ. Điều chưa rõ vẫn cần được hai bên trao đổi và xác nhận.</p><a class="sx-text-link" href="/tacare/matching">Xem gợi ý của tôi</a></header><div class="cn-questions">
+        <details open="open"><summary><span>01</span>Có thể làm đúng việc cần không?<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'plus'"/></t></summary><p>So sánh nhóm việc và khả năng nhận làm đã khai. Hai bên cần thống nhất thêm phạm vi thực hiện.</p></details>
+        <details><summary><span>02</span>Có hợp lịch và khu vực không?<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'plus'"/></t></summary><p>Đối chiếu cách thực hiện, tỉnh/thành, khoảng ngày và khung giờ. Lịch trống thực tế và quãng đường di chuyển vẫn cần xác nhận.</p></details>
+        <details><summary><span>03</span>Tiền công và điều kiện đã rõ chưa?<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'plus'"/></t></summary><p>Ngân sách và mức nhận cần cùng đơn vị tính. Hai bên trao đổi thêm về dụng cụ, vật tư và các khoản phát sinh.</p></details>
+        <details><summary><span>04</span>Ai được xem hồ sơ và liên hệ?<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'plus'"/></t></summary><p>Chi tiết chỉ mở theo tài khoản, quyền chia sẻ và kết quả đối chiếu hiện hành. Liên hệ cần được chủ hồ sơ đồng ý riêng sau khi hai bên chấp nhận trao đổi.</p></details>
+      </div></section>
+    </xpath>
+    <xpath expr="//t[@t-call='tacare_website.service_steps']" position="replace"><section class="sx-shell cn-closing"><p class="sx-kicker">RÕ VIỆC CẦN LÀM. RÕ ĐIỀU CÓ THỂ LÀM.</p><h2>Bắt đầu một kết nối<br/>phù hợp với bạn.</h2><a class="sx-button" href="/tacare/matching">Xem gợi ý của tôi<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></a><p>Đăng nhập để xem matching thuộc quyền của tài khoản bạn.</p></section></xpath>
+  </template>
+</odoo>

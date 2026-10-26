@@ -9,13 +9,13 @@ from odoo.exceptions import ValidationError
 from odoo.http import request
 
 from ...controllers.live import TacareLive
-from ...models.flexible_work import WORK_MODES, SCHEDULES, PAY_UNITS, PAY_BASES, WEEKDAYS, TOOLS
+from ...models.marketplace.flexible_work import WORK_MODES, SCHEDULES, PAY_UNITS, PAY_BASES, WEEKDAYS, TOOLS
 
 
 from ...controllers.flexible_work import TacareFlexible
 
 class KhoFlexible(TacareFlexible):
-    @http.route()
+    @http.route(methods=['GET'])
     def jobs(self, **kw):
         domain = self._job_domain()
         kind = 'flexible'
@@ -48,7 +48,7 @@ class KhoFlexible(TacareFlexible):
         return self._render('work_jobs', site='khovieclam', jobs=jobs, query=kw,
                             kind=kind, mine=False)
 
-    @http.route()
+    @http.route(methods=['GET'])
     def job_detail(self, job_id, **kw):
         job = request.env['hr.job'].sudo().search(self._job_domain() + [('id', '=', job_id)], limit=1)
         if not job:

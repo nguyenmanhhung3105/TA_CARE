@@ -23,7 +23,7 @@
   .tc-login-story strong { font-size:32px; font-weight:600; line-height:1.5; margin:20px 0; }
   .tc-login-story p { color:#e0ece4; font-size:12px; line-height:1.9; margin:0; }
   .tc-login-content { position:relative; padding:38px 42px 30px; }
-  .tc-login-close { position:absolute; top:12px; right:12px; display:grid; place-items:center; border:0; background:transparent; color:var(--tc-muted); border-radius:50%; width:44px; height:44px; }
+  .tc-login-close { position:absolute; z-index:2; top:12px; right:12px; display:grid; place-items:center; border:0; background:transparent; color:var(--tc-muted); border-radius:50%; width:44px; height:44px; }
   .tc-login-close:hover { background:var(--tc-soft); }
   .tc-login-brand { display:flex; gap:12px; align-items:center; font-size:17px; font-weight:700; margin-bottom:28px; padding-right:15px; }
   .tc-login-brand img { width:40px; height:42px; object-fit:contain; }

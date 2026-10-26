@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="provider_editorial_home" inherit_id="tacare_website.provider_everyday_home" priority="2400">
+    <xpath expr="//div[hasclass('to-home')]" position="replace">
+      <div class="sx-page tp-home pn-home">
+        <section class="sx-shell pn-intro" aria-labelledby="pn-title">
+          <p class="sx-kicker">TỦ HỒ SƠ / HỒ SƠ NHẬN VIỆC THỜI VỤ</p>
+          <h1 id="pn-title">Giới thiệu việc bạn làm được.<span>Tìm việc phù hợp với bạn.</span></h1>
+          <p class="pn-intro-copy">Ghi rõ công việc bạn nhận làm, khu vực, lịch và mức tiền công.<br/> Khi bạn cho phép, TA.CARE sẽ đối chiếu hồ sơ với những nhu cầu phù hợp.</p>
+          <div class="pn-board" aria-label="Ảnh minh họa các nhóm việc có thể nhận làm">
+            <figure class="pn-photo pn-cleaning"><img src="/tacare_website/static/src/img/services/cleaning.webp" width="600" height="800" alt="Ảnh minh họa dọn dẹp nhà cửa"/><figcaption><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'broom'"/></t><span>Dọn dẹp nhà cửa</span></figcaption></figure>
+            <figure class="pn-photo pn-digital"><img src="/tacare_website/static/src/img/services/digital.webp" width="600" height="800" alt="Ảnh minh họa thiết kế và công việc số"/><figcaption><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'paint-brush'"/></t><span>Thiết kế &amp; công việc số</span></figcaption></figure>
+            <figure class="pn-photo pn-garden"><img src="/tacare_website/static/src/img/services/garden.webp" width="600" height="800" alt="Ảnh minh họa chăm sóc cây và làm vườn"/><figcaption><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'plant'"/></t><span>Chăm sóc cây &amp; làm vườn</span></figcaption></figure>
+            <figure class="pn-photo pn-tutoring"><img src="/tacare_website/static/src/img/services/tutoring.webp" width="600" height="800" alt="Ảnh minh họa dạy kèm và chia sẻ kỹ năng"/><figcaption><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'book-open'"/></t><span>Dạy kèm &amp; chia sẻ kỹ năng</span></figcaption></figure>
+            <figure class="pn-photo pn-farm"><img src="/tacare_website/static/src/img/services/farm.webp" width="600" height="800" alt="Ảnh minh họa chăm rau và công việc nông nghiệp"/><figcaption><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'carrot'"/></t><span>Chăm rau &amp; nông nghiệp</span></figcaption></figure>
+            <span class="pn-note">Hồ sơ của bạn.<br/>Thông tin do bạn quản lý.</span>
+          </div>
+          <div class="pn-actions"><a class="sx-button" href="/tuhoso/profiles/new?kind=flexible">Tạo hồ sơ nhận việc<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'arrow-right'"/></t></a><a class="sx-text-link" href="/tuhoso/profiles?scope=mine">Xem hồ sơ của tôi</a></div>
+          <small class="pn-photo-note">Ảnh minh họa các nhóm công việc, không phải hồ sơ người dùng.</small>
+        </section>
+        <section class="sx-shell pn-start" aria-labelledby="pn-start-title"><header><p class="sx-kicker">CHUẨN BỊ HỒ SƠ ĐỂ NHẬN VIỆC</p><h2 id="pn-start-title">Từ việc bạn làm được,<br/>đến hồ sơ rõ ràng.</h2></header><ol class="pn-steps">
+          <li><span>01 / GIỚI THIỆU</span><h3>Tạo hồ sơ nhận việc</h3><p>Giới thiệu bản thân, kinh nghiệm và hướng nhận việc. Bạn có thể có nhiều hồ sơ cho những nhóm việc khác nhau.</p><a class="sx-text-link" href="/tuhoso/profiles/new?kind=flexible">Tạo hồ sơ mới</a></li>
+          <li><span>02 / ĐIỀU KIỆN NHẬN LÀM</span><h3>Thêm việc bạn có thể làm</h3><p>Nêu đầu việc, khu vực, lịch, tiền công và dụng cụ. Cập nhật khi điều kiện nhận làm của bạn thay đổi.</p><a class="sx-text-link" href="/tuhoso/profiles?scope=mine">Cập nhật hồ sơ của tôi</a></li>
+          <li><span>03 / QUYỀN CHIA SẺ</span><h3>Chọn cách tham gia đối chiếu</h3><p>Hồ sơ mới được giữ riêng tư. Bạn quyết định quyền tìm thấy, đối chiếu và chia sẻ liên hệ cho từng hồ sơ.</p><a class="sx-text-link" t-att-href="urls['tacare'] + 'how-it-works'">Tìm hiểu cách kết nối</a></li>
+        </ol></section>
+        <section class="sx-shell pn-categories"><header><p class="sx-kicker">NHIỀU NHÓM VIỆC ĐỂ BẮT ĐẦU</p><h2>Bạn muốn nhận làm việc gì?</h2><p>Chọn một hướng để giới thiệu khả năng của bạn.</p></header><t t-call="tacare_website.service_categories"><t t-set="service_intent" t-value="'offer'"/></t></section>
+        <section class="sx-shell pn-privacy"><t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'lock-simple'"/></t><div><h2>Bạn chọn ai được xem hồ sơ.</h2><p>Quyền đối chiếu và quyền liên hệ được quyết định riêng. Chỉ khi có gợi ý thuộc quyền của tài khoản, bạn mới xem được chi tiết tại TA.CARE.</p></div><a class="sx-text-link" t-att-href="urls['tacare'] + 'tacare/matching?view=receive'">Xem việc phù hợp với tôi</a></section>
+        <section class="sx-shell pn-closing"><p class="sx-kicker">BẮT ĐẦU TỪ KHẢ NĂNG CỦA BẠN</p><h2>Tạo hồ sơ cho những việc<br/>bạn sẵn sàng nhận làm.</h2><a class="sx-button" href="/tuhoso/profiles/new?kind=flexible">Tạo hồ sơ nhận việc<t t-call="tacare_website.service_icon"><t t-set="icon" t-value="'plus'"/></t></a></section>
+      </div>
+    </xpath>
+  </template>
+</odoo>

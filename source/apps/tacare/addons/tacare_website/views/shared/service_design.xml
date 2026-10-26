@@ -234,7 +234,6 @@
         <div class="sx-work-body">
           <div class="sx-work-meta">
             <span t-esc="record.flex_category_id.name" />
-            <small t-if="record.flex_demo_key">Minh họa</small>
           </div>
           <h3>
             <a t-att-href="detail_url" t-esc="record.title if is_service else record.name" />

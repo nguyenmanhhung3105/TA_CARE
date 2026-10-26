@@ -1,4 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_work_order_system,work.order.system,model_care_work_order,base.group_system,1,1,1,0
+access_work_participation_system,work.participation.system,model_care_work_participation,base.group_system,1,1,1,0
 access_tacare_profile_system,tacare.profile.system,model_tacare_profile,base.group_system,1,1,1,1
 access_tacare_profile_skill_system,tacare.profile.skill.system,model_tacare_profile_skill,base.group_system,1,1,1,1
 access_tacare_profile_evidence_system,tacare.profile.evidence.system,model_tacare_profile_evidence,base.group_system,1,1,1,1

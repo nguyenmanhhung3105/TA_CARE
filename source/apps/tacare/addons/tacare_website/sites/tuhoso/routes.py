@@ -10,7 +10,7 @@ from odoo.http import request
 from odoo.exceptions import ValidationError
 from odoo.tools import SQL
 
-from ...models.hr_job import SECTORS, TYPES, MODES, preferred_currency
+from ...models.jobs.hr_job import SECTORS, TYPES, MODES, preferred_currency
 from ...controllers.site_context import site_context
 
 

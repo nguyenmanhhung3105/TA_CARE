@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="public_need_profile_link" inherit_id="tacare_website.work_detail" priority="1800">
+    <xpath expr="//div[hasclass('tc-detail-grid')]/aside" position="inside">
+      <section t-if="not is_service and not owner and (is_guest or role in ('candidate', 'admin'))" class="tc-card wr-create-profile">
+        <h2>Chuẩn bị hồ sơ cho việc này</h2>
+        <p>Xem yêu cầu rồi giới thiệu điều bạn làm được. Hồ sơ mới được giữ riêng tư cho đến khi bạn chọn chia sẻ.</p>
+        <a class="tc-button" t-att-href="urls['tuhoso'] + 'tuhoso/profiles/new?kind=flexible&amp;source_job_id=%s' % record.id">Tạo hồ sơ từ công việc này</a>
+        <small t-if="is_guest">Bạn cần đăng nhập để tạo hồ sơ. Công việc tham khảo được giữ lại sau đăng nhập.</small>
+      </section>
+      <section class="tc-card wr-summary"><t t-call="tacare_website.review_summary"/></section>
+    </xpath>
+  </template>
+</odoo>

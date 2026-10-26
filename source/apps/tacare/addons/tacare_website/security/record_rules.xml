@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+  <record id="rule_work_order_admin_company" model="ir.rule">
+    <field name="name">Work order: admin allowed companies</field>
+    <field name="model_id" ref="model_care_work_order"/>
+    <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+    <field name="domain_force">[('company_id', 'in', user.company_ids.ids)]</field>
+  </record>
+  <record id="rule_work_participation_admin_company" model="ir.rule">
+    <field name="name">Work participation: admin allowed companies</field>
+    <field name="model_id" ref="model_care_work_participation"/>
+    <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+    <field name="domain_force">[('company_id', 'in', user.company_ids.ids)]</field>
+  </record>
+  <record id="rule_feedback_admin_company" model="ir.rule">
+    <field name="name">Feedback: admin allowed companies</field>
+    <field name="model_id" ref="model_care_feedback"/>
+    <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+    <field name="domain_force">[('company_id', 'in', user.company_ids.ids)]</field>
+  </record>
   <record id="rule_job_requirement_business_organization" model="ir.rule">
     <field name="name">TA.CARE business job requirements in active organizations</field>
     <field name="model_id" ref="model_care_job_requirement"/>
