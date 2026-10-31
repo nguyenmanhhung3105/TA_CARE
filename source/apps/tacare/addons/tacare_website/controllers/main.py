@@ -6,6 +6,7 @@ from odoo.addons.website.controllers.main import Website
 from ..models.jobs.hr_job import SECTORS, TYPES, MODES
 from .site_context import safe_next, site_context
 from odoo.addons.tacare_account_access.models.auth_session import FRESH_KEY
+from odoo.addons.tacare_account_access.deployment import origin_info, product_urls
 
 
 class TacareWebsite(Website):
@@ -17,33 +18,11 @@ class TacareWebsite(Website):
             domain if "://" in domain else "//" + domain
         ).hostname or ""
 
-        templates = {
-            "khovieclam.localhost": "tacare_website.khovieclam_home",
-            "khovieclam.vn": "tacare_website.khovieclam_home",
-            "www.khovieclam.vn": "tacare_website.khovieclam_home",
-
-            "tuhoso.localhost": "tacare_website.tuhoso_home",
-            "tuhoso.com": "tacare_website.tuhoso_home",
-            "www.tuhoso.com": "tacare_website.tuhoso_home",
-
-            "tacare.localhost": "tacare_website.tacare_home",
-            "tacare.vn": "tacare_website.tacare_home",
-            "www.tacare.vn": "tacare_website.tacare_home",
-        }
-
-        template = templates.get(host)
-        if not template:
+        info = origin_info(host)
+        if not info:
             return super().index(**kw)
-
-        local = host.endswith(".localhost")
-
-        site = ('khovieclam' if 'khovieclam' in host else
-                'tuhoso' if 'tuhoso' in host else 'tacare')
-        urls = {
-            key: f'http://{key}.localhost:8069/' if local else value
-            for key, value in {'khovieclam': 'https://khovieclam.vn/',
-                               'tuhoso': 'https://tuhoso.com/', 'tacare': 'https://tacare.vn/'}.items()
-        }
+        site = info[1]
+        urls = product_urls(host)
         admin_overview = False
         home_examples = []
         home_suggestions = False
@@ -106,18 +85,9 @@ class TacareWebsite(Website):
                     ('domain', 'ilike', 'khovieclam')], limit=1).id),
             ]),
             'urls': urls,
-            "khovieclam_url": (
-                "http://khovieclam.localhost:8069/"
-                if local else "https://khovieclam.vn/"
-            ),
-            "tuhoso_url": (
-                "http://tuhoso.localhost:8069/"
-                if local else "https://tuhoso.com/"
-            ),
-            "tacare_url": (
-                "http://tacare.localhost:8069/"
-                if local else "https://tacare.vn/"
-            ),
+            "khovieclam_url": urls['khovieclam'],
+            "tuhoso_url": urls['tuhoso'],
+            "tacare_url": urls['tacare'],
         })
         response.headers['Cache-Control'] = 'private, no-store'
         return response
@@ -125,9 +95,7 @@ class TacareWebsite(Website):
     @http.route()
     def web_login(self, redirect=None, **kw):
         host = urlsplit('//' + request.httprequest.host).hostname or ''
-        if host not in ('khovieclam.localhost', 'tuhoso.localhost', 'tacare.localhost',
-                        'khovieclam.vn', 'www.khovieclam.vn', 'tuhoso.com', 'www.tuhoso.com',
-                        'tacare.vn', 'www.tacare.vn'):
+        if not origin_info(host):
             return super().web_login(redirect=redirect, **kw)
         target = safe_next(redirect, request.website.language_ids.mapped('url_code'))
         if request.httprequest.method == 'GET':

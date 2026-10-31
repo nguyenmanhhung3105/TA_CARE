@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <!-- Presentation only. Keep native neutralization and noindex behavior. -->
+  <template id="omit_database_test_banner" inherit_id="web.neutralize_banner" priority="9999">
+    <xpath expr="//span[@id='oe_neutralize_banner']/.." position="replace"/>
+  </template>
+  <template id="omit_database_test_ribbon" inherit_id="website.neutralize_ribbon" priority="9999">
+    <xpath expr="//span[@id='oe_neutralize_ribbon']/.." position="replace"/>
+  </template>
+</odoo>

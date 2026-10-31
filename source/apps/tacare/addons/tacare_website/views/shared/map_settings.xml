@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <record id="map_provider_settings" model="ir.ui.view">
+    <field name="name">tacare.map.provider.settings</field>
+    <field name="model">res.config.settings</field>
+    <field name="inherit_id" ref="website.res_config_settings_view_form"/>
+    <field name="arch" type="xml">
+      <xpath expr="//app[@name='website']" position="inside">
+        <block title="Bản đồ TA.CARE" name="tacare_map_settings" groups="base.group_system">
+          <setting string="Nền bản đồ cho ba website" help="Áp dụng cho bản đồ kết nối TA.CARE và phần chọn vị trí ở Kho Việc Làm, Tủ Hồ Sơ. Vùng di chuyển giới hạn quanh Việt Nam.">
+            <field name="care_map_provider"/>
+            <div class="content-group" invisible="care_map_provider != 'mapbox'">
+              <label for="care_mapbox_public_token"/>
+              <field name="care_mapbox_public_token" placeholder="pk.…"/>
+              <div class="text-muted">Dùng public token chỉ có quyền đọc, giới hạn URL cho các tên miền đang sử dụng. Token này được gửi xuống trình duyệt để tải bản đồ. Mapbox tính mức sử dụng theo tài khoản của bạn.</div>
+            </div>
+          </setting>
+        </block>
+      </xpath>
+    </field>
+  </record>
+</odoo>

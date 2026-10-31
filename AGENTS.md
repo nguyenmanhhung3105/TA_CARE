@@ -1,5 +1,22 @@
 # TA.CARE repository guide
 
+## CI/CD integration, owner request 31 October 2026
+
+The current concise operating guide is `docs/ci_cd.md`. CI in `.github/workflows/ci.yml`
+runs on PRs into `uat`/`main` and is reused by both deployment workflows. Deploy jobs
+require CI success, skip superseded commits and retain the existing shared deploy lock,
+exact-SHA checks, UAT addon-tree gate and production backup/recovery worker. Main PRs
+must come from this repository's `uat`. `tools/ci/run_odoo.py` uses pinned public runtime
+and disposable networkless databases/fixtures only; never use application snapshots or
+historical demo scripts for CI. Local native install/upgrade/security/browser checks passed;
+new Actions/SSH/secrets activation is not yet verified. No production deploy has run here.
+
+## Mapbox trial, owner revision 29 October 2026
+
+The owner subsequently requested removing the native database-testing banner from all UI, including future server deployments. `views/shared/environment_presentation.xml` removes the banner/ribbon markup through child QWeb views even when native neutralization activates the parent views. Preserve neutralization itself, disabled integrations and native noindex metadata; do not enable emails/cron or change `database.is_neutralized` to hide a message. Version 19.0.17.2.1. Verified combined templates with both parent states in a rolled-back ORM check; local upgrade and native HTTP checks cover all three homepages/login pages. Local UI change only; production remains unchanged until an authorized code deployment.
+
+The owner requested trying Mapbox (the platform in the Figma Make + Mapbox reference) and restricting the map to Vietnam. Version 19.0.17.2.0 adds admin-only provider/public-token settings and a lazy Mapbox Standard bridge using public GL APIs, day/flat/no-3D style, preserved attribution and route slot middle. Existing matching, exact consent/account scope, address persistence and coarse counterpart privacy remain. OpenFreeMap remains the actual default until a valid owner-supplied public token is configured; no token is currently provided, so do not claim live Mapbox tiles/colors/performance were verified. Never project sk. tokens. The service rectangle 8–24N/102–110E limits camera/pins; it is not an exact national polygon or all maritime/island coverage. See docs/research/mapbox_vietnam_trial_2026-10-29.md. Local backup/upgrade/browser checks only; no commit/push/production changes authorized by this trial.
+
 TA.CARE connects people, demonstrated skills and opportunities through Kho Việc Làm, Tủ Hồ Sơ and TA.CARE. Local Odoo Community 19 uses one application DB (`tacare_local`), three website records and shared `res.users` accounts. Native cookies remain domain-scoped. On 20 October 2026 the owner authorized browser-bound SSO to synchronize permitted website sessions and global logout within that browser; see `docs/research/implementation_sso_2026-10-20.md`.
 
 **Current product scope, owner decision on 22 October 2026:** TA.CARE is exclusively a seasonal/task-work marketplace connecting people who need work completed with people who can do it. Recruitment and employee hiring are retired. Individuals and businesses may post seasonal needs; individual accounts (`candidate` is the compatibility role key, labelled Cá nhân) can both post needs and offer work. Individuals and admins use all three websites; businesses use Kho + TA.CARE. Preserve native Odoo/addon/model/XML identities for compatibility; do not uninstall HR dependencies or rename storage as a UI change. Every new `hr.job` is flexible and profiles cannot enable recruitment. Old recruitment routes and imports are rejected. See `docs/project_scope.md` and `docs/research/implementation_seasonal_only_2026-10-22.md`.
@@ -138,3 +155,143 @@ The owner's explicit reminder on 27 October: every need and profile must belong 
 The owner now explicitly requests uploading all current code and data to the server as before. This authorizes release preparation/commits and deployment, superseding the local-only/no-commit/no-push restrictions for the selected release. The prior full database+filestore replacement decision remains valid; do not ask the owner to choose that strategy again. Preserve definite account ownership, renamed local test accounts and all 15 jobs / 42 profiles / 51 offers in the selected snapshot. Do not use an older dump or the limited JSON demo gate for this full restore.
 
 Read and verify the live server scripts/configuration, retain a server rollback backup and pass isolated staging before any production cutover. No localhost operational files, plaintext credential lists or secrets in Git/releases. A code push to main starts Actions and must not precede coordinated full-data readiness. `tools/deploy/prepare_full_snapshot.py` prepares only a private local, exact-commit package, checks a disposable restore/neutralized addon upgrade and all referenced attachment checksums; no SSH/push or production action. Actual package/state are in ignored `runtime/releases/current-full-local-restore.json`. At preparation start no local tacare-server SSH alias exists and GitHub SSH read authentication fails; obtain the operator's working private connection rather than inventing hosts/users/paths. See `docs/deploy_full_release_2026-10-27.md`.
+
+The operator now supplied live deploy/helper/worker hashes matching the inspected copies and a successful PG16/systemd `--check`; core matches local `6bae1e2f5eed5aae790944492e3d89d50bab5954`. They uploaded and SHA256-verified `~/tacare-release-4c51a3e.tar.gz`, the full source snapshot of `4c51a3e`, then requested completion instructions. Git push/PR/merge remain operator-managed. No server backup/cutover has yet been confirmed; uploading/renaming a file is not deployment.
+
+`tools/deploy/build_full_restore.py` generates additive full-snapshot commands from the exact inspected worker hash; it never patches the existing deploy/recovery entry points. `upload_full_snapshot.py --tools --upload` sends only the small ops archive. Root installer has preview/default and explicit `--install`; `full-restore.sh --stage` tests an isolated, neutralized incoming restore; `--apply` repeats staging then gates/backups/restores original dump+files+code with native pending/OID rollback. Preserve production config/UUID/cron-by-XMLID/robots/CDN, apply production domains, rotate DB secret/revoke copied SSO, disable local dummy SMTP, reject unreviewed operational integrations/queues. Retain old online DB/code/files and backup archives even after success. Local offline, two disposable DB upgrade/identity/file rehearsals and a networkless root installer/extraction fixture passed; actual server systemd/staging/cutover still require operator terminal results. Do not claim a completed server restore or Git deployment from local tests. See the release guide for commands/recovery and limits.
+
+The operator confirmed the additive tools are installed. Initial server stage/apply both stopped before mutation on a null-key JSON aggregation of an untyped legacy website; service remains active and old counts 23/5/2. Do not call these failed-at-step-1 diagnostic directories a production backup. `fix_full_restore_websites.py` is a hash-pinned, backed-up atomic repair of only the new full_snapshot.py helper; upload via `--fix-websites --upload`. It scopes website metadata to exactly one of each product kind, ignoring untyped legacy websites while rejecting missing/duplicate products; do not edit/delete production websites to bypass the guard. PostgreSQL TEMP regression and networkless root patch tests passed. Repair/server staging/cutover remain unconfirmed until operator supplies results. Keep the existing 60 MiB snapshot/hash unchanged.
+
+Operator then confirmed all three existing production website kinds are NULL, with id 1 khovieclam.vn, id 2 tuhoso.com, id 3 tacare.vn (HTTPS). First repair is installed; staging still stops before mutation on the missing-kind guard. The follow-up `fix_full_restore_domains.py` (`--fix-website-domains --upload`) only adds a read-only runtime fallback from a blank kind to those exact confirmed public domains, preserving unambiguous per-product server robots/CDN metadata. It does not UPDATE production website rows; incoming snapshot inventory still requires actual typed products. Hash-pin the previous helper and keep root lock/backup/atomic guards. Exact reported PostgreSQL TEMP case plus missing/duplicate/lookalike/unknown-kind cases and networkless root two-step repair passed. Domain repair installation, successful server stage and production cutover are still unconfirmed.
+
+Latest operator results supersede that status: domain repair and isolated server staging **passed**, including source identity/domains/672 files and all three home/login probes. Subsequent apply stopped at step 4 before DB/code/files replacement on nullable old CDN runtime metadata; maintenance/service freeze occurred, then native **ROLLBACK OK**, service active and counts still 23/5/2. Root-only runtime capture remains at `/var/backups/tacare-deploy/release-20261026200906_251365/server-runtime.json`; that diagnostic directory is not a completed production backup. `fix_full_restore_runtime.py` (`--fix-runtime --upload`) normalizes nullable CDN/cron flags to False as native Odoo does, validates all runtime types before maintenance, and requires `--runtime-file` to test generation/discard of the complete live SQL against that captured data before atomic helper replacement. No SQL executes in repair. Two disposable DB upgrade/identity/file rehearsals with NULL settings and a networkless root repair/preflight chain passed, 22 offline tests passed. Runtime repair installation/live preflight and actual production cutover still await operator evidence; do not report server updated from staging success.
+
+Production status is now superseded by the operator's complete **FULL RESTORE --apply SUCCESS** for `4c51a3ea5b8ddd29b6f93073289316b5f539c4f2`. Consistent backup, original preservation, incoming restore/upgrade, business identity/count/domain/672-file checks and reopened native login/three-homepage probes passed. Backup `/var/backups/tacare-deploy/release-20261026202143_252103`; originals retained as `tacare_prev_20261026202143_252103`, `.addons-prev-20261026202143_252103` and `.tacare-prev-20261026202143_252103` at the documented production parents. This is an applied production snapshot, not merely an uploaded/staged package. Do not automatically restore older data after this accepted boundary. Authenticated browser map/form validation after cutover remains unconfirmed; Git operations remain owner-managed. Private release report records the exact operator evidence.
+
+Owner subsequently reported login difficulty and asked for current accounts. Production Chrome checks confirmed all eight renamed test accounts authenticate with their saved local passwords (five businesses on Kho, three individuals on Tu), synchronize to TA.CARE and receive authenticated nearby API HTTP 200. Private credentials were read in memory, never logged; no business records/passwords/consents changed, isolated browser contexts closed with logout attempted. Evidence is in ignored `runtime/releases/login-diagnostics/`. Early status polling during SSO caused a tool error; waiting for redirects then checking passed, so do not treat that probe error as a proven product login bug. Provide the eight new logins and private credential-file link; ask which login/site/error if the owner still cannot sign in. Admin/other account credentials remain the copied local values, not necessarily former server values. Full production map rendering/routes/location writes are still outside this login check.
+
+Current performance follow-up: operator reports lag immediately after login. Sequential production Chrome measurements show authenticated HTML ~0.19–1.64s and map API ~0.52–0.65s for tested individual/business accounts; no severe lag reproduced, account/site/device still requested. Direct GET confirms three CSS/JS assets total ~4.27 MB are uncompressed despite Accept-Encoding. Operator metrics: 8 cores, load 0.16, 2.3 GiB available RAM, vmstat CPU idle 87–90%, no swap I/O/iowait; no observed resource exhaustion. Live nginx.conf has gzip on but types/vary/level commented. Prepared `enable_static_gzip.py` (`--static-gzip --upload`): static text types only, preserve data/cache/TLS/proxy, backup + candidate/live nginx tests + graceful reload/rollback, preview default and --apply explicit. Four offline patch/atomic/failure-recovery tests pass; actual container test blocked because local Docker daemon is stopped. Server gzip application and external verification still unconfirmed. See `docs/research/production_login_performance_2026-10-27.md`; do not roll back/delete live data or increase workers blindly.
+
+Owner confirmed static gzip applied with Nginx tests/reload successful; external GET verifies gzip/Vary and three files 4.27 MB -> 0.99 MB, correct decoded sizes. Owner narrows lag to TA.CARE/map. A/B Chrome shows eager map costs ~4x ScriptDuration and more heap/resources even before scrolling to canvas. Local commit `1dadb8e52cd828d9bc6a45f86ffd6008c36a35e4` on `release/full-map-20261027` changes only map startup to observe actual canvas at 10% visibility with no prefetch margin, defer to idle/timer and prevent repeated scheduling; addon version 19.0.17.1.0. Location pickers and matching/privacy/routing remain unchanged. Actual initializer VM and native authenticated Chrome candidate-bundle override pass at 1366/375, no library/API before scroll, real map/results after scroll, one mount and mobile idle fallback. Docker remains stopped, no local addon upgrade. Commit not pushed/deployed; owner manages push/PR/main to trigger code-only Actions. Do not rerun the old full restore to ship this frontend fix; preserve all current production data. Root ops/tooling and deployment-status documentation remain outside this focused local commit and uncommitted, as shown by git status.
+
+## Persistent server UAT, owner request 31 October 2026
+
+The owner authorized implementing server UAT, explicitly cancelled local staging,
+and requested copying the **current server source** for its initial code/data.
+Do not bootstrap it from the full local working tree or the old full-restore dump.
+`tools/deploy/uat_package.py` packages only hash-pinned UAT adapters/root tools;
+server `uat.py setup` copies live addons/core/runtime and pg_dumps production
+read-only, verifies copied attachment checksums, then neutralizes/upgrades only
+the clone. Existing production deploy/helper/worker hashes supplied by the owner
+still match the inspected copies. No production addon/database/Odoo changes are
+authorized by the initial UAT bootstrap; additive Nginx UAT configuration and
+graceful reload are part of the authorized setup.
+
+See `docs/uat_server.md`. A private persistent PG16 instance reuses installed
+binaries, uses only its own Unix socket and UAT/maintenance databases, and avoids
+changing production PostgreSQL authentication/roles. UAT has separate users,
+source/config/filestore/sessions, egress blocks, native neutralization, private
+Basic Auth and three HTTPS `uat.*` hosts. `TACARE_ENVIRONMENT=uat` enables only
+those exact origins; default local/production behavior excludes UAT. Native
+website fallback must also reject foreign hosts. Preserve hidden banner policy
+without disabling neutralization/noindex. The bootstrap overlay preserves the
+server manifest assets and excludes local Mapbox/UI changes.
+
+Prepared workflows: push `uat` deploys UAT via a separate forced-command SSH key;
+merge to `main` uses a new release wrapper comparing addon Git tree with the
+UAT-tested tree before delegating to unchanged production backup/rollback worker.
+UAT pauses for production preflight RAM. Code-only flow; never promote the UAT
+database. These files remain local/uncommitted; do not claim CI is active until
+owner pushes and installs/configures tools/secrets. Initial server-copy bootstrap
+has no Git-backed pass and cannot itself unlock a production release.
+
+14 offline boundary tests, 9 deploy/workflow regressions and disposable networkless PG/Odoo/Nginx rehearsals
+passed (672 file references, unchanged credentials/owners, three homepages,
+noindex/banner/foreign-host checks, role scope and disabled SMTP/cron). No local
+staging services remain. SSH alias is still unavailable; server installation,
+DNS/certbot/systemd/firewall, browser SSO and Actions await operator results.
+
+Latest operator result: bootstrap package `6ec6583afc31` uploaded/checksummed,
+preview passed; setup apply copied source/runtime and created the private PG
+instance, then failed at the private UAT pg_restore. It did not reach filestore
+copy/neutralization/addon upgrade/Odoo UAT startup/Nginx changes. Setup state may
+be `initializing`; do not rerun the original setup or delete existing UAT paths
+blindly. The original production code/database were not replaced.
+
+Follow-up diagnostics: pg_restore reports `out of shared memory`; archive list is
+readable, production/private PG both active with zero restarts. The initial UAT
+config reduced connections to 20 without raising default 64-lock capacity.
+Prepared `uat.py` sets 1024 locks for new private clusters; `uat_package.py
+--repair-restore --upload` ships only the hash-pinned helper repair and guarded
+resume of this unfinished bootstrap. Resume verifies the exact private DB/config,
+empty relations/functions, inactive app and absence of published UAT resources;
+backs up helper/auto config, raises only private lock capacity and restarts only
+private PG, retries the existing dump atomically, then continues filestore and
+neutralized upgrade/probes. No DB deletion, recopy of source or production PG
+configuration changes. Repair is not yet confirmed applied on the server.
+
+19 offline UAT tests pass. A controlled 5000-table dump reproduces atomic restore
+lock exhaustion at 20 connections/64 locks and rolls back empty; the identical
+dump succeeds at 1024 locks with the same 384 MiB limit. Historical Odoo snapshot
+alone did not reproduce the live failure; it subsequently restores/upgrades and
+passes 672-file, 3-homepage, role, SMTP/cron checks under the corrected PG config.
+
+Latest live result supersedes the failed-bootstrap status: owner ran repair
+package `36d87a55798c`, preview confirmed the empty private target and 20/64
+settings; apply completed with `UAT BOOTSTRAP PASSED`, resume unit exit 0.
+Existing server source/dump were retained, private lock setting updated, atomic
+restore, filestore checks, neutralized upgrade and all three home/login probes
+passed. Separate Nginx UAT configuration gracefully reloaded; production
+addons/database/Odoo unchanged. UAT is now `ready`, HTTPS deliberately closed
+until publish. Do not rerun initial setup/resume or reset this clone. Public DNS
+lookup resolves all three UAT hosts with a shared address; no IP stored/printed.
+Certbot/TLS/renewal/Basic Auth, browser SSO and GitHub CI activation still await
+live results. No commit/push/PR/merge has been performed by the agent.
+
+Next operator publish stopped at `Command failed: systemctl`, diagnostic in
+root-only `private/publish.log`. External HTTPS probes with normal certificate
+validation now return HTTP 401 on all three UAT hosts: TLS and the anonymous
+access gate are live despite the incomplete publish command. Do not claim
+renewal/hook/state/browser/CI completion. Need filtered systemctl error and
+Certbot timer inventory to distinguish reload failure from the hardcoded
+`certbot.timer` enable step (snap deployments use a different timer). Do not
+reset/recreate the UAT clone or regenerate access credentials to address this.
+
+Operator confirmed the publish error is the missing `certbot.timer`; this server
+uses Snap with `snap.certbot.renew.timer` enabled. Prepared helper now discovers
+the unique existing active/loaded Snap or package timer (rejects ambiguity), and
+supports guarded completion of already-live HTTPS. `uat_package.py
+--repair-publish --upload` carries only a helper update pinned to the deployed
+`36d87a55798c` helper plus repair command; preview rechecks managed Nginx/TLS,
+anonymous/authenticated access and noindex. Apply retains certs/credentials/
+Nginx/app/data, installs only UAT lineage renewal hook, ensures the existing
+timer and saves published state. No reissuance or restore. New publish checks
+timer availability before issuance and uses keep-until-expiring. Repair is not
+yet confirmed applied; ACME dry-run, browser SSO and CI remain pending.
+
+Publish completion package is `79c23608976f`, with 28 offline UAT tests passing,
+Python syntax/security/whitespace checks passed. Tests cover Snap/package timer
+selection, ambiguity/masked guards, read-only preview, preserving credentials/
+Nginx, no certificate/DB/reload commands in completion, and Basic Auth via stdin.
+No server application of this publish repair is yet confirmed.
+
+Latest owner result supersedes that pending state: publish repair `79c23608976f`
+apply returned `UAT HTTPS PUBLISHED`, reverified existing TLS/auth/noindex, selected
+`snap.certbot.renew.timer`, installed the UAT lineage hook, confirmed timer active
+and saved `published` state. Certs/credentials/Nginx/source/data were preserved.
+External post-publish probes verify trusted HTTPS and anonymous HTTP 401 on all
+three UAT domains. Do not rerun bootstrap/resume or rotate credentials. Shared
+outer Basic Auth username is `uat`, generated password stays only in server's
+root-only `/var/lib/tacare-uat/private/access.json`; direct operator viewing is
+appropriate, never copy its value into source/chat/logs. Inner Odoo credentials
+are those copied from production at snapshot time. Browser SSO/forms, scoped
+ACME dry-run, and GitHub CI secrets/workflow activation remain pending.
+
+Owner now explicitly asks to self-manage the shared outer UAT login/password.
+This authorizes that credential change when the operator enters it; preserve
+inner Odoo/production accounts. `tools/deploy/server/change_uat_access.py` is a
+pasteable interactive server script using the installed helper, getpass/TTY,
+shared lock, private backup, stdin SHA512-crypt and atomic synchronized updates
+to access.json/htpasswd, with Nginx reload and three-host HTTPS verification or
+rollback. No secret in argv/history/output, no extra bootstrap/DB change. Four
+synthetic rotation tests passed; no operator execution/new values confirmed yet.

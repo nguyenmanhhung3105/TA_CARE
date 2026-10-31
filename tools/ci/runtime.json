@@ -1,0 +1,6 @@
+{
+  "odoo_commit": "6bae1e2f5eed5aae790944492e3d89d50bab5954",
+  "odoo_archive_sha256": "aba0472ff8b40bcf18002015cb157300e42db88f70a0c9be2e62dd1272ef7a17",
+  "playwright_image": "mcr.microsoft.com/playwright:v1.58.2-noble@sha256:6446946a1d9fd62d9ae501312a2d76a43ee688542b21622056a372959b65d63d",
+  "postgres_image": "postgres:16@sha256:1beaa3084eee2676f20a9cd9928f0bf2c5bf674f8e49f81017912183d377c61c"
+}

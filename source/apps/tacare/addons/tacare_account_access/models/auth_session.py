@@ -67,7 +67,8 @@ class CareAuthHandoff(models.TransientModel):
     family_id = fields.Many2one('care.auth.session', required=True, ondelete='cascade')
     source_origin = fields.Char(required=True)
     targets = fields.Json(required=True)
-    network = fields.Selection([('local', 'Local'), ('production', 'Production')], required=True)
+    network = fields.Selection([('local', 'Local'), ('production', 'Production'),
+                               ('uat', 'UAT')], required=True)
     return_path = fields.Char(required=True, default='/')
     phase = fields.Selection([('prepare', 'Chuẩn bị'), ('authorize', 'Xác nhận nguồn'),
                               ('finish', 'Hoàn tất'), ('done', 'Đã dùng')], required=True, default='prepare')

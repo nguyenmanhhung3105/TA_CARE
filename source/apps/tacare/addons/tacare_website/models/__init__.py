@@ -1,5 +1,6 @@
 """Register models in compatibility order, grouped by business responsibility."""
 from .foundation import identity
+from .foundation import map_settings
 from .foundation import taxonomy
 from .jobs import hr_job
 from .jobs import job_requirement

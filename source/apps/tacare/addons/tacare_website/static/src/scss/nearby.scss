@@ -1,4 +1,8 @@
 /* Scoped map workspace; the existing shared shell/gutters remain authoritative. */
+.gm-mapbox-layer { position: absolute; pointer-events: none;
+    .mapboxgl-control-container { pointer-events: none; }
+    .mapboxgl-ctrl { pointer-events: auto; }
+}
 .gm-section {
     --gm-ink: #252525; --gm-surface: #f6f7f2; --gm-line: #dce1d9; --gm-accent: #f5e79d;
     padding-top: 64px; padding-bottom: 64px; color: var(--gm-ink);
