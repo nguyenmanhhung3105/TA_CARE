@@ -2,7 +2,7 @@
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const source=fs.readFileSync('source/apps/tacare/addons/tacare_website/static/src/js/nearby.js','utf8');
 for(const mode of ['idle','timer','missing-canvas']){
- const queued=[],assets=[],observers=[];const canvas={};
+ const queued=[],assets=[],observers=[];const canvas={closest:()=>null};
  const root={dataset:{guest:'0',role:'business'},querySelector:selector=>selector==='[data-nearby-canvas]'?(mode==='missing-canvas'?null:canvas):{textContent:''}};
  const document={readyState:'complete',querySelectorAll:selector=>selector==='[data-nearby-map]'?[root]:[],
   createElement:tag=>({tag}),head:{append:node=>assets.push(node)}};

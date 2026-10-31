@@ -1,8 +1,11 @@
-/* Local Leaflet/MapLibre assets; OpenFreeMap supplies visible geographic tiles. */
+/* Lazy basemaps: existing OpenFreeMap, or configured Mapbox Standard. */
 (() => {
     'use strict';
     const ASSET = '/tacare_website/static/';
     const DEFAULT = [10.7769, 106.7009];
+    // Application service rectangle, not a political/national boundary polygon.
+    const VIETNAM_BOUNDS = [[8, 102], [24, 110]];
+    const MAPBOX_CDN = 'https://api.mapbox.com/mapbox-gl-js/v3.33.0/';
     // Area reference points, not an address geocoder or administrative catalog.
     const AREAS = [
         ['TP. Hồ Chí Minh · trung tâm', 10.7769, 106.7009], ['Bình Thạnh', 10.8106, 106.7091],
@@ -16,21 +19,25 @@
         ['Nha Trang', 12.2388, 109.1967], ['Đà Lạt', 11.9404, 108.4583],
         ['Biên Hòa', 10.9574, 106.8427], ['Vũng Tàu', 10.346, 107.0843],
     ];
-    let leafletPromise;
-    function leaflet() {
-        if (!leafletPromise) {
-            for (const href of ['lib/leaflet/leaflet.css', 'lib/maplibre/maplibre-gl.css']) {
-                const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = ASSET + href; document.head.append(css);
+    const libraryPromises = new Map();
+    function leaflet(provider) {
+        if (!libraryPromises.has(provider)) {
+            const mapbox = provider === 'mapbox';
+            for (const href of [ASSET + 'lib/leaflet/leaflet.css', mapbox ? MAPBOX_CDN + 'mapbox-gl.css' : ASSET + 'lib/maplibre/maplibre-gl.css']) {
+                const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = href; document.head.append(css);
             }
             const script = src => new Promise((resolve, reject) => {
-                const n = document.createElement('script'); n.src = ASSET + src;
-                n.onload = resolve; n.onerror = () => reject(new Error('Không tải được thư viện bản đồ.')); document.head.append(n);
+                const n = document.createElement('script'); n.src = src;
+                const timer = setTimeout(() => { n.remove(); reject(new Error('Thư viện bản đồ phản hồi quá lâu.')); }, 15000);
+                n.onload = () => { clearTimeout(timer); resolve(); };
+                n.onerror = () => { clearTimeout(timer); n.remove(); reject(new Error('Không tải được thư viện bản đồ.')); }; document.head.append(n);
             });
-            leafletPromise = script('lib/leaflet/leaflet.js').then(() => script('lib/maplibre/maplibre-gl.js'))
-                .then(() => script('lib/maplibre/leaflet-maplibre-gl.js')).then(() => window.L)
-                .catch(error => { leafletPromise = null; throw error; });
+            libraryPromises.set(provider, (window.L ? Promise.resolve() : script(ASSET + 'lib/leaflet/leaflet.js'))
+                .then(() => script(mapbox ? MAPBOX_CDN + 'mapbox-gl.js' : ASSET + 'lib/maplibre/maplibre-gl.js'))
+                .then(() => mapbox ? undefined : script(ASSET + 'lib/maplibre/leaflet-maplibre-gl.js')).then(() => window.L)
+                .catch(error => { libraryPromises.delete(provider); throw error; }));
         }
-        return leafletPromise;
+        return libraryPromises.get(provider);
     }
     function node(tag, text, className) {
         const n = document.createElement(tag);
@@ -39,19 +46,29 @@
         return n;
     }
     async function makeMap(canvas, status, center = DEFAULT) {
-        const L = await leaflet();
+        const config = canvas.closest('[data-map-provider]')?.dataset || {};
+        const provider = config.mapProvider === 'mapbox' && /^pk\.[A-Za-z0-9_.-]{20,2000}$/.test(config.mapToken || '') ? 'mapbox' : 'openfreemap';
+        const L = await leaflet(provider);
         const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const map = L.map(canvas, {scrollWheelZoom: false, minZoom: 3, maxZoom: 18,
-            maxBounds: [[6, 100], [26, 112]], fadeAnimation: !reduced, zoomAnimation: !reduced,
+        const map = L.map(canvas, {scrollWheelZoom: false, minZoom: 6, maxZoom: 18,
+            maxBounds: VIETNAM_BOUNDS, maxBoundsViscosity: 1, attributionControl: provider !== 'mapbox',
+            fadeAnimation: !reduced, zoomAnimation: provider !== 'mapbox' && !reduced,
             markerZoomAnimation: !reduced}).setView(center, 12);
         try {
-            const tiles = L.maplibreGL({style: 'https://tiles.openfreemap.org/styles/liberty',
-                attribution: '<a href="https://openfreemap.org/" target="_blank" rel="noopener">OpenFreeMap</a> · © <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> · © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'}).addTo(map);
-            const gl = tiles.getMaplibreMap();
+            const tiles = provider === 'mapbox' ? window.careMapboxLayer(L, {token: config.mapToken}).addTo(map) :
+                L.maplibreGL({style: 'https://tiles.openfreemap.org/styles/liberty',
+                    attribution: '<a href="https://openfreemap.org/" target="_blank" rel="noopener">OpenFreeMap</a> · © <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> · © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'}).addTo(map);
+            const gl = provider === 'mapbox' ? tiles.gl : tiles.getMaplibreMap();
             map.careGL = gl;
-            gl.on('style.load', () => { window.careMapServices.palette(gl); canvas.dataset.mapPalette = 'soft'; });
-            gl.on('error', () => { status.textContent = 'Không tải được một phần nền bản đồ. Bạn vẫn có thể nhập tọa độ hoặc xem danh sách gợi ý.'; });
-            gl.on('idle', () => { status.textContent = ''; canvas.dataset.baseLoaded = '1'; });
+            canvas.dataset.mapProvider = provider;
+            let baseError = false;
+            gl.on('style.load', () => {
+                baseError = false;
+                if (provider === 'openfreemap') window.careMapServices.palette(gl);
+                canvas.dataset.mapPalette = provider === 'mapbox' ? 'mapbox-standard' : 'soft';
+            });
+            gl.on('error', () => { baseError = true; status.textContent = 'Không tải được một phần nền bản đồ. Bạn vẫn có thể nhập tọa độ hoặc xem danh sách gợi ý.'; });
+            gl.on('idle', () => { if (!baseError) { status.textContent = ''; canvas.dataset.baseLoaded = '1'; } });
         } catch (_) { status.textContent = 'Trình duyệt chưa mở được nền bản đồ WebGL. Bạn vẫn có thể nhập tọa độ hoặc xem danh sách gợi ý.'; }
         new ResizeObserver(() => map.invalidateSize({pan: false})).observe(canvas);
         canvas.careMap = map;
@@ -84,6 +101,10 @@
             addressPreview.dataset.empty = value.trim() ? '0' : '1';
         }
         function place(p, move = true) {
+            if (!Array.isArray(p) || !p.every(Number.isFinite) || p[0] < 8 || p[0] > 24 || p[1] < 102 || p[1] > 110) {
+                status.textContent = 'Chọn vị trí trong phạm vi Việt Nam được hỗ trợ.';
+                sync(false); return;
+            }
             lat.value = p[0].toFixed(6); lon.value = p[1].toFixed(6);
             status.textContent = 'Đã chọn điểm. Bấm lưu để áp dụng vị trí này.';
             sync(move);
@@ -226,7 +247,7 @@
         const gl = map?.careGL;
         function drawRoute() {
             if (!activeRoute?.route) return;
-            if (gl && canvas.dataset.mapPalette === 'soft') {
+            if (gl && canvas.dataset.mapPalette) {
                 const feature = {type: 'Feature', properties: {}, geometry: {
                     type: 'LineString', coordinates: activeRoute.route.points.map(p => [p[1], p[0]])}};
                 if (!gl.getSource('tacare-route')) gl.addSource('tacare-route', {type: 'geojson', data: feature});
@@ -235,11 +256,12 @@
                 // Liberty. Insert after every road/bridge, before text labels.
                 // Full world geometry survives camera/viewport changes.
                 const before = gl.getStyle().layers.find(layer => layer.type === 'symbol' && layer.layout?.['text-field'])?.id;
+                const placement = canvas.dataset.mapProvider === 'mapbox' ? {slot: 'middle'} : {};
                 if (!gl.getLayer('tacare-route-casing')) gl.addLayer({id: 'tacare-route-casing',
-                    type: 'line', source: 'tacare-route', layout: {'line-join': 'round', 'line-cap': 'round'},
+                    ...placement, type: 'line', source: 'tacare-route', layout: {'line-join': 'round', 'line-cap': 'round'},
                     paint: {'line-color': '#ffffff', 'line-width': 6, 'line-opacity': .9}}, before);
                 if (!gl.getLayer('tacare-route-line')) gl.addLayer({id: 'tacare-route-line',
-                    type: 'line', source: 'tacare-route', layout: {'line-join': 'round', 'line-cap': 'round'},
+                    ...placement, type: 'line', source: 'tacare-route', layout: {'line-join': 'round', 'line-cap': 'round'},
                     paint: {'line-color': '#4285f4', 'line-width': 3.5}}, before);
                 canvas.dataset.routeVisible = '1';
             } else if (!gl && routeLayer) {
@@ -254,7 +276,7 @@
             routeLayer?.clearLayers(); routePanel.hidden = true; canvas.dataset.routeVisible = '0';
             routePanel.querySelector('[data-geo-route-metrics]').hidden = true;
             routePanel.querySelector('[data-geo-directions]').removeAttribute('href');
-            if (gl && canvas.dataset.mapPalette === 'soft') gl.getSource('tacare-route')?.setData({type: 'FeatureCollection', features: []});
+            if (gl && canvas.dataset.mapPalette) gl.getSource('tacare-route')?.setData({type: 'FeatureCollection', features: []});
         }
         root.querySelector('[data-geo-route-clear]').addEventListener('click', clearRoute);
         async function showRoute(item) {

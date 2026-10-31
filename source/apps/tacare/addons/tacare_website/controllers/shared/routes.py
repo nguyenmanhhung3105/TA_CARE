@@ -10,6 +10,7 @@ from odoo.http import request
 
 from ...models.jobs.hr_job import SECTORS, TYPES, MODES, preferred_currency
 from ..site_context import site_context
+from odoo.addons.tacare_account_access.deployment import origin_info, product_urls
 
 
 class SharedControllers(http.Controller):
@@ -85,16 +86,15 @@ class SharedControllers(http.Controller):
         return request.env['website'].sudo().search([('domain', 'ilike', site)], limit=1)
 
     def _urls(self):
-        host = (urlsplit('//' + request.httprequest.host).hostname or '').lower()
-        local = host.endswith('.localhost') or host in ('localhost', '127.0.0.1')
-        if local:
-            return {key: f'http://{key}.localhost:8069/' for key in ('khovieclam', 'tuhoso', 'tacare')}
-        return {'khovieclam': 'https://khovieclam.vn/', 'tuhoso': 'https://tuhoso.com/',
-                'tacare': 'https://tacare.vn/'}
+        try:
+            return product_urls(request.httprequest.host)
+        except ValueError:
+            raise BadRequest('Website không hợp lệ.')
 
     def _render(self, template, site='tacare', **values):
+        info = origin_info(request.httprequest.host)
         if template in ('live_connections', 'live_connection_detail', 'live_notifications') and \
-                (urlsplit('//' + request.httprequest.host).hostname or '').startswith('khovieclam.'):
+                info and info[1] == 'khovieclam':
             site = 'khovieclam'
         from ..seasonal import marketplace_context
         if site in ('khovieclam', 'tuhoso') or template in ('profile_workspace', 'live_matching', 'matching_examples'):

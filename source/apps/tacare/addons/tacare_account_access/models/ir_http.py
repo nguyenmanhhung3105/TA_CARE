@@ -6,6 +6,7 @@ from odoo import api, models
 from odoo.http import request
 from .res_users import hostname, ROLE_HOSTS
 from .auth_session import FAMILY_KEY, FRESH_KEY
+from ..deployment import ENVIRONMENT, origin_info
 
 
 class IrHttp(models.AbstractModel):
@@ -52,6 +53,8 @@ class IrHttp(models.AbstractModel):
         # server, even when its URL is entered manually or under another host.
         path = request.httprequest.path.rstrip('/') or '/'
         host = hostname(request.httprequest.host)
+        if ENVIRONMENT == 'uat' and not origin_info(host):
+            raise Forbidden('Website không thuộc môi trường UAT.')
         managed = host in set().union(*ROLE_HOSTS.values())
         uid = request.session.uid or request.session.get('pre_uid')
         user = request.env['res.users'].sudo().browse(uid).exists() if uid else False
@@ -94,3 +97,11 @@ class IrHttp(models.AbstractModel):
                     abort(request.redirect('/?' + urlencode(query), code=303))
                 raise Forbidden('Đăng nhập tài khoản có quyền sử dụng chức năng trên website này.')
         return super()._pre_dispatch(rule, arguments)
+
+    @classmethod
+    def _serve_fallback(cls):
+        # A 404 can enter native website.page fallback without _pre_dispatch.
+        # Reject foreign hosts here too, before a published page is served.
+        if ENVIRONMENT == 'uat' and not origin_info(request.httprequest.host):
+            raise Forbidden('Website không thuộc môi trường UAT.')
+        return super()._serve_fallback()

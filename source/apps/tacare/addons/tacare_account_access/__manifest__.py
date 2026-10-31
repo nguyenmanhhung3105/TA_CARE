@@ -1,6 +1,6 @@
 {
     'name': 'TA.CARE - Account Website Access',
-    'version': '19.0.4.0.0',
+    'version': '19.0.4.1.0',
     'author': 'TA.CARE',
     'license': 'LGPL-3',
     'depends': ['website', 'portal', 'auth_signup'],

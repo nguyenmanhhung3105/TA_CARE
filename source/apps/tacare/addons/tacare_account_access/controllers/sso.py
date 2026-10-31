@@ -15,27 +15,11 @@ from odoo.http import request
 from odoo.addons.web.controllers.session import Session
 
 from ..models.auth_session import FAMILY_KEY, PENDING_KEY, FRESH_KEY, SYNC_KEY, digest, user_role
-from ..models.res_users import hostname
-
-
-ORIGINS = {
-    'local': {'khovieclam': 'http://khovieclam.localhost:8069',
-              'tuhoso': 'http://tuhoso.localhost:8069', 'tacare': 'http://tacare.localhost:8069'},
-    'production': {'khovieclam': 'https://khovieclam.vn',
-                   'tuhoso': 'https://tuhoso.com', 'tacare': 'https://tacare.vn'},
-}
+from ..deployment import ORIGINS, origin_info as _origin_info
 
 
 def origin_info():
-    host = hostname(request.httprequest.host)
-    for network, sites in ORIGINS.items():
-        for site, origin in sites.items():
-            known_host = urlsplit(origin).hostname
-            if host == known_host:
-                return network, site, origin
-            if network == 'production' and host == 'www.' + known_host:
-                return network, site, 'https://' + host
-    return None
+    return _origin_info(request.httprequest.host)
 
 
 def return_path(value):

@@ -117,8 +117,8 @@ class BundleTests(unittest.TestCase):
                 gate.read_file(link)
 
 
-def workflow_scripts():
-    lines = (ROOT / '.github/workflows/deploy-tacare.yml').read_text().splitlines(True)
+def workflow_scripts(name='deploy-tacare.yml'):
+    lines = (ROOT / '.github/workflows' / name).read_text().splitlines(True)
     scripts = []
     for i, line in enumerate(lines):
         if line == '        run: |\n':
@@ -132,15 +132,6 @@ def workflow_scripts():
 
 
 class WorkflowTests(unittest.TestCase):
-    def selection(self, event, message='', mode='', data=''):
-        with tempfile.TemporaryDirectory() as directory:
-            output = Path(directory) / 'output'
-            output.touch()
-            environment = {**os.environ, 'EVENT_NAME': event, 'HEAD_MESSAGE': message,
-                           'REQUESTED_MODE': mode, 'REQUESTED_DATA': data, 'GITHUB_OUTPUT': str(output)}
-            result = subprocess.run(['bash', '-c', workflow_scripts()[0]], env=environment, capture_output=True, text=True)
-            return result.returncode, output.read_text()
-
     def test_ssh_uses_private_configuration_and_rejects_missing_or_unsafe_values(self):
         with tempfile.TemporaryDirectory() as directory:
             fake = Path(directory) / 'ssh'
@@ -150,15 +141,15 @@ class WorkflowTests(unittest.TestCase):
                            'DEPLOY_HOST': 'deploy.example.invalid', 'DEPLOY_USER': 'release-test',
                            'DEPLOY_PORT': '2222', 'DEPLOY_SSH_KEY': 'synthetic-key',
                            'DEPLOY_KNOWN_HOSTS': 'synthetic-known-hosts', 'COMMIT_SHA': 'a' * 40,
-                           'DEPLOY_MODE': 'code', 'DATA_SHA256': ''}
-            script = workflow_scripts()[1]
+                           'HEAD_MESSAGE': ''}
+            script = workflow_scripts()[-1]
             def run(extra):
                 return subprocess.run(['bash', '-c', script], env={**environment, **extra}, capture_output=True, text=True)
             result = run({})
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn('-p\n2222\n-l\nrelease-test\ndeploy.example.invalid\n', result.stdout)
             self.assertIn('StrictHostKeyChecking=yes', result.stdout)
-            self.assertIn('sudo -n /usr/local/lib/tacare-deploy/deploy.sh ' + 'a' * 40, result.stdout)
+            self.assertIn('sudo -n /usr/local/lib/tacare-uat/release.sh ' + 'a' * 40, result.stdout)
             self.assertNotIn('synthetic-key', result.stdout)
             default_port = run({'DEPLOY_PORT': ''})
             self.assertEqual(default_port.returncode, 0)
@@ -166,25 +157,32 @@ class WorkflowTests(unittest.TestCase):
             for override in ({'DEPLOY_HOST': ''}, {'DEPLOY_USER': ''}, {'DEPLOY_SSH_KEY': ''},
                              {'DEPLOY_KNOWN_HOSTS': ''}, {'DEPLOY_HOST': '-oProxyCommand=bad'},
                              {'DEPLOY_HOST': 'host;bad'}, {'DEPLOY_USER': 'user;bad'},
-                             {'DEPLOY_PORT': '0'}, {'DEPLOY_PORT': '65536'}, {'DEPLOY_PORT': '22;bad'}):
+                             {'DEPLOY_PORT': '0'}, {'DEPLOY_PORT': '65536'}, {'DEPLOY_PORT': '22;bad'},
+                             {'COMMIT_SHA': 'a' * 40 + '; id'},
+                             {'HEAD_MESSAGE': 'release\nTacare-Data-SHA256: ' + 'b' * 64}):
                 result = run(override)
-                self.assertNotEqual(result.returncode, 0)
+                self.assertNotEqual(result.returncode, 0, override)
                 self.assertNotIn('sudo -n', result.stdout)
                 self.assertNotIn('synthetic-key', result.stderr)
 
-    def test_selection_and_safe_inputs(self):
-        key = 'b' * 64
-        self.assertEqual(self.selection('push'), (0, 'mode=code\ndata=\n'))
-        self.assertEqual(self.selection('push', 'Release\n\nTacare-Data-SHA256: ' + key),
-                         (0, 'mode=with-data\ndata=' + key + '\n'))
-        self.assertEqual(self.selection('workflow_dispatch', mode='with-data', data=key)[0], 0)
-        self.assertEqual(self.selection('workflow_dispatch', mode='code')[0], 0)
-        for args in [('push', 'Tacare-Data-SHA256: x'),
-                     ('push', f'Tacare-Data-SHA256: {key}\nTacare-Data-SHA256: {key}'),
-                     ('workflow_dispatch', '', 'with-data', '$(touch /tmp/should-not-run)'),
-                     ('workflow_dispatch', '', 'code', key), ('workflow_dispatch', '', 'unknown', '')]:
-            self.assertNotEqual(self.selection(*args)[0], 0)
-        for script in workflow_scripts():
+    def test_uat_workflow_uses_only_the_separate_uat_account(self):
+        with tempfile.TemporaryDirectory() as directory:
+            fake = Path(directory) / 'ssh'
+            fake.write_text('#!/usr/bin/env bash\nprintf "%s\\n" "$@"\n')
+            fake.chmod(0o755)
+            environment = {**os.environ, 'PATH': directory + ':' + os.environ['PATH'],
+                           'DEPLOY_HOST': 'deploy.example.invalid', 'DEPLOY_USER': 'tacare-uat-deploy',
+                           'DEPLOY_PORT': '', 'DEPLOY_SSH_KEY': 'synthetic-key',
+                           'DEPLOY_KNOWN_HOSTS': 'synthetic-known-hosts', 'COMMIT_SHA': 'a' * 40}
+            script = workflow_scripts('deploy-uat.yml')[-1]
+            result = subprocess.run(['bash', '-c', script], env=environment, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn('sudo -n /usr/local/lib/tacare-uat/deploy.sh ' + 'a' * 40, result.stdout)
+            environment['DEPLOY_USER'] = 'release-test'
+            result = subprocess.run(['bash', '-c', script], env=environment, capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertNotIn('sudo -n', result.stdout)
+        for script in workflow_scripts() + workflow_scripts('deploy-uat.yml'):
             subprocess.run(['bash', '-n'], input=script.encode(), check=True)
 
 

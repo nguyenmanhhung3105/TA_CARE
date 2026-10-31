@@ -1,0 +1,70 @@
+name: Deploy TA.CARE UAT
+
+on:
+  push:
+    branches: [uat]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    if: github.ref == 'refs/heads/uat'
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: ci
+    if: github.ref == 'refs/heads/uat'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    concurrency:
+      group: tacare-server
+      cancel-in-progress: false
+    steps:
+      - name: Skip a superseded UAT commit
+        id: freshness
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          latest=$(gh api "repos/$GITHUB_REPOSITORY/branches/uat" --jq '.commit.sha')
+          if [[ "$latest" == "$RELEASE_SHA" ]]; then
+            echo 'deploy=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'A newer UAT commit exists; skipping this deployment.'
+            echo 'deploy=false' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Deploy exact commit to UAT
+        if: steps.freshness.outputs.deploy == 'true'
+        env:
+          DEPLOY_HOST: ${{ secrets.UAT_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.UAT_DEPLOY_USER }}
+          DEPLOY_PORT: ${{ secrets.UAT_DEPLOY_PORT }}
+          DEPLOY_SSH_KEY: ${{ secrets.UAT_DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.UAT_DEPLOY_KNOWN_HOSTS }}
+          COMMIT_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          : "${DEPLOY_HOST:?Missing UAT_DEPLOY_HOST}"
+          : "${DEPLOY_SSH_KEY:?Missing UAT_DEPLOY_SSH_KEY}"
+          : "${DEPLOY_KNOWN_HOSTS:?Missing UAT_DEPLOY_KNOWN_HOSTS}"
+          [[ "$DEPLOY_USER" == tacare-uat-deploy ]] || { echo 'Expected UAT-only SSH account'; exit 1; }
+          DEPLOY_PORT=${DEPLOY_PORT:-22}
+          [[ "$DEPLOY_HOST" =~ ^[A-Za-z0-9][A-Za-z0-9.-]{0,252}$ ]] || { echo 'Invalid SSH host'; exit 1; }
+          [[ "$DEPLOY_PORT" =~ ^[1-9][0-9]{0,4}$ ]] || { echo 'Invalid SSH port'; exit 1; }
+          (( 10#$DEPLOY_PORT <= 65535 )) || { echo 'Invalid SSH port'; exit 1; }
+          [[ "$COMMIT_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo 'Invalid commit SHA'; exit 1; }
+          ssh_dir=$(mktemp -d)
+          trap 'rm -rf "$ssh_dir"' EXIT
+          printf '%s\n' "$DEPLOY_SSH_KEY" > "$ssh_dir/key"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$ssh_dir/known_hosts"
+          ssh -i "$ssh_dir/key" -o IdentitiesOnly=yes -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$ssh_dir/known_hosts" \
+            -o ConnectTimeout=20 -o ServerAliveInterval=30 -o ServerAliveCountMax=6 \
+            -p "$DEPLOY_PORT" -l "$DEPLOY_USER" "$DEPLOY_HOST" \
+            "sudo -n /usr/local/lib/tacare-uat/deploy.sh $COMMIT_SHA"

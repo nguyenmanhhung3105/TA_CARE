@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <template id="location_picker" name="Chọn vị trí trên bản đồ">
-    <div class="gm-picker" data-geo-picker="1">
+    <t t-set="map_config" t-value="website._care_map_config()"/>
+    <div class="gm-picker" data-geo-picker="1" t-att-data-map-provider="map_config['provider']" t-att-data-map-token="map_config['token']">
       <input type="hidden" name="geo_address" t-att-value="vals.get('geo_address', '')"/>
       <details class="gm-picker-details" open="open"><summary>Chọn vị trí trên bản đồ</summary>
         <label t-att-for="geo_prefix + '-area'">Đến khu vực<select t-att-id="geo_prefix + '-area'" data-geo-area="1"><option value="">Chọn khu vực để di chuyển bản đồ</option></select></label>
@@ -27,7 +28,8 @@
   </template>
   <template id="nearby_home" inherit_id="tacare_website.hub_connection_home" priority="2700">
     <xpath expr="//section[hasclass('cn-intro')]" position="after">
-      <section class="sx-shell gm-section" id="nearby-connections" aria-labelledby="gm-title" data-nearby-map="1" t-att-data-guest="'1' if is_guest else '0'" t-att-data-role="role">
+      <t t-set="map_config" t-value="website._care_map_config()"/>
+      <section class="sx-shell gm-section" id="nearby-connections" aria-labelledby="gm-title" data-nearby-map="1" t-att-data-guest="'1' if is_guest else '0'" t-att-data-role="role" t-att-data-map-provider="map_config['provider']" t-att-data-map-token="map_config['token']">
         <header class="gm-section-head"><h2 id="gm-title">Bản đồ kết nối <span>TA.CARE</span></h2></header>
         <div class="gm-workspace">
           <aside class="gm-sidebar" aria-label="Bộ lọc và gợi ý bản đồ">

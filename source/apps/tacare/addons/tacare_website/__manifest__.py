@@ -1,7 +1,7 @@
 {
     "name": "TA.CARE Website",
     "summary": "Giao diện Kho Việc Làm, Tủ Hồ Sơ và TA.CARE",
-    "version": "19.0.17.1.0",
+    "version": "19.0.17.3.0",
     "author": "TA.CARE",
     "category": "Website",
     "license": "LGPL-3",
@@ -55,6 +55,8 @@
         "sites/tuhoso/views/editorial_home.xml",
         "sites/tacare/views/connection_home.xml",
         "views/shared/nearby.xml",
+        "views/shared/map_settings.xml",
+        "views/shared/environment_presentation.xml",
         "views/shared/form_design.xml",
     ],
     "assets": {
@@ -93,6 +95,7 @@
             "tacare_website/static/src/scss/shared_topbar.scss",
             "tacare_website/static/src/scss/nearby.scss",
             "tacare_website/static/src/js/map_services.js",
+            "tacare_website/static/src/js/mapbox_layer.js",
             "tacare_website/static/src/js/nearby.js",
             "tacare_website/static/src/scss/form_design.scss",
         ],

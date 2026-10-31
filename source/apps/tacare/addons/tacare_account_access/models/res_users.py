@@ -1,23 +1,8 @@
-from urllib.parse import urlsplit
 from odoo import api, fields, models, _, Command
 from odoo.exceptions import AccessDenied, AccessError
 from odoo.http import request
 
-ROLE_HOSTS = {
-    'business': {'khovieclam.vn', 'www.khovieclam.vn', 'tacare.vn', 'www.tacare.vn',
-                 'khovieclam.localhost', 'tacare.localhost'},
-    'candidate': {'tuhoso.com', 'www.tuhoso.com', 'tacare.vn', 'www.tacare.vn',
-                  'tuhoso.localhost', 'tacare.localhost', 'khovieclam.localhost',
-                  'khovieclam.vn', 'www.khovieclam.vn'},
-    'pending': set(),
-}
-
-
-def hostname(value):
-    value = (value or '').strip()
-    if not value:
-        return ''
-    return (urlsplit(value if '://' in value else '//' + value).hostname or '').lower().rstrip('.')
+from ..deployment import hostname, ROLE_HOSTS, origin_info, ENVIRONMENT
 
 
 class ResUsers(models.Model):
@@ -83,6 +68,8 @@ class ResUsers(models.Model):
     def _tacare_can_access_host(self, host):
         self.ensure_one()
         user = self.sudo()
+        if ENVIRONMENT == 'uat' and not origin_info(host):
+            return False
         # Individuals can both post seasonal needs and offer their own work.
         if user.has_group('base.group_system') or user._is_public():
             return True

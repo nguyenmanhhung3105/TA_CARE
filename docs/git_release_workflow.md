@@ -1,5 +1,14 @@
 # Push nhánh, tạo pull request và deploy TA.CARE
 
+> Quy trình vận hành hiện tại: [CI/CD TA.CARE](ci_cd.md), gồm CI bắt buộc, UAT và phát hành production.
+> Các bước phát hành trực tiếp từ feature branch vào main bên dưới là lịch sử.
+
+> **Luồng UAT được owner chọn 31/10:** hướng dẫn mới ở [UAT trên server](uat_server.md).
+> Sau khi cài UAT và cấu hình secrets/workflows: push `uat` để kiểm tra trên
+> `uat.*`, review rồi merge `uat → main`; production chỉ nhận addon tree đã thử.
+> Công cụ/workflows mới đang được chuẩn bị local, chưa được xác nhận cài/activate
+> trên server/GitHub. Phần dưới là lịch sử phát hành 23/10, không thay thế luồng mới.
+
 > **Thay đổi phạm vi phát hành 23/10:** chủ dự án đã chọn thay toàn bộ database và filestore bằng local, sau đó sắp xếp lại các doanh nghiệp demo. Luồng merge ở dưới chỉ triển khai code, không làm phần thay database. Có thể push nhánh để review; đợt hiện tại cần phối hợp merge/cutover theo [bản chuẩn bị dữ liệu đầy đủ](deploy_data_preparation_2026-10-23.md) sau khi kiểm tra server và staging. Không coi Actions xanh là đã chuyển xong dữ liệu local.
 
 Nhánh cho đợt chuyển sang thời vụ và làm mới giao diện: `update/seasonal-platform-ui`, được tạo từ local `main`. Đây là hướng dẫn chạy bởi chủ dự án; agent chỉ tạo nhánh và commit local, không push/merge/deploy.
